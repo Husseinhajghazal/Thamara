@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FlashCards</string>
+    <string name="home">Home</string>
+    <string name="decks">Decks</string>
+    <string name="statistics">Statistics</string>
+
+    <string name="library">Library</string>
+    <string name="browse">Browse</string>
+
+    <string name="play">Play</string>
+</resources>

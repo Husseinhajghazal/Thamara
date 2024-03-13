@@ -1,0 +1,8 @@
+package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel
+
+import androidx.compose.runtime.Immutable
+
+@Immutable
+interface PlayUiActions {
+    fun onSelectAnswer(value: String)
+}
