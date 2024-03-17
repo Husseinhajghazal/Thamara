@@ -18,9 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardHeight
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksGroup
 
 @Composable
 fun PaginatedDecksList(
@@ -87,7 +86,7 @@ private fun LazyGridScope.deckItem(
     ) {
         DeckItem(
             deckHeader = deck,
-            onClick = { onClickDeck(deck.id) }
+            onClick = { onClickDeck(deck.id!!) }
         )
     }
 }
@@ -98,12 +97,12 @@ private fun LazyGridScope.deckItems(
 ) {
     items(
         items = decks,
-        key = { it.id },
+        key = { it.id!! },
         contentType = { "c" }
     ) { deck ->
         DeckItem(
             deckHeader = deck,
-            onClick = { onClickDeck(deck.id) }
+            onClick = { onClickDeck(deck.id!!) }
         )
     }
 }

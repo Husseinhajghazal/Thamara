@@ -9,23 +9,22 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.colorAccent
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckCard
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
@@ -91,7 +90,7 @@ private fun DeckItemPreviewLight() {
             color = MaterialTheme.colorScheme.background,
         ) {
             val deck = DeckHeader(
-                colorAccent = Color.Red,
+                color =  Color.Red.toArgb(),
                 cardsCount = 10,
             )
             val colors = listOf(
@@ -115,7 +114,7 @@ private fun DeckItemPreviewLight() {
                     DeckItem(
                         deckHeader = DeckHeader(
                             name = "deck $it",
-                            colorAccent = it,
+                            color =  it.toArgb(),
                             cardsCount = 10,
                         ),
                         onClick = { }

@@ -5,4 +5,7 @@ import androidx.compose.runtime.Immutable
 @Immutable
 interface PlayUiActions {
     fun onSelectAnswer(value: String)
+    fun onStartPlay()
+    fun onRepeat()
+    fun onClose()
 }

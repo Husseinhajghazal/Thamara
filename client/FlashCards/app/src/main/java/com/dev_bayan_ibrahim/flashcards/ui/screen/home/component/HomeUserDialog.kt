@@ -1,19 +1,15 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.dev_bayan_ibrahim.flashcards.data.model.user.MutableUser
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.BasicTextFieldBox
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckCard
@@ -137,7 +132,7 @@ private fun HomeUserDialogPreviewLight() {
             modifier = Modifier,
             color = MaterialTheme.colorScheme.background,
         ) {
-            val user = MutableUser()
+            val user = User(name = "", age = 0, rank = 0)
             HomeUserDialog(
                 show = true,
                 name = user.name,

@@ -40,6 +40,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -69,26 +70,53 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
 
+    // general
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serilalization.json)
     implementation(libs.kotlinx.datetime)
     implementation(libs.windowsizeclass)
+
+    // room
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
+
+    // navigation
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.androidx.navigation.compose)
 
+    // data store
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.core)
+
+    // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-
+    // paging
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    // coil
     implementation(libs.coil.kt.compose)
     implementation(libs.coil.kt)
+
+    // ktor
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.engine.android)
+    implementation(libs.ktor.logging)
+//    implementation(libs.ktor.auth)
+    implementation(libs.ktor.content.negotiation)
+    implementation(libs.ktor.serialization)
+
+    // coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.guava)
+
+    // desugar
+    coreLibraryDesugaring(libs.android.desugar.jdk.lib)
+
 
     testImplementation(libs.junit)
 

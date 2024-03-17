@@ -1,9 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 
 
-import android.media.MediaRouter.UserRouteInfo
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,22 +13,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
-import com.dev_bayan_ibrahim.flashcards.data.model.user.MutableUser
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
-import java.util.Vector
 
 @Composable
 fun HomeUser(
@@ -51,7 +46,7 @@ fun HomeUser(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.star,
                     label = "plays",
-                    value = user.decksPlays.toString(),
+                    value = "0",
                 )
                 UserInfo(
                     modifier = Modifier.weight(1f),
@@ -151,7 +146,7 @@ private fun HomeUserPreviewLight() {
             modifier = Modifier.size(400.dp, 900.dp),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val user = MutableUser("name", 10, 10, 20)
+            val user = User(name = "name", age = 10, rank = 10)
             HomeUser(user = user)
         }
     }

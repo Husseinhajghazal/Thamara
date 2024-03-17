@@ -2,11 +2,16 @@ package com.dev_bayan_ibrahim.flashcards.ui.app.graph
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavArgs
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavActions
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
+import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes.Play
+import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes.TopLevel
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.PlayRoute
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.DecksRoute
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.HomeRoute
@@ -22,29 +27,41 @@ fun FlashNavGraph(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = FlashNavRoutes.TopLevel.Home.route
+        startDestination = TopLevel.Home.route
     ) {
-        FlashNavRoutes.TopLevel.entries.forEach { screen ->
+        TopLevel.entries.forEach { screen ->
             composable(screen.route) {
                 when (screen) {
-                    FlashNavRoutes.TopLevel.Home -> {
+                    TopLevel.Home -> {
                         HomeRoute()
                     }
 
-                    FlashNavRoutes.TopLevel.Decks -> {
-                        DecksRoute()
+                    TopLevel.Decks -> {
+                        DecksRoute {
+                            navActions.navigateTo(Play.getDestination(it))
+                        }
                     }
 
-                    FlashNavRoutes.TopLevel.Statistics -> {
+                    TopLevel.Statistics -> {
                         StatisticsRoute()
                     }
                 }
             }
         }
         composable(
-            route = FlashNavRoutes.Play.route
+            route = Play.route,
+            arguments = listOf(
+                navArgument(Play.Arg.id.name) {
+                    type = NavType.LongType
+                }
+            )
         ) {
-            PlayRoute()
+            it.arguments?.getLong(Play.Arg.id.name)?.let { deckId ->
+                PlayRoute(
+                    id = deckId,
+                    navigateUp = navActions::navigateUp
+                )
+            } ?: navActions.navigateUp()
         }
     }
 }

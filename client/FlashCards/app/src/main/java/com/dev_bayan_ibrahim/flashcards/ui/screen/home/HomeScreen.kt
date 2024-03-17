@@ -3,13 +3,18 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
+import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
+import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeGeneralStatistics
+import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeTimeStatisticsItemsPager
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUser
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUserDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel.HomeMutableUiState
@@ -21,10 +26,13 @@ import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     state: HomeUiState,
+    user: User?,
+    generalStatistics: GeneralStatistics,
+    timedStatistics: Map<TimeGroup, TimeStatisticsItem>,
     actions: HomeUiActions,
 ) {
     HomeUserDialog(
-        show = state.user == null,
+        show = user == null,
         name = state.newUserName,
         age = state.newUserAge,
         onNameChange = actions::onNameChange,
@@ -37,8 +45,10 @@ fun HomeScreen(
         HomeUser(
             modifier = Modifier
                 .padding(horizontal = 8.dp),
-            user = state.user
+            user = user
         )
+        HomeGeneralStatistics(statistics = generalStatistics)
+        HomeTimeStatisticsItemsPager(items = timedStatistics)
     }
 }
 
@@ -64,6 +74,9 @@ private fun HomeScreenPreviewLight() {
             HomeScreen(
                 state = state,
                 actions = actions,
+                generalStatistics = GeneralStatistics(),
+                user = User(),
+                timedStatistics = TimeGroup.entries.associateWith { TimeStatisticsItem() },
             )
         }
     }

@@ -3,8 +3,13 @@ package com.dev_bayan_ibrahim.flashcards.data.model.deck
 import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.converter.InstantConverter
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.converter.StringListConverter
+import kotlinx.datetime.Instant
 
-@Entity(tableName = "deck")
+@Entity(tableName = "decks")
+@TypeConverters(StringListConverter::class, InstantConverter::class)
 data class DeckHeader(
     @PrimaryKey(autoGenerate = true)
     val id: Long? = null,
@@ -14,8 +19,12 @@ data class DeckHeader(
     val name: String = "",
     val cardsCount: Int = 0,
     val pattern: String = "", // url for an image
-    val colorAccent: Color = Color(0xFFFFFFFF),
+    val color: Int = 0xFFFFFF,
     val level: Int = 0,
     val rates: Int = 0, // rates count
     val rate: Float = 0f, // average rate
+    val creation: Instant = Instant.fromEpochMilliseconds(0),
 )
+val DeckHeader.colorAccent: Color get()= Color(color)
+
+fun String.split(): List<String> = split(", ")

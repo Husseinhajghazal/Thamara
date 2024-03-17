@@ -4,7 +4,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ fun FlashSlider(
     modifier: Modifier = Modifier,
     value: Float,
     steps: Int,
+    readonly: Boolean = true,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     valueRange: ClosedFloatingPointRange<Float>
@@ -53,46 +53,50 @@ fun FlashSlider(
     Slider(
         modifier = modifier,
         thumb = {
-            SliderDefaults.Thumb(
-                modifier = Modifier.drawWithCache {
-                    val measuredText = valueTextMeasurer.measure(
-                        text = "${value.toInt()}",
-                        style = indicatorStyle
-                    )
-                    onDrawBehind {
-                        if(showIndicator) {
-                            val indicatorCenterY = -size.height - 16.dp.toPx()
-                            val textY = indicatorCenterY - (measuredText.size.height / 2)
-                            val textX = center.x - (measuredText.size.width / 2)
-                            drawCircle(
-                                color = indicatorColor.copy(alpha = 0.16f),
-                                center = center,
-                                radius = 24.dp.toPx()
-                            )
-                            drawCircle(
-                                color = indicatorColor,
-                                center = center.copy(y = indicatorCenterY),
-                                radius = 16.dp.toPx()
-                            )
-                            drawText(
-                                textLayoutResult = measuredText,
-                                topLeft = center.copy(x = textX, y = textY)
-                            )
+            if (!readonly) {
+                SliderDefaults.Thumb(
+                    modifier = Modifier.drawWithCache {
+                        val measuredText = valueTextMeasurer.measure(
+                            text = "${value.toInt()}",
+                            style = indicatorStyle
+                        )
+                        onDrawBehind {
+                            if (showIndicator) {
+                                val indicatorCenterY = -size.height - 16.dp.toPx()
+                                val textY = indicatorCenterY - (measuredText.size.height / 2)
+                                val textX = center.x - (measuredText.size.width / 2)
+                                drawCircle(
+                                    color = indicatorColor.copy(alpha = 0.16f),
+                                    center = center,
+                                    radius = 24.dp.toPx()
+                                )
+                                drawCircle(
+                                    color = indicatorColor,
+                                    center = center.copy(y = indicatorCenterY),
+                                    radius = 16.dp.toPx()
+                                )
+                                drawText(
+                                    textLayoutResult = measuredText,
+                                    topLeft = center.copy(x = textX, y = textY)
+                                )
+                            }
                         }
-                    }
-                },
-                interactionSource = remember { MutableInteractionSource() },
-            )
+                    },
+                    interactionSource = remember { MutableInteractionSource() },
+                )
+            }
         },
         value = value,
         onValueChange = onChange,
         onValueChangeFinished = onChangeFinished,
         valueRange = valueRange,
         steps = steps,
-        colors = SliderDefaults.colors(
-            inactiveTrackColor = Color.Transparent,
-            activeTickColor = Color.Transparent,
-            inactiveTickColor = Color.Transparent,
-        )
+        colors = if (readonly) {
+            SliderDefaults.colors(
+                inactiveTrackColor = Color.Transparent,
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent,
+            )
+        } else SliderDefaults.colors()
     )
 }

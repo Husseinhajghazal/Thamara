@@ -1,12 +1,13 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.app_design
 
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeAnimationMode
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,20 +15,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,8 +35,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -105,7 +99,7 @@ private fun CardQuestion(
 }
 
 @Composable
-private fun CardImage(
+fun CardImage(
     modifier: Modifier = Modifier,
     url: String,
 ) {
@@ -173,6 +167,7 @@ private fun CardInfoAnswer(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CardMultiChoiceAnswer(
     modifier: Modifier = Modifier,
@@ -181,13 +176,11 @@ private fun CardMultiChoiceAnswer(
     onSelectAnswer: (String) -> Unit,
 ) {
     require(answer.choices.count() in 2..5)
-    LazyVerticalGrid(
+    Column(
         modifier = modifier,
-        columns = GridCells.Adaptive(200.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
-        items(answer.choices) { choice ->
+        answer.choices.forEach { choice ->
             Box(
                 modifier = Modifier
                     .height(32.dp)
@@ -200,13 +193,19 @@ private fun CardMultiChoiceAnswer(
                             style = Stroke(1.dp.toPx()),
                             cornerRadius = CornerRadius(32.dp.toPx())
                         )
-                    },
+                    }
+                    .padding(4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                DynamicText(
+                Text(
+                    modifier = Modifier.basicMarquee(
+                        iterations = Int.MAX_VALUE,
+                        animationMode = MarqueeAnimationMode.Immediately
+                    ),
                     text = choice,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1
                 )
             }
         }
@@ -293,8 +292,9 @@ private fun ExpandedCardPreviewLight() {
                     question = "this is a cat",
                     image = "https://drive.google.com/uc?export=download&id=1HiRtIjas0UjWmmAqEvAhkw5wVgMGPr2O",
                     answer = CardAnswer.Write(
-                        "correct answer"
-                    )
+                        "correct answer",
+                    ),
+                    deckId = 0,
                 ),
                 accent = Color.Magenta,
                 bgPattern = "https://drive.google.com/uc?export=download&id=1HiW96HMq-EPMLGvfsfS4Ow2VGZNTJGXt",
@@ -305,3 +305,4 @@ private fun ExpandedCardPreviewLight() {
         }
     }
 }
+

@@ -51,7 +51,7 @@ fun DeckCard(
 }
 
 @Composable
-private fun Color.lerpCard(percent: Float = 0.25f): Color {
+fun Color.lerpCard(percent: Float = 0.25f): Color {
     return MaterialTheme.colorScheme.surface.let { s ->
         Color(
             red = s.red * (1 - percent) + (red * percent),

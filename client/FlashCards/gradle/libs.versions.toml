@@ -6,10 +6,12 @@ androidxNavigation = "2.7.7"
 compose-bom = "2024.02.02"
 core-ktx = "1.12.0"
 espresso-core = "3.5.1"
-androidxPaging = "3.3.0-alpha03"
-hilt = "2.48"
+androidxPaging = "3.3.0-alpha04"
+kotlinxCoroutines = "1.7.3"
+hilt = "2.49"
 androidxHiltNavigationCompose = "1.2.0"
-
+android-desugar-jdk-libs = "2.0.4"
+androidx-datastore = "1.1.0-beta02"
 coil = "2.4.0"
 jetpack-collections = "1.4.0"
 junit = "4.13.2"
@@ -17,13 +19,14 @@ kotlin = "1.9.22"
 kotlinx-collections-immutable = "0.3.7"
 kotlinx-datetime = "0.5.0"
 kotlinx-serilalization = "1.9.22"
-kotlinx-serilalization-json = "1.6.2"
+kotlinx-serilalization-json = "1.6.3"
 ksp = "1.9.22-1.0.17"
 lifecycle-runtime-ktx = "2.7.0"
 navigation-runtime-ktx = "2.7.7"
 navigationCommonKtx = "2.7.7"
-room = "2.6.0"
+room = "2.6.1"
 windowsizeclass = "1.2.1"
+ktor = "2.3.8"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
@@ -37,6 +40,8 @@ dagger-compiler = {group = "com.google.dagger", name = "dagger-compiler", versio
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "androidx-datastore"}
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidx-datastore"}
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
@@ -52,12 +57,26 @@ ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+# Networking Library: Ktor
+ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-engine-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+ktor-engine-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor"}
+ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor"}
+ktor-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor"}
+ktor-mock =  { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor"}
+
+android-desugar-jdk-lib = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "android-desugar-jdk-libs"}
 
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidxPaging"}
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPaging"}
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 windowsizeclass = {  group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "windowsizeclass" }
+
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-guava = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-guava", version.ref = "kotlinxCoroutines" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

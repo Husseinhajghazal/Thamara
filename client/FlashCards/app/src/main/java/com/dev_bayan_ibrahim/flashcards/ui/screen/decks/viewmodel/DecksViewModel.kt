@@ -1,61 +1,70 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
 class DecksViewModel @Inject constructor(
-
-) : ViewModel(), DecksUiActions {
+    private val repo: FlashRepo,
+) : ViewModel() {
     val state = DecksMutableUiState()
 
-    init {
-        val colors = listOf(
-            Color(0xFF000000),
-            Color(0xFF444444),
-            Color(0xFF888888),
-            Color(0xFFCCCCCC),
-            Color(0xFFFFFFFF),
-            Color(0xFFFF0000),
-            Color(0xFF00FF00),
-            Color(0xFF0000FF),
-            Color(0xFFFFFF00),
-            Color(0xFF00FFFF),
-            Color(0xFFFF00FF),
-        )
-        repeat(10) { g ->
-            state.libraryDecks[DecksGroup.Collection("collection $g")] = List(
-                colors.count()
-            ) { d ->
-                DeckHeader(
-                    id = g.inc().times(colors.count()) + d.toLong(),
-                    name = "deck $d",
-                    collection = "collection $g",
-                    colorAccent = colors[d],
-                    cardsCount = colors.count(),
-                    pattern = "https://drive.google.com/uc?export=download&id=1HiW96HMq-EPMLGvfsfS4Ow2VGZNTJGXt",
-                    level = d,
-                    rates = Random.nextInt(300),
-                    rate = 1.2f
-                )
-            }
+    fun getDecksActions(
+        navigateToDeckPlay: (Long) -> Unit
+    ): DecksUiActions = object : DecksUiActions {
+        override fun onSearchQueryChange(query: String) {
+            state.query = query
+            getLibraryDecks()
+        }
+
+        override fun onClickDeck(id: Long) {
+            navigateToDeckPlay(id)
+        }
+
+        override fun onSearch() {
+            getLibraryDecks()
         }
     }
 
-    override fun onSearchQueryChange(query: String) {
-        state.query = query
+    private var initialized = false
+    fun initScreen() {
+        if (!initialized) {
+            getLibraryDecks()
+            initialized = true
+        }
     }
-
-    override fun onClickDeck(id: Long) {
-
-    }
-
-    override fun onSearch() {
-        TODO("Not yet implemented")
+    private fun getLibraryDecks(
+        query: String = state.query,
+        groupBy: DecksGroup? = state.groupBy,
+        filterBy: DecksFilter? = state.filterBy,
+        orderBy: DecksOrder? = state.orderBy,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.getLibraryDecks(
+                query = query,
+                groupBy = groupBy,
+                filterBy = filterBy,
+                orderBy = orderBy
+            ).distinctUntilChanged()
+                .collect { decks ->
+                    state.libraryDecks.apply {
+                        clear()
+                        putAll(decks)
+                    }
+                }
+        }
     }
 }
