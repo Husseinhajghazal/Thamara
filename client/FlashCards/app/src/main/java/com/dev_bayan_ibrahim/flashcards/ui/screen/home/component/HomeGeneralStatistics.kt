@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
+import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.StatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HomeGeneralStatistics(
     modifier: Modifier = Modifier,
@@ -28,15 +30,15 @@ fun HomeGeneralStatistics(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        HomeStatisticsItem(
+        StatisticsItem(
             label = "accuracy average",
             value = "${statistics.accuracyAverage.roundToInt()}%"
         )
-        HomeStatisticsItem(
+        StatisticsItem(
             label = "total decks",
             value = statistics.totalDecksCount.toString(),
         )
-        HomeStatisticsItem(
+        StatisticsItem(
             label = "total cards",
             value = statistics.totalCardsCount.toString(),
         )

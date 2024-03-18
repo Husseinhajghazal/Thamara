@@ -15,13 +15,12 @@ fun HomeRoute(
 ) {
     val user by homeViewModel.user.collectAsState()
     val generalStatistics by homeViewModel.generalStatistics.collectAsState()
-    val timedStatistics by homeViewModel.timedStatistics.collectAsState()
+
     HomeScreen(
         modifier = modifier,
         state = homeViewModel.state,
         user = user,
         generalStatistics = generalStatistics,
-        timedStatistics = timedStatistics,
         actions = homeViewModel
     )
 }

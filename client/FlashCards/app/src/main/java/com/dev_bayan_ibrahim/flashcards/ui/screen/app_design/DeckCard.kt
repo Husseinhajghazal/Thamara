@@ -22,15 +22,19 @@ import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
 fun DeckCard(
     modifier: Modifier = Modifier,
     accent: Color,
-    scale: Float = 1f,
+    scale: Float? = null,
     onClick: () -> Unit = {},
     enableClick: Boolean = true,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
     Box(
         modifier = modifier
-            .width(smallCardWidth * scale)
-            .height(smallCardHeight * scale)
+            .run {
+                scale?.let {
+                    width(smallCardWidth * scale)
+                    height(smallCardHeight * scale)
+                } ?: this
+            }
             .clip(RoundedCornerShape(8.dp))
             .background(
                 color = MaterialTheme.colorScheme.onSurface,

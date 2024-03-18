@@ -18,10 +18,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.BasicTextFieldBox
-import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckCard
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashSlider
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlin.math.roundToInt
@@ -36,48 +35,41 @@ fun HomeUserDialog(
     onAgeChange: (Int) -> Unit,
     onSave: () -> Unit,
 ) {
-    if (show) {
-        Dialog(
-            onDismissRequest = {}
+    FlashDialog(
+        modifier = modifier,
+        show = show,
+        onDismiss = {}
+    ) {
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            DeckCard(
-                modifier = modifier,
-                scale = 4.5f,
-                accent = MaterialTheme.colorScheme.primary,
-                enableClick = false
+            Text(
+                text = "Welcome New User",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                modifier = Modifier.alpha(0.75f),
+                text = "enter your name and age and start playing",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            UserName(
+                name = name,
+                onNameChange = onNameChange
+            )
+            UserAge(
+                age = age,
+                onAgeChange = onAgeChange,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                onClick = onSave,
+                enabled = name.isNotBlank()
             ) {
-                Column (
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Welcome New User",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(
-                        modifier = Modifier.alpha(0.75f),
-                        text = "enter your name and age and start playing",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    UserName(
-                        name = name,
-                        onNameChange = onNameChange
-                    )
-                    UserAge(
-                        age = age,
-                        onAgeChange = onAgeChange,
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    OutlinedButton(
-                        onClick = onSave,
-                        enabled = name.isNotBlank()
-                    ) {
-                        Text("Start")
-                    }
-                }
+                Text("Start")
             }
         }
     }
@@ -119,7 +111,8 @@ private fun UserAge(
         steps = validRange.run { endInclusive - start }.roundToInt(),
         onValueChange = { onAgeChange(it.roundToInt()) },
         onValueChangeFinished = { /*TODO*/ },
-        valueRange = validRange
+        valueRange = validRange,
+        readonly = false,
     )
 
 }

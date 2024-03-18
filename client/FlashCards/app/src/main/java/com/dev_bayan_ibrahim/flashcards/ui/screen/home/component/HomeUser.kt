@@ -46,7 +46,7 @@ fun HomeUser(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.star,
                     label = "plays",
-                    value = "0",
+                    value = user.totalPlays.toString(),
                 )
                 UserInfo(
                     modifier = Modifier.weight(1f),

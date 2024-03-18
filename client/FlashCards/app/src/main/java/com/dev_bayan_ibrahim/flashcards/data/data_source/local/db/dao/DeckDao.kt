@@ -35,4 +35,13 @@ interface DeckDao  {
     """)
     fun getDecksCountAfter(startTimeStamp: Long): Flow<Int>
 
+    @Query("""
+        select max(level) from decks 
+    """)
+    suspend fun getMaxDeckLevel(): Int?
+
+    @Query("""
+        select min(level) from decks 
+    """)
+    suspend fun getMinDeckLevel(): Int?
 }

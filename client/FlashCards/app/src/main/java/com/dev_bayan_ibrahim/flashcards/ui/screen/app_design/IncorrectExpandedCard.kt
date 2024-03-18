@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,12 +79,13 @@ private fun CardQuestion(
     DynamicText(
         modifier = modifier,
         text = question,
-        style = MaterialTheme.typography.titleLarge,
+        style = MaterialTheme.typography.titleMedium,
         textAlign = TextAlign.Center,
         minLines = 1,
-        maxLines = 3,
+        maxLines = 2,
     )
 }
+
 @Composable
 private fun CardAnswer(
     modifier: Modifier = Modifier,
@@ -129,11 +128,11 @@ private fun CardMultiChoiceAnswer(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
-        answer.choices.mapNotNull {
-            if (it == answer.correctChoice || it == incorrectAnswer) {
-                it to (it == answer.correctChoice)
-            } else null
-        }.forEach { (choice, correct) ->
+        listOf(
+            answer.correctChoice,
+            incorrectAnswer
+        ).forEachIndexed { i, choice ->
+            val correct = i == 0
             Box(
                 modifier = Modifier
                     .height(32.dp)
@@ -165,39 +164,45 @@ private fun CardMultiChoiceAnswer(
         }
     }
 }
+
 @Composable
 private fun CardTrueFalseAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer.TrueFalse,
 ) {
+    val errorColor: Color = MaterialTheme.colorScheme.error
+    val correctColor: Color = MaterialTheme.colorScheme.primary
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
     ) {
-        FilterChip(
+        Text(
             modifier = Modifier
-                .widthIn(max = 150.dp)
-                .weight(1f),
-            enabled = false,
-            label = {
-                Text(text = "False")
-            },
-            onClick = {},
-            selected = !answer.answer
+                .weight(1f)
+                .drawBehind {
+                    drawRoundRect(
+                        color = if (!answer.answer) correctColor else errorColor,
+                        style = if (!answer.answer) Fill else Stroke(1.dp.toPx()),
+                        cornerRadius = CornerRadius(32.dp.toPx())
+                    )
+                },
+            text = "False",
         )
-        FilterChip(
+        Text(
             modifier = Modifier
-                .widthIn(max = 150.dp)
-                .weight(1f),
-            enabled = false,
-            label = {
-                Text(text = "True")
-            },
-            onClick = {},
-            selected = !answer.answer,
+                .weight(1f)
+                .drawBehind {
+                    drawRoundRect(
+                        color = if (answer.answer) correctColor else errorColor,
+                        style = if (answer.answer) Fill else Stroke(1.dp.toPx()),
+                        cornerRadius = CornerRadius(32.dp.toPx())
+                    )
+                },
+            text = "False",
         )
     }
 }
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CardWriteAnswer(
@@ -218,16 +223,18 @@ private fun CardWriteAnswer(
             text = incorrectAnswer.ifBlank { "\"Blank Text\"" },
             color = MaterialTheme.colorScheme.error,
             maxLines = 1,
-            textDecoration = TextDecoration.LineThrough
+            textDecoration = TextDecoration.LineThrough,
+            style = MaterialTheme.typography.labelMedium
         )
         Text(
             modifier = Modifier.basicMarquee(
                 iterations = Int.MAX_VALUE,
-                animationMode = MarqueeAnimationMode.WhileFocused
+                animationMode = MarqueeAnimationMode.Immediately
             ),
             text = answer.answer,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }

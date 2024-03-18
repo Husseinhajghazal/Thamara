@@ -1,6 +1,11 @@
 package com.dev_bayan_ibrahim.flashcards.ui.app
 
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,7 +32,7 @@ fun FlashApp(
     widthSizeClass: WindowWidthSizeClass,
 ) {
     val navController = rememberNavController()
-    val navActions by remember (navController) {
+    val navActions by remember(navController) {
         mutableStateOf(FlashNavActions(navController))
     }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -35,18 +40,29 @@ fun FlashApp(
         derivedStateOf {
             navBackStackEntry?.destination?.route?.run {
                 FlashNavRoutes.byRoute(this)
-            } ?: FlashNavRoutes.TopLevel.Home
+            } ?: FlashNavRoutes.Play
+        }
+    }
+    val isCurrentTopLevel by remember(currentRoute) {
+        derivedStateOf {
+            currentRoute.route in FlashNavRoutes.TopLevel.entries.map { it.route }
         }
     }
 
-    Scaffold (
+    Scaffold(
         bottomBar = {
-            FlashBottomBar(
-                selected = currentRoute,
-                onClick = {
-                    navActions.navigateToTopLevel(it)
-                }
-            )
+            AnimatedVisibility(
+                visible = isCurrentTopLevel,
+                enter = fadeIn() + slideInVertically { it },
+                exit = fadeOut() + slideOutVertically { it },
+            ) {
+                FlashBottomBar(
+                    selected = currentRoute,
+                    onClick = {
+                        navActions.navigateToTopLevel(it)
+                    }
+                )
+            }
         }
     ) {
         FlashNavGraph(

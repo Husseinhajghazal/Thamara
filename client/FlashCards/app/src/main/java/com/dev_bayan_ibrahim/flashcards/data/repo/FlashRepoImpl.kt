@@ -23,6 +23,7 @@ import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
@@ -119,11 +120,11 @@ class FlashRepoImpl(
 
     override fun getLibraryDecks(
         query: String,
-        groupBy: DecksGroup?,
+        groupBy: DecksGroupType?,
         filterBy: DecksFilter?,
         orderBy: DecksOrder?
     ): Flow<Map<DecksGroup, List<DeckHeader>>> = when (groupBy) {
-        is DecksGroup.Collection -> getDecks("%$query%").map {
+        DecksGroupType.COLLECTION -> getDecks("%$query%").map {
             it.groupBy {
                 it.collection
             }.mapKeys { (collection, _) ->
@@ -131,7 +132,7 @@ class FlashRepoImpl(
             }
         }
 
-        is DecksGroup.Level -> getDecks("%$query%").map {
+        DecksGroupType.LEVEL -> getDecks("%$query%").map {
             it.groupBy {
                 it.level
             }.mapKeys { (level, _) ->
@@ -139,7 +140,7 @@ class FlashRepoImpl(
             }
         }
 
-        is DecksGroup.Tag -> getDecks("%$query%").map {
+        DecksGroupType.TAG -> getDecks("%$query%").map {
             val map = mutableMapOf<String, MutableList<DeckHeader>>()
             it.forEach { deck ->
                 deck.tags.forEach { tag ->
@@ -186,5 +187,11 @@ class FlashRepoImpl(
             insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
         }
+    }
+
+    override suspend fun getLevelsRange(): IntRange? {
+        val min = getMinDeckLevel() ?: return null
+        val max = getMaxDeckLevel() ?: return null
+        return min..max
     }
 }

@@ -1,13 +1,39 @@
 package com.dev_bayan_ibrahim.flashcards.data.util
 
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+
+enum class DecksOrderType(
+    override val label: Int,
+    override val icon: Int?
+
+) : FlashSelectableItem {
+    NAME(R.string.name, null),
+    RATE(R.string.rate, null),
+    LEVEL(R.string.level, null);
+
+    fun toDeckOrder(asc: Boolean): DecksOrder = when (this) {
+        NAME -> DecksOrder.Name(asc)
+        RATE -> DecksOrder.Rate(asc)
+        LEVEL -> DecksOrder.Level(asc)
+    }
+}
 
 sealed interface DecksOrder {
     val asc: Boolean
+    val type: DecksOrderType
 
-    data class Name(override val asc: Boolean) : DecksOrder
-    data class Rate(override val asc: Boolean) : DecksOrder
-    data class Level(override val asc: Boolean) : DecksOrder
+    data class Name(override val asc: Boolean) : DecksOrder {
+        override val type = DecksOrderType.NAME
+    }
+
+    data class Rate(override val asc: Boolean) : DecksOrder {
+        override val type = DecksOrderType.RATE
+    }
+
+    data class Level(override val asc: Boolean) : DecksOrder {
+        override val type = DecksOrderType.LEVEL
+    }
 
     fun applyOn(list: Iterable<DeckHeader>): List<DeckHeader> = when (this) {
         is Level -> if (asc) {

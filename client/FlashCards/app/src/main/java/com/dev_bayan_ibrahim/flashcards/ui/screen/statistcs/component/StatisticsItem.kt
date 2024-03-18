@@ -1,4 +1,4 @@
-package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
+package com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeStatisticsItem(
+fun StatisticsItem(
     modifier: Modifier = Modifier,
     @DrawableRes
     icon: Int? = null,

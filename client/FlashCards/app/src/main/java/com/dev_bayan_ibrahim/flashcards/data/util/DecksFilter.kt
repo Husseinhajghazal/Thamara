@@ -1,9 +1,11 @@
 package com.dev_bayan_ibrahim.flashcards.data.util
 
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentSetOf
 
 data class DecksFilter (
-    val tags: List<String> = emptyList(),
+    val tags: PersistentSet<String> = persistentSetOf(),
     val levels: IntRange? = null,
     val rate: ClosedFloatingPointRange<Float>? = null,
 

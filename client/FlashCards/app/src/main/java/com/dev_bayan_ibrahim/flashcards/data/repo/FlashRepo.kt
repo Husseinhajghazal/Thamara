@@ -8,6 +8,7 @@ import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
 import kotlinx.coroutines.flow.Flow
 
@@ -21,7 +22,7 @@ interface FlashRepo {
 
     fun getLibraryDecks(
         query: String,
-        groupBy: DecksGroup?,
+        groupBy: DecksGroupType?,
         filterBy: DecksFilter?,
         orderBy: DecksOrder?,
     ): Flow<Map<DecksGroup, List<DeckHeader>>>
@@ -34,4 +35,6 @@ interface FlashRepo {
     )
 
     suspend fun initializedDb()
+
+    suspend fun getLevelsRange(): IntRange?
 }

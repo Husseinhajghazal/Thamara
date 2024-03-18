@@ -6,23 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.PaginatedDecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksUiState
-import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -35,6 +29,7 @@ fun DecksScreen(
     val pagerState = rememberPagerState { DecksTab.entries.count() }
     val scope = rememberCoroutineScope()
 
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -44,11 +39,14 @@ fun DecksScreen(
             selected = DecksTab.entries[pagerState.currentPage],
             onQueryChange = actions::onSearchQueryChange,
             onSelectTab = {
+                actions.onSelectTab(it)
                 scope.launch {
                     pagerState.animateScrollToPage(it.ordinal)
                 }
             },
             onSearch = actions::onSearch,
+            dialogState = state.filterDialogState,
+            dialogActions= actions,
         )
         val paginatedDecks = state.searchResults.collectAsLazyPagingItems()
         HorizontalPager(state = pagerState) { page ->
@@ -71,25 +69,3 @@ fun DecksScreen(
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-private fun HomeScreenPreviewLight() {
-    FlashCardsTheme(darkTheme = false) {
-        Surface(
-            modifier = Modifier,
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            val state = DecksMutableUiState()
-            val actions = object : DecksUiActions {
-                override fun onSearchQueryChange(query: String) {}
-                override fun onClickDeck(id: Long) {}
-                override fun onSearch() {}
-            }
-            DecksScreen(
-                state = state,
-                actions = actions,
-            )
-        }
-    }
-}

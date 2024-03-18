@@ -10,11 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeGeneralStatistics
-import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeTimeStatisticsItemsPager
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUser
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUserDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel.HomeMutableUiState
@@ -28,7 +25,6 @@ fun HomeScreen(
     state: HomeUiState,
     user: User?,
     generalStatistics: GeneralStatistics,
-    timedStatistics: Map<TimeGroup, TimeStatisticsItem>,
     actions: HomeUiActions,
 ) {
     HomeUserDialog(
@@ -45,10 +41,9 @@ fun HomeScreen(
         HomeUser(
             modifier = Modifier
                 .padding(horizontal = 8.dp),
-            user = user
+            user = user,
         )
         HomeGeneralStatistics(statistics = generalStatistics)
-        HomeTimeStatisticsItemsPager(items = timedStatistics)
     }
 }
 
@@ -76,7 +71,6 @@ private fun HomeScreenPreviewLight() {
                 actions = actions,
                 generalStatistics = GeneralStatistics(),
                 user = User(),
-                timedStatistics = TimeGroup.entries.associateWith { TimeStatisticsItem() },
             )
         }
     }

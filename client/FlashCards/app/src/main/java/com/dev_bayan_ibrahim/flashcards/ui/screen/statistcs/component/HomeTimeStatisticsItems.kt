@@ -1,4 +1,4 @@
-package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
+package com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeTimeStatisticsItemsPager(
+fun TimeStatisticsItemsPager(
     modifier: Modifier = Modifier,
     items: Map<TimeGroup, TimeStatisticsItem>
 ) {
@@ -94,12 +94,12 @@ private fun HomeTimeStatisticsItems(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        HomeStatisticsItem(label = "plays times", value = item.plays.toString())
-        HomeStatisticsItem(label = "decks count change", value = item.decksCount.toString())
-        HomeStatisticsItem(label = "cards count change", value = item.cardsCount.toString())
-        HomeStatisticsItem(label = "correct answers", value = item.correctAnswers.toString())
-        HomeStatisticsItem(label = "incorrect answers", value = item.incorrectAnswers.toString())
-        HomeStatisticsItem(
+        StatisticsItem(label = "plays times", value = item.plays.toString())
+        StatisticsItem(label = "decks count change", value = item.decksCount.toString())
+        StatisticsItem(label = "cards count change", value = item.cardsCount.toString())
+        StatisticsItem(label = "correct answers", value = item.correctAnswers.toString())
+        StatisticsItem(label = "incorrect answers", value = item.incorrectAnswers.toString())
+        StatisticsItem(
             label = "accuracy average",
             value = "${item.answerAccuracyAverage.roundToInt()}"
         )
