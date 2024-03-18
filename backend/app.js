@@ -42,19 +42,23 @@ app.use(async (error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-sequelize
-  .sync()
-  .then((res) => {
-    Admin.sync();
-    Card.sync();
-    deck.sync();
-    rate.sync();
-    tag.sync();
-    deck.belongsToMany(tag, { through: "DeckTag" });
-    deck.hasMany(rate);
-    deck.hasMany(Card);
-    rate.belongsTo(deck);
-    Card.belongsTo(deck);
-    app.listen(process.env.PORT || 5000);
-  })
-  .catch((error) => console.log(error));
+// sequelize
+//   .sync()
+//   .then((res) => {
+//     app.listen(process.env.PORT || 5000);
+//   })
+//   .catch((error) => console.log(error));
+Admin.sync();
+Card.sync();
+deck.sync();
+rate.sync();
+tag.sync();
+deck.belongsToMany(tag, { through: "DeckTag" });
+deck.hasMany(rate);
+deck.hasMany(Card);
+rate.belongsTo(deck);
+Card.belongsTo(deck);
+
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 5000}`);
+});
