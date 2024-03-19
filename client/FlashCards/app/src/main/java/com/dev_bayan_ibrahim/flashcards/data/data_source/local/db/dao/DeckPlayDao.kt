@@ -16,4 +16,9 @@ interface DeckPlayDao {
     """)
     fun getDeckPlaysCount(): Flow<Int>
 
+    @Query("""
+        select count(*) == 0 from deck_play where id = :id
+    """)
+    suspend fun checkDeckFirstPlay(id: Long): Boolean
+
 }

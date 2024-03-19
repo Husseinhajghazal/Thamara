@@ -13,7 +13,7 @@ import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
 
 @Database(
     entities = [DeckHeader::class, Card::class, DeckPlay::class, CardPlay::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class FlashDatabase : RoomDatabase() {

@@ -36,11 +36,10 @@ fun HomeScreen(
         onSave = actions::onSave
     )
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .padding(horizontal = 8.dp),
     ) {
         HomeUser(
-            modifier = Modifier
-                .padding(horizontal = 8.dp),
             user = user,
         )
         HomeGeneralStatistics(statistics = generalStatistics)

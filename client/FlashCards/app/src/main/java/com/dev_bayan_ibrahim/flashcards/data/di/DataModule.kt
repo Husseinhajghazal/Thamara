@@ -21,10 +21,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okio.Path.Companion.toPath
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -102,9 +104,15 @@ object DataModule {
     fun provideFileManager(
         client: HttpClient,
         @ApplicationContext
-        context: Context
+        context: Context,
+        coroutinesContext: CoroutineContext,
     ): FlashFileManager = FlashFileManagerImpl(
         filesDir = context.filesDir,
-        client = client
+        client = client,
+        context = coroutinesContext,
     )
+
+    @Provides
+    @Singleton
+    fun provideIODispatcher(): CoroutineContext = Dispatchers.IO
 }

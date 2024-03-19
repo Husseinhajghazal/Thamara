@@ -1,7 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
@@ -18,7 +18,13 @@ import com.dev_bayan_ibrahim.flashcards.data.model.deck.colorAccent
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.ExpandedCard
 
 private const val fadeAnim = 1_000
-
+val exitAnim = fadeOut(
+    animationSpec = tween(fadeAnim)
+) + scaleOut(
+    animationSpec = tween(fadeAnim),
+    targetScale = 1.1f
+)
+val rotationAnim = tween<Float>(100, fadeAnim / 2)
 @Composable
 fun DecksQueue(
     modifier: Modifier = Modifier,
@@ -26,59 +32,43 @@ fun DecksQueue(
     currentIndex: Int,
     onSelectAnswer: (String) -> Unit,
 ) {
-    val cards by remember(deck.cards) {
-        derivedStateOf { deck.cards }
-    }
-    val count by remember(deck.header.cardsCount) {
-        derivedStateOf { deck.header.cardsCount }
-    }
-    val accent by remember(deck.header.colorAccent) {
-        derivedStateOf {
-            deck.header.colorAccent
-        }
-    }
-    val pattern by remember(deck.header.pattern) {
-        derivedStateOf {
-            deck.header.pattern
-        }
-    }
     val reversedIndex by remember(currentIndex) {
-        derivedStateOf { cards.count().dec() - currentIndex }
+        derivedStateOf { deck.header.cardsCount.dec() - currentIndex }
     }
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        cards.reversed().forEachIndexed { i, card ->
-            AnimatedVisibility(
-                visible = i <= reversedIndex,
-                exit = fadeOut(
-                    animationSpec = tween(fadeAnim)
-                ) + scaleOut(
-                    animationSpec = tween(fadeAnim),
-                    targetScale = 1.1f
-                )
-            ) {
-                val rotationAnimatable by animateIntAsState(
-                    targetValue = if (reversedIndex == i) {
-                        0
-                    } else {
-                        count - i
-//                        Random.nextInt(-10, 10)
-                    },
-                    animationSpec = tween(100, fadeAnim / 2),
-                    label = "",
-                )
-                ExpandedCard(
-                    modifier = Modifier
-                        .graphicsLayer {
-                            rotationZ = rotationAnimatable.toFloat()
+        repeat(deck.header.cardsCount) {
+            val i = deck.header.cardsCount.dec() - it
+            val card = deck.cards[i]
+            if (i - currentIndex in -1..10) {
+                AnimatedVisibility(
+                    visible = i >= currentIndex,
+                    exit = exitAnim
+                ) {
+                    val rotationAnimatable by animateFloatAsState(
+                        targetValue = if (i == currentIndex) {
+                            0f
+                        } else {
+                            45f * i / deck.header.cardsCount
+                            // always last card has 45 degree rotation
                         },
-                    card = card,
-                    accent = accent,
-                    bgPattern = pattern,
-                    onSelectAnswer = onSelectAnswer
-                )
+                        animationSpec = rotationAnim,
+                        label = "",
+                    )
+                    ExpandedCard(
+                        modifier = Modifier
+                            .graphicsLayer {
+                                rotationZ = rotationAnimatable
+                            },
+                        card = card,
+                        accent = deck.header.colorAccent,
+                        bgPattern = deck.header.pattern,
+                        clickable = rotationAnimatable == 0f && i == currentIndex,
+                        onSelectAnswer = onSelectAnswer
+                    )
+                }
             }
         }
     }

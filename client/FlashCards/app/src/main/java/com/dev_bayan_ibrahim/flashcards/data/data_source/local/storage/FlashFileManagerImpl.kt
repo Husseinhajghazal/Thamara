@@ -1,58 +1,72 @@
 package com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage
 
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
+import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.util.InternalAPI
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import java.io.OutputStream
+import kotlin.coroutines.CoroutineContext
 
 class FlashFileManagerImpl(
     filesDir: File,
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val context: CoroutineContext
 ) : FlashFileManager {
-    override suspend fun saveDeck(
+    override fun saveDeck(
         deck: Deck,
-        patternStatus: MutableDownloadStatus,
-        imagesStatus: List<MutableDownloadStatus>
-    ) {
-        val deckDir = ensureMakeDeckDir(deck.header.id!!)
+    ): Flow<DownloadStatus> {
+        val deckDir = ensureMakeDeckDir(deck.header.id)
 
         val deckPattern = getDeckPatternFile(deckDir, deck.header.pattern)
-        downloadAndSaveFile(
-            file = deckPattern.outputStream(),
-            url = deck.header.pattern,
-            downloadStatus = patternStatus
-        )
-        deck.cards.forEachIndexed { i, card ->
-            val cardImage = getImageFile(deckDir, card.id!!, card.image)
-
+        val flows = mutableListOf<Flow<DownloadStatus>>()
+        flows.add(
             downloadAndSaveFile(
-                file = cardImage.outputStream(),
-                url = card.image,
-                downloadStatus = imagesStatus.getOrNull(i)
+                file = deckPattern.outputStream(),
+                url = deck.header.pattern,
             )
-        }
+        )
+        flows.addAll(
+            deck.cards.map { card ->
+                val cardImage = getImageFile(deckDir, card.id, card.image)
+                downloadAndSaveFile(
+                    file = cardImage.outputStream(),
+                    url = card.image,
+                )
+            }
+        )
+        return combine(
+            flows
+        ) { status ->
+            status.reduce { i, j ->
+                i + j
+            }
+        }.flowOn(context)
     }
 
     override suspend fun appendFilePathForImages(deck: Deck): Deck {
-        var patternPath: String =  deck.header.pattern
+        var patternPath: String = deck.header.pattern
         val imagesPaths: MutableList<String> = deck.cards.map { it.image }.toMutableList()
 
-        val deckDir = ensureMakeDeckDir(deck.header.id!!)
+        val deckDir = ensureMakeDeckDir(deck.header.id)
 
         val deckPattern = getDeckPatternFile(deckDir, deck.header.pattern)
         if (deckPattern.exists()) {
             patternPath = deckPattern.absolutePath
         }
         deck.cards.forEachIndexed { index, card ->
-            val cardImage = getImageFile(deckDir, card.id!!, card.image)
+            val cardImage = getImageFile(deckDir, card.id, card.image)
             if (cardImage.exists()) {
                 imagesPaths[index] = cardImage.absolutePath
             }
@@ -67,9 +81,11 @@ class FlashFileManagerImpl(
             }
         )
     }
+
     private fun getDeckPatternFile(deckDir: File, pattern: String): File {
         return File(deckDir, "pattern${getExtensionFromUrlOrPng(pattern)}")
     }
+
     private fun getImageFile(deckDir: File, id: Long, image: String): File {
         val extension = getExtensionFromUrlOrPng(image)
         val name = "$id$extension"
@@ -83,7 +99,11 @@ class FlashFileManagerImpl(
         }
     }
 
-    private suspend fun ensureMakeDeckDir(deckId: Long): File {
+    override suspend fun deleteDecks(ids: List<Long>) = ids.forEach { id ->
+        deleteDeck(id)
+    }
+
+    private fun ensureMakeDeckDir(deckId: Long): File {
         return File(
             decksDir,
             deckDirName(deckId)
@@ -93,47 +113,53 @@ class FlashFileManagerImpl(
     }
 
     @OptIn(InternalAPI::class)
-    private suspend fun downloadAndSaveFile(
+    private fun downloadAndSaveFile(
         file: OutputStream,
         url: String,
-        downloadStatus: MutableDownloadStatus?
-    ) {
+    ): Flow<DownloadStatus> = flow {
+
+        val status = MutableDownloadStatus {
+            currentCoroutineContext().cancel(null)
+        }
+
         try {
-            withContext(Dispatchers.IO) {
-                val response = client.get(url)
+            val response = client.get(url)
 
-                val data = ByteArray(response.contentLength()!!.toInt())
+            val data = ByteArray(response.contentLength()!!.toInt())
 
-                downloadStatus?.total = data.size.toLong()
-                downloadStatus?.progress = 0
+            status.total = data.size.toLong()
+            emit(status)
 
-                var offset = 0
+            var offset = 0
 
-                do {
-                    val currentRead = response.content.readAvailable(data, offset, data.size)
-                    file.write(data, offset, currentRead)
-                    offset += currentRead
-                    downloadStatus?.progress = offset.toLong()
-                } while (currentRead > 0)
+            do {
+                val currentRead = response.content.readAvailable(data, offset, data.size)
+                file.write(data, offset, currentRead)
+                offset += currentRead
+
+                status.progress = offset.toLong()
+                emit(status)
+
+            } while (currentRead > 0)
 
 
-                if (response.status.isSuccess()) {
-                    withContext(Dispatchers.IO) {
-                        file.use {
-                            it.write(data)
-                        }
-                        downloadStatus?.success = true
-                    }
-                } else {
-                    downloadStatus?.error = response.status.run { value to description }
+            if (response.status.isSuccess()) {
+                file.use {
+                    it.write(data)
                 }
+                status.success = true
+            } else {
+                status.error = response.status.run { value to description }
             }
         } catch (e: TimeoutCancellationException) {
-            downloadStatus?.error = (408 to e.message)
+            status.error = 408 to e.message
         } catch (t: Throwable) {
-            downloadStatus?.error = (null to t.message)
+            status.error = null to t.message
+        } finally {
+            status.finished = true
+            emit(status)
         }
-    }
+    }.flowOn(context)
 
 
     private val decksDir = "${filesDir.absolutePath}/decks"

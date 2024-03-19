@@ -2,30 +2,51 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
+import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toIntRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksFilterMutableUiState
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab.BROWSE
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab.LIBRARY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class DecksViewModel @Inject constructor(
     private val repo: FlashRepo,
+    private val filesDispatcher: CoroutineContext,
 ) : ViewModel() {
     val state = DecksMutableUiState()
 
     var appliedFilters = DecksFilterMutableUiState()
     var selectedTab = LIBRARY
+    val dbInfo = repo.getDatabaseInfo().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        DecksDatabaseInfo(allTags = setOf())
+    )
+
+    private val _downloadStatus = MutableStateFlow<DownloadStatus?>(null)
+    val downloadStatus: StateFlow<DownloadStatus?> = _downloadStatus.asStateFlow()
 
     fun getDecksActions(
         navigateToDeckPlay: (Long) -> Unit
@@ -35,8 +56,8 @@ class DecksViewModel @Inject constructor(
             getLibraryDecks()
         }
 
-        override fun onClickDeck(id: Long) {
-            navigateToDeckPlay(id)
+        override fun onClickDeck(deck: DeckHeader) {
+            state.selectedDeck = deck
         }
 
         override fun onSearch() {
@@ -46,6 +67,38 @@ class DecksViewModel @Inject constructor(
         override fun onSelectTab(tab: DecksTab) {
             selectedTab = tab
 
+        }
+
+        override fun onDownloadDeck() {
+            if (true/*selectedTab == BROWSE*/) {
+                state.selectedDeck?.let {
+                    downloadDeck(it)
+                }
+            }
+        }
+
+        override fun onCancelDownloadDeck() {
+            if (true/*selectedTab == BROWSE*/) {
+                state.selectedDeck?.let {
+                    cancelDownloadDeck(it)
+                    state.selectedDeck = null
+                }
+            }
+        }
+
+        override fun onPlayDeck() {
+            if (selectedTab == LIBRARY) {
+                state.selectedDeck?.let {
+                    navigateToDeckPlay(it.id)
+                    state.selectedDeck = null
+                }
+            }
+        }
+
+        override fun onDismissSelectedDeck() {
+            if (selectedTab == LIBRARY) {
+                state.selectedDeck = null
+            }
         }
 
         override fun onSelectGroupType(groupType: DecksGroupType) {
@@ -58,18 +111,18 @@ class DecksViewModel @Inject constructor(
 
         override fun onSelectTag(tag: String) {
             state.filterDialogState.run {
-                val tags = if (tag in (filterType.tags)) {
-                    filterType.tags.remove(tag)
+                val tags = if (tag in (filter.tags)) {
+                    filter.tags.remove(tag)
                 } else {
-                    filterType.tags.add(tag)
+                    filter.tags.add(tag)
                 }
-                filterType = filterType.copy(tags = tags)
+                filter = filter.copy(tags = tags)
             }
         }
 
         override fun onDeselectAll() {
             state.filterDialogState.run {
-                filterType = filterType.copy(tags = persistentSetOf())
+                filter = filter.copy(tags = persistentSetOf())
             }
         }
 
@@ -93,25 +146,25 @@ class DecksViewModel @Inject constructor(
         }
 
         override fun onLevelsValueChange(levels: ClosedFloatingPointRange<Float>) {
-            state.filterDialogState.selectedLevelsRange = levels.toIntRange()
+            state.filterDialogState.run {
+                filter = filter.copy(levels = levels.toIntRange())
+            }
         }
 
         override fun onRateValueChange(rates: ClosedFloatingPointRange<Float>) {
-            state.filterDialogState.selectedRateRange = rates
+            state.filterDialogState.run {
+                filter = filter.copy(rate = rates)
+            }
         }
-
     }
 
     private var initialized = false
     fun initScreen() {
         viewModelScope.launch {
             if (!initialized) {
-                val levels = repo.getLevelsRange() ?: 1..10
-                state.filterDialogState.levelsRange = levels
-                appliedFilters.levelsRange = levels
                 getLibraryDecks()
+                initialized = true
             }
-            initialized = true
         }
     }
 
@@ -122,17 +175,16 @@ class DecksViewModel @Inject constructor(
 
             }
         }
-
     }
 
     private fun getLibraryDecks(
         query: String = state.query,
         groupBy: DecksGroupType? = appliedFilters.groupType,
-        filterBy: DecksFilter? = appliedFilters.filterType,
+        filterBy: DecksFilter? = appliedFilters.filter,
         orderBy: DecksOrderType? = appliedFilters.orderType,
         ascOrder: Boolean = appliedFilters.ascOrder,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(filesDispatcher) {
             repo.getLibraryDecks(
                 query = query,
                 groupBy = groupBy,
@@ -146,5 +198,41 @@ class DecksViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    private fun browseDecks(
+        query: String = state.query,
+        groupBy: DecksGroupType? = appliedFilters.groupType,
+        filterBy: DecksFilter? = appliedFilters.filter,
+        orderBy: DecksOrderType? = appliedFilters.orderType,
+        ascOrder: Boolean = appliedFilters.ascOrder,
+    ) {
+
+    }
+
+    private fun downloadDeck(deck: DeckHeader) {
+        viewModelScope.launch(IO) {
+            _downloadStatus.value = MutableDownloadStatus {}
+
+            getDeckCards(deck.id)?.let { cards ->
+                repo.downloadDeck(Deck(deck, cards)).collect {
+                    _downloadStatus.value = it
+                }
+            } ?: let { _downloadStatus.value = null }
+            state.selectedDeck = null
+        }
+    }
+
+    private suspend fun getDeckCards(id: Long): List<Card>? {
+        return repo.getDeckCards(id).cards
+    }
+
+    private fun cancelDownloadDeck(deck: DeckHeader) {
+        _downloadStatus.value?.cancelDownload?.let { cancel ->
+            viewModelScope.launch {
+                cancel()
+            }
+        }
+        _downloadStatus.value = null
     }
 }

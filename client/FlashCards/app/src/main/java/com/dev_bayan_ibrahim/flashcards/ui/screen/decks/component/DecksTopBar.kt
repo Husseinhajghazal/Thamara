@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.BasicTextFieldBox
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
 
 @Composable
@@ -38,10 +39,11 @@ fun DecksTopBar(
     dialogActions: DecksFilterDialogUiActions,
 
     query: String,
-    selected: DecksTab,
+    dbInfo: DecksDatabaseInfo,
     onQueryChange: (String) -> Unit,
     onSelectTab: (DecksTab) -> Unit,
     onSearch: () -> Unit,
+    selected: DecksTab,
 ) {
     Column(
         modifier = modifier
@@ -53,6 +55,7 @@ fun DecksTopBar(
             modifier = Modifier
                 .padding(horizontal = 8.dp),
             dialogState = dialogState,
+            dbInfo = dbInfo,
             dialogActions = dialogActions
         )
         BarSearch(
@@ -69,6 +72,7 @@ fun DecksTopBar(
 @Composable
 private fun BarTitle(
     modifier: Modifier = Modifier,
+    dbInfo: DecksDatabaseInfo,
     dialogState: DecksFilterUiState,
     dialogActions: DecksFilterDialogUiActions,
 ) {
@@ -93,6 +97,7 @@ private fun BarTitle(
             )
             DecksFilterDialog(
                 state = dialogState,
+                dbInfo = dbInfo,
                 actions = dialogActions
             )
         }

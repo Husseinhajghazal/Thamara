@@ -2,13 +2,13 @@ package com.dev_bayan_ibrahim.flashcards.data.repo
 
 import androidx.compose.ui.text.intl.Locale
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.cardsInitialValues
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.decksInitialValue
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.generateLargeFakeCardsForDeck
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.generateLargeFakeDecks
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
@@ -21,12 +21,15 @@ import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.MONTH
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.WEEK
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
+import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -51,11 +54,12 @@ class FlashRepoImpl(
     override fun getTotalPlaysCount(): Flow<Int> = getDeckPlaysCount()
 
     override fun getUser(): Flow<User?> = preferences.getUser()
+    override suspend fun updateUserRank(newRank: UserRank) = preferences.updateRank(newRank)
 
     override fun getGeneralStatistics(): Flow<GeneralStatistics> {
         return combine(
             getCardsAccuracyAverage(),
-            getTags().map {
+            getFormattedTags().map {
                 val tags = mutableMapOf<String, Int>()
                 it.forEach { deckTags ->
                     deckTags.split(", ").forEach { tag ->
@@ -151,13 +155,14 @@ class FlashRepoImpl(
                 DecksGroup.Tag(tag)
             }
         }
+
         else -> getDecks("%$query%").map {
             it.groupBy { DecksGroup.None }
         }
-    }.map {
-        it.mapValues { (_, value) ->
+    }.map { map ->
+        map.mapValues { (_, value) ->
             value.applyDecksFilter(filterBy).applyDecksOrder(orderBy)
-        }
+        }.filter { (_, value) -> value.isNotEmpty() }
     }
 
     override suspend fun getDeckCards(id: Long): Deck {
@@ -182,16 +187,48 @@ class FlashRepoImpl(
     }
 
     override suspend fun initializedDb() {
+        fileManager.deleteDecks(getDownloadingDecks())
+        deleteDownloadingDecks()
         if (!preferences.initializedDb()) {
-            insertDecks(decksInitialValue)
-            insertCards(cardsInitialValues.values.flatten())
+            val decksCount = 10
+            val cardsForEachDeck = 5
+            insertDecks(
+                generateLargeFakeDecks(decksCount, cardsForEachDeck)
+            )
+            repeat(decksCount) {
+                insertCards(
+                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
+                )
+            }
+//            insertDecks(decksInitialValue)
+//            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
         }
     }
 
-    override suspend fun getLevelsRange(): IntRange? {
-        val min = getMinDeckLevel() ?: return null
-        val max = getMaxDeckLevel() ?: return null
-        return min..max
+    override fun getDatabaseInfo(): Flow<DecksDatabaseInfo> = getFormattedTags().map { tags ->
+        DecksDatabaseInfo(
+            allTags = tags.toSet(),
+        )
+    }
+
+    override suspend fun isFirstPlay(id: Long): Boolean = checkDeckFirstPlay(id)
+
+    private fun getFormattedTags() = getTags().map { it.map { it.split(", ") }.flatten() }
+
+    override suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus> {
+        insertDeck(deck.header.copy(downloadInProgress = true))
+        insertCards(deck.cards)
+        return fileManager.saveDeck(deck).map {
+            it.also {
+                if (it.finished) {
+                    if (it.success) {
+                        finishDownloadDeck(deck.header.id)
+                    } else {
+                        deleteDownloadingDecks()
+                    }
+                }
+            }
+        }
     }
 }

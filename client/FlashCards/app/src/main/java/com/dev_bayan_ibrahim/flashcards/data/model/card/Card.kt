@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.days
 @TypeConverters(CardAnswerConverter::class)
 data class Card(
     @PrimaryKey(autoGenerate = true)
-    val id: Long? = null,
+    val id: Long,
     val deckId: Long,
     val question: String = "",
     val image: String = "",

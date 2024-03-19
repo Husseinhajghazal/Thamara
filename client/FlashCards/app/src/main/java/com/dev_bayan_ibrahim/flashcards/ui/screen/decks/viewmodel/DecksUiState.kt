@@ -23,6 +23,8 @@ interface DecksUiState {
 
     val libraryDecks: Map<DecksGroup, List<DeckHeader>>
     val searchResults: StateFlow<PagingData<DeckHeader>>
+
+    val selectedDeck: DeckHeader?
 }
 
 class DecksMutableUiState : DecksUiState {
@@ -31,6 +33,6 @@ class DecksMutableUiState : DecksUiState {
     override val filterDialogState: DecksFilterMutableUiState = DecksFilterMutableUiState()
 
     override val libraryDecks: SnapshotStateMap<DecksGroup, List<DeckHeader>> = mutableStateMapOf()
-    override val searchResults: MutableStateFlow<PagingData<DeckHeader>> =
-        MutableStateFlow(PagingData.empty())
+    override val searchResults: MutableStateFlow<PagingData<DeckHeader>> = MutableStateFlow(PagingData.empty())
+    override var selectedDeck: DeckHeader? by mutableStateOf(null)
 }

@@ -12,25 +12,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dev_bayan_ibrahim.flashcards.ui.app.bar.FlashBottomBar
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.FlashNavGraph
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavActions
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.UserRankChangeDialog
+import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppViewModel
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
 @Composable
 fun FlashApp(
     modifier: Modifier = Modifier,
     widthSizeClass: WindowWidthSizeClass,
+    appViewModel: AppViewModel = hiltViewModel()
 ) {
+    val user by appViewModel.user.collectAsState()
+    user?.let { UserRankChangeDialog(rank = it.rank) }
     val navController = rememberNavController()
     val navActions by remember(navController) {
         mutableStateOf(FlashNavActions(navController))

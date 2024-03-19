@@ -2,10 +2,13 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dev_bayan_ibrahim.flashcards.data.level_manager.FlashRankManager
+import com.dev_bayan_ibrahim.flashcards.data.level_manager.PlayCardResult
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,10 +27,11 @@ class PlayViewModel @Inject constructor(
     }
 
     private fun handleAnswer(card: Card, answer: String) {
-        if (card.answer.checkIfCorrect(answer)) {
+        state.cardsAnswers[card] = if (card.answer.checkIfCorrect(answer)) {
             state.correctAnswers += 1
+            null
         } else {
-            state.cardsAnswers[card] = answer
+            answer
         }
     }
 
@@ -40,16 +44,34 @@ class PlayViewModel @Inject constructor(
         }
     }
 
+    private suspend fun calculateAndSaveNewRank() {
+        val oldRank = repo.getUser().first()?.rank ?: return
+        val firstPlay = repo.isFirstPlay(state.deck.header.id!!)
+        val newRank = FlashRankManager.calculateNewRank(
+            oldRank = oldRank,
+            deckLevel = state.deck.header.level,
+            cards = state.cardsAnswers.map { (_, wrongAnswer) ->
+                PlayCardResult(
+                    new = firstPlay,
+                    correct = wrongAnswer == null
+                )
+            }
+        )
+        repo.updateUserRank(newRank)
+    }
+
     private fun handleSavePlayRecord() {
         viewModelScope.launch(Dispatchers.IO) {
+            calculateAndSaveNewRank()
             repo.saveDeckResults(
                 state.deck.header.id!!,
                 state.cardsAnswers.mapKeys { (card, _) ->
                     card.id!!
-                }.mapValues { (_, answer) ->
-                    answer == null
+                }.mapValues { (_, wrongAnswer) ->
+                    wrongAnswer == null
                 }
             )
+
         }
     }
 

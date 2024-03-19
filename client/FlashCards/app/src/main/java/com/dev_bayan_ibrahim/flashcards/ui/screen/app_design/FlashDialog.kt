@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
@@ -13,7 +14,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 @Composable
 fun FlashDialog(
     modifier: Modifier = Modifier,
-    scale: Float? = null,
+    accent: Color = MaterialTheme.colorScheme.primary,
     show: Boolean,
     onDismiss: () -> Unit,
     content: @Composable BoxScope.() -> Unit,
@@ -24,8 +25,7 @@ fun FlashDialog(
         ) {
             DeckCard(
                 modifier = modifier,
-                scale = scale,
-                accent = MaterialTheme.colorScheme.primary,
+                accent = accent,
                 enableClick = false,
                 content = content
             )

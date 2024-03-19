@@ -12,7 +12,7 @@ import kotlinx.datetime.Instant
 @TypeConverters(StringListConverter::class, InstantConverter::class)
 data class DeckHeader(
     @PrimaryKey(autoGenerate = true)
-    val id: Long? = null,
+    val id: Long,
     val version: Int = 1,
     val tags: List<String> = emptyList(),
     val collection: String? = null,
@@ -24,7 +24,9 @@ data class DeckHeader(
     val rates: Int = 0, // rates count
     val rate: Float = 0f, // average rate
     val creation: Instant = Instant.fromEpochMilliseconds(0),
+    val downloadInProgress: Boolean = false,
 )
-val DeckHeader.colorAccent: Color get()= Color(color)
+
+val DeckHeader.colorAccent: Color get() = Color(color)
 
 fun String.split(): List<String> = split(", ")

@@ -11,11 +11,29 @@ import kotlinx.coroutines.flow.Flow
 interface DeckDao  {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDecks(decks: List<DeckHeader>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertDeck(decks: DeckHeader)
 
     @Query("""
         select * from decks where id = :id
     """)
     suspend fun getDeck(id: Long): DeckHeader?
+
+    @Query(
+        """
+        update decks set downloadInProgress = 0 where id = :id
+    """
+    )
+    suspend fun finishDownloadDeck(id: Long)
+
+    @Query("""
+        select id from decks where downloadInProgress
+    """)
+    suspend fun getDownloadingDecks(): List<Long>
+    @Query("""
+        delete from decks where downloadInProgress
+    """)
+    suspend fun deleteDownloadingDecks()
 
     @Query("""
         select tags from decks
@@ -34,14 +52,4 @@ interface DeckDao  {
         select count(*) from decks where creation >= :startTimeStamp
     """)
     fun getDecksCountAfter(startTimeStamp: Long): Flow<Int>
-
-    @Query("""
-        select max(level) from decks 
-    """)
-    suspend fun getMaxDeckLevel(): Int?
-
-    @Query("""
-        select min(level) from decks 
-    """)
-    suspend fun getMinDeckLevel(): Int?
 }

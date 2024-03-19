@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
 @Composable
@@ -104,7 +105,7 @@ private fun UserHeader(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RankImage(rank = user?.rank)
+        RankImage(rank = user?.rank?.rank)
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -146,7 +147,7 @@ private fun HomeUserPreviewLight() {
             modifier = Modifier.size(400.dp, 900.dp),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val user = User(name = "name", age = 10, rank = 10)
+            val user = User(name = "name", age = 10, rank = UserRank(10, 12))
             HomeUser(user = user)
         }
     }

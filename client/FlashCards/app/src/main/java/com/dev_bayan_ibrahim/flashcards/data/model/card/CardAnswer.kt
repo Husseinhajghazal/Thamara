@@ -58,7 +58,7 @@ sealed interface CardAnswer {
     fun checkIfCorrect(answer: String): Boolean = when (this) {
         is Info -> true
         is MultiChoice -> answer == correctChoice
-        is TrueFalse -> answer.toBooleanStrict() == this.answer
+        is TrueFalse -> answer == this.answer.toString()
         is Write -> answer == this.answer
     }
 }

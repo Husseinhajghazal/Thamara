@@ -11,7 +11,7 @@ data class DecksFilter (
 
     ) {
     fun applyOn(list: Iterable<DeckHeader>): List<DeckHeader> = list.filter {
-        (it.tags.any { it in tags } || it.tags.isEmpty())
+        (it.tags.any { it in tags } || tags.isEmpty())
                 && levels?.contains(it.level) ?: true
                 && rate?.contains(it.rate) ?: true
     }

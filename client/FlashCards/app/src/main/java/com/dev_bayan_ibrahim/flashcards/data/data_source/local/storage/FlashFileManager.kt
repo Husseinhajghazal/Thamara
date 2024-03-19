@@ -1,16 +1,17 @@
 package com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage
 
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
-import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
+import kotlinx.coroutines.flow.Flow
 
 
 interface FlashFileManager {
-    suspend fun saveDeck(
+    fun saveDeck(
         deck: Deck,
-        patternStatus: MutableDownloadStatus,
-        imagesStatus: List<MutableDownloadStatus>
-    )
+    ): Flow<DownloadStatus>
+
     suspend fun appendFilePathForImages(deck: Deck): Deck
-    suspend fun deleteDeck (deck: Deck) = deck.header.id?.let { deleteDeck(it) }
+    suspend fun deleteDeck(deck: Deck) = deleteDeck(deck.header.id)
     suspend fun deleteDeck(id: Long)
+    suspend fun deleteDecks(ids: List<Long>)
 }

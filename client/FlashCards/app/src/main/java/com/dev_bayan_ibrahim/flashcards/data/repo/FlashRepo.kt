@@ -6,10 +6,13 @@ import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
+import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import kotlinx.coroutines.flow.Flow
 
 interface FlashRepo {
@@ -36,5 +39,8 @@ interface FlashRepo {
 
     suspend fun initializedDb()
 
-    suspend fun getLevelsRange(): IntRange?
+    fun getDatabaseInfo(): Flow<DecksDatabaseInfo>
+    suspend fun isFirstPlay(id: Long): Boolean
+    suspend fun updateUserRank(newRank: UserRank)
+    suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus>
 }

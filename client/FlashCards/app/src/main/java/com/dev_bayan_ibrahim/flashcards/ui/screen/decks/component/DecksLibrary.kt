@@ -14,18 +14,18 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
+import java.util.Objects
 
 @Composable
 fun PaginatedDecksList(
     modifier: Modifier = Modifier,
     decks: LazyPagingItems<DeckHeader>,
-    onClickDeck: (Long) -> Unit,
+    onClickDeck: (DeckHeader) -> Unit,
 ) {
     DecksGrid(modifier = modifier) {
         countItem(decks.itemCount)
@@ -41,7 +41,7 @@ fun PaginatedDecksList(
 fun DecksList(
     modifier: Modifier = Modifier,
     decksGroups: Map<DecksGroup, List<DeckHeader>>,
-    onClickDeck: (Long) -> Unit,
+    onClickDeck: (DeckHeader) -> Unit,
 ) {
     val totalCount by remember(decksGroups) {
         derivedStateOf {
@@ -56,7 +56,11 @@ fun DecksList(
         countItem(totalCount)
         decksGroups.forEach { (group, decks) ->
             groupTitle(group)
-            deckItems(decks, onClickDeck)
+            deckItems(
+                decks = decks,
+                groupId = group.name,
+                onClickDeck = onClickDeck
+            )
         }
     }
 }
@@ -78,32 +82,31 @@ private fun DecksGrid(
 
 private fun LazyGridScope.deckItem(
     deck: DeckHeader,
-    onClickDeck: (Long) -> Unit,
+    onClickDeck: (DeckHeader) -> Unit,
 ) {
     item(
         key = deck.id,
         contentType = { "c" }
     ) {
         DeckItem(
-            deckHeader = deck,
-            onClick = { onClickDeck(deck.id!!) }
-        )
+            deckHeader = deck
+        ) { onClickDeck(deck) }
     }
 }
 
 private fun LazyGridScope.deckItems(
     decks: List<DeckHeader>,
-    onClickDeck: (Long) -> Unit,
+    groupId: String? = null,
+    onClickDeck: (DeckHeader) -> Unit,
 ) {
     items(
         items = decks,
-        key = { it.id!! },
+        key = { Objects.hash(it.id, groupId) },
         contentType = { "c" }
     ) { deck ->
         DeckItem(
-            deckHeader = deck,
-            onClick = { onClickDeck(deck.id!!) }
-        )
+            deckHeader = deck
+        ) { onClickDeck(deck) }
     }
 }
 
@@ -123,16 +126,18 @@ private fun LazyGridScope.countItem(
 private fun LazyGridScope.groupTitle(
     group: DecksGroup,
 ) {
-    item(
-        key = group.name,
-        contentType = "b",
-        span = {
-            GridItemSpan(maxLineSpan)
-        },
-    ) {
-        Text(
-            text = group.name.ifBlank { stringResource(id = group.emptyNameRes) },
-            style = MaterialTheme.typography.bodyLarge
-        )
+    if (group.name.isNotBlank()) {
+        item(
+            key = group.name,
+            contentType = "b",
+            span = {
+                GridItemSpan(maxLineSpan)
+            },
+        ) {
+            Text(
+                text = group.name,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }

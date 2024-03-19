@@ -4,7 +4,9 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
+import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.BasicTextFieldBox
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashSlider
@@ -36,7 +40,9 @@ fun HomeUserDialog(
     onSave: () -> Unit,
 ) {
     FlashDialog(
-        modifier = modifier,
+        modifier = modifier
+            .height(300.dp)
+            .aspectRatio(cardRatio),
         show = show,
         onDismiss = {}
     ) {
@@ -125,7 +131,7 @@ private fun HomeUserDialogPreviewLight() {
             modifier = Modifier,
             color = MaterialTheme.colorScheme.background,
         ) {
-            val user = User(name = "", age = 0, rank = 0)
+            val user = User(name = "", age = 0, rank = UserRank.Init)
             HomeUserDialog(
                 show = true,
                 name = user.name,

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.map
 val usernameKey by lazy { stringPreferencesKey("username") }
 val ageKey by lazy { intPreferencesKey("age") }
 val rankKey by lazy { intPreferencesKey("rank") }
+val expKey by lazy { intPreferencesKey("exp") }
 val initialized by lazy { booleanPreferencesKey("initialized") }
 
 class DataStoreManager(
@@ -38,15 +40,17 @@ class DataStoreManager(
         updateKey(rankKey, 0)
     }
 
-    suspend fun updateRank(rank: Int) {
-        updateKey(rankKey, rank)
+    suspend fun updateRank(rank: UserRank) {
+        updateKey(rankKey, rank.rank)
+        updateKey(expKey, rank.exp)
     }
 
     fun getUser(): Flow<User?> = datastore.data.map {
         val username = it[usernameKey] ?: return@map null
         val age = it[ageKey] ?: return@map null
-        val rank = it[rankKey] ?: return@map null
-        User(name = username, age = age, rank = rank)
+        val rank = it[rankKey] ?: 0
+        val exp = it[expKey] ?: 0
+        User(name = username, age = age, rank = UserRank(rank, exp))
     }
 
     suspend fun initializedDb(): Boolean = datastore.data.map { it[initialized, false] }.first()

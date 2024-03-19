@@ -49,6 +49,7 @@ fun ExpandedCard(
     card: Card,
     accent: Color,
     bgPattern: String,
+    clickable: Boolean,
     onSelectAnswer: (String) -> Unit,
 ) {
     DeckCard(
@@ -76,6 +77,7 @@ fun ExpandedCard(
             )
             CardAnswer(
                 answer = card.answer,
+                clickable = clickable,
                 onSelectAnswer = onSelectAnswer
             )
         }
@@ -121,30 +123,34 @@ fun CardImage(
 private fun CardAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer,
-    onSelectAnswer: (String) -> Unit
+    clickable: Boolean,
+    onSelectAnswer: (String) -> Unit,
 ) {
     when (answer) {
         is CardAnswer.Info -> CardInfoAnswer(
             modifier = modifier,
             answer = answer,
-            onClick = { onSelectAnswer("") }
-        )
+            clickable = clickable
+        ) { onSelectAnswer("") }
 
         is CardAnswer.MultiChoice -> CardMultiChoiceAnswer(
             modifier = modifier,
             answer = answer,
+            clickable = clickable,
             onSelectAnswer = onSelectAnswer,
         )
 
         is CardAnswer.TrueFalse -> CardTrueFalseAnswer(
             modifier = modifier,
             answer = answer,
+            clickable = clickable,
             onSelectAnswer = onSelectAnswer
         )
 
         is CardAnswer.Write -> CardWriteAnswer(
             modifier = modifier,
             answer = answer,
+            clickable = clickable,
             onSelectAnswer = onSelectAnswer
         )
     }
@@ -154,6 +160,7 @@ private fun CardAnswer(
 private fun CardInfoAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer.Info,
+    clickable: Boolean,
     onClick: () -> Unit,
 ) {
     Column(
@@ -161,7 +168,10 @@ private fun CardInfoAnswer(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Enable reminder")
-        OutlinedButton(onClick = onClick) {
+        OutlinedButton(
+            onClick = onClick,
+            enabled = clickable
+        ) {
             Text(answer.repeatRate.toIsoString())
         }
     }
@@ -173,6 +183,7 @@ private fun CardMultiChoiceAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer.MultiChoice,
     chipBorder: Color = MaterialTheme.colorScheme.onSurface,
+    clickable: Boolean,
     onSelectAnswer: (String) -> Unit,
 ) {
     require(answer.choices.count() in 2..5)
@@ -186,7 +197,7 @@ private fun CardMultiChoiceAnswer(
                     .height(32.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(32.dp))
-                    .clickable { onSelectAnswer(choice) }
+                    .clickable(enabled = clickable) { onSelectAnswer(choice) }
                     .drawBehind {
                         drawRoundRect(
                             color = chipBorder,
@@ -216,6 +227,7 @@ private fun CardMultiChoiceAnswer(
 private fun CardTrueFalseAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer.TrueFalse,
+    clickable: Boolean,
     onSelectAnswer: (String) -> Unit
 ) {
     Row(
@@ -226,6 +238,7 @@ private fun CardTrueFalseAnswer(
             modifier = Modifier
                 .widthIn(max = 150.dp)
                 .weight(1f),
+            enabled = clickable,
             onClick = { onSelectAnswer(false.toString()) },
         ) {
             Text(text = "False")
@@ -234,6 +247,7 @@ private fun CardTrueFalseAnswer(
             modifier = Modifier
                 .widthIn(max = 150.dp)
                 .weight(1f),
+            enabled = clickable,
             onClick = { onSelectAnswer(true.toString()) },
         ) {
             Text(text = "True")
@@ -245,6 +259,7 @@ private fun CardTrueFalseAnswer(
 private fun CardWriteAnswer(
     modifier: Modifier = Modifier,
     answer: CardAnswer.Write,
+    clickable: Boolean,
     onSelectAnswer: (String) -> Unit
 ) {
     var answerValue by rememberSaveable {
@@ -271,7 +286,8 @@ private fun CardWriteAnswer(
             maxLines = 2,
         )
         OutlinedButton(
-            onClick = { onSelectAnswer(answerValue) }
+            onClick = { onSelectAnswer(answerValue) },
+            enabled = clickable,
         ) {
             Text(text = "Answer")
         }
@@ -295,13 +311,14 @@ private fun ExpandedCardPreviewLight() {
                         "correct answer",
                     ),
                     deckId = 0,
+                    id = 0,
                 ),
                 accent = Color.Magenta,
                 bgPattern = "https://drive.google.com/uc?export=download&id=1HiW96HMq-EPMLGvfsfS4Ow2VGZNTJGXt",
-                onSelectAnswer = {
+                clickable = true
+            ) {
 
-                }
-            )
+            }
         }
     }
 }

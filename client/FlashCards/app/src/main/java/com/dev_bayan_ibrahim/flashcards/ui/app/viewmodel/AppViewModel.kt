@@ -1,10 +1,21 @@
 package com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class AppViewModel @Inject constructor(): ViewModel() {
+class AppViewModel @Inject constructor(
+    private val repo: FlashRepo
+): ViewModel() {
+    val user = repo.getUser().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
     val state = AppMutableUiState()
 }

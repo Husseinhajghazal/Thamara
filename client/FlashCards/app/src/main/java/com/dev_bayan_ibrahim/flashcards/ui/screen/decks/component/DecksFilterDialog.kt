@@ -6,17 +6,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,11 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,10 +46,12 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
 import com.dev_bayan_ibrahim.flashcards.data.util.FlashSelectableItem
+import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDropDown
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashRangeSlider
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toFloatRange
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.collections.immutable.PersistentSet
 
@@ -55,37 +61,24 @@ interface DecksFilterUiState {
     val groupType: DecksGroupType?
     val orderType: DecksOrderType?
     val ascOrder: Boolean
-    val filterType: DecksFilter
-    val allTags: List<String>
-
-    val levelsRange: IntRange
-    val selectedLevelsRange: IntRange
-
-    val selectedRateRange: ClosedFloatingPointRange<Float>
+    val filter: DecksFilter
 }
+
+const val tagsRows = 2
+val tagsGridHeight = FilterChipDefaults.Height.times(tagsRows).plus(8.dp * tagsRows.dec())
 
 class DecksFilterMutableUiState : DecksFilterUiState {
     fun onApply(appliedFilters: DecksFilterMutableUiState) {
         groupType = appliedFilters.groupType
         orderType = appliedFilters.orderType
-        filterType = appliedFilters.filterType
-        allTags.clear(); allTags.addAll(appliedFilters.allTags)
-        levelsRange = appliedFilters.levelsRange
-        selectedLevelsRange = appliedFilters.selectedLevelsRange
-        selectedRateRange = appliedFilters.selectedRateRange
+        filter = appliedFilters.filter
     }
 
     override var show: Boolean by mutableStateOf(false)
     override var groupType: DecksGroupType? by mutableStateOf(null)
     override var orderType: DecksOrderType? by mutableStateOf(null)
     override var ascOrder: Boolean by mutableStateOf(true)
-    override var filterType: DecksFilter by mutableStateOf(DecksFilter())
-    override val allTags: SnapshotStateList<String> = mutableStateListOf()
-
-    override var levelsRange: IntRange by mutableStateOf(1..10)
-    override var selectedLevelsRange: IntRange by mutableStateOf(levelsRange)
-
-    override var selectedRateRange: ClosedFloatingPointRange<Float> by mutableStateOf(0f..5f)
+    override var filter: DecksFilter by mutableStateOf(DecksFilter())
 }
 
 @Immutable
@@ -106,16 +99,21 @@ interface DecksFilterDialogUiActions {
 fun DecksFilterDialog(
     modifier: Modifier = Modifier,
     state: DecksFilterUiState,
+    dbInfo: DecksDatabaseInfo,
     actions: DecksFilterDialogUiActions
 
 ) {
     FlashDialog(
-        modifier = modifier,
+        modifier = modifier
+            .height(590.dp)
+            .aspectRatio(ratio = cardRatio),
         show = state.show,
         onDismiss = actions::onCancel
     ) {
         Column(
-            modifier = Modifier.padding(32.dp),
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FilterSection(title = "Group By") {
@@ -128,8 +126,9 @@ fun DecksFilterDialog(
 
             FilterSection(title = "Order By") {
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     FilterDialogItem(
                         items = DecksOrderType.entries,
@@ -139,6 +138,7 @@ fun DecksFilterDialog(
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(24.dp))
+                            .padding(8.dp)
                             .clickable {
                                 actions.changeOrderType(!state.ascOrder)
                             },
@@ -155,22 +155,23 @@ fun DecksFilterDialog(
 
             FilterSection(title = "Filter By") {
                 FilterTags(
-                    allTags = state.allTags,
-                    selectedTags = state.filterType.tags,
+
+                    allTags = dbInfo.allTags,
+                    selectedTags = state.filter.tags,
                     onSelectTag = actions::onSelectTag,
                     onDeselectAll = actions::onDeselectAll,
                 )
                 FilterRangeSlider(
                     label = "Levels",
-                    validRange = state.levelsRange.toFloatRange(),
-                    selectedRange = state.selectedLevelsRange.toFloatRange(),
+                    validRange = 0f..10f,
+                    selectedRange = state.filter.levels?.toFloatRange(),
                     onValueChange = actions::onLevelsValueChange
                 )
 
                 FilterRangeSlider(
                     label = "Rate",
                     validRange = 0f..5f,
-                    selectedRange = state.selectedRateRange,
+                    selectedRange = state.filter.rate,
                     onValueChange = actions::onRateValueChange
                 )
             }
@@ -249,18 +250,17 @@ private fun <T : FlashSelectableItem> FilterDialogItem(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FilterTags(
     modifier: Modifier = Modifier,
-    allTags: List<String>,
+    allTags: Set<String>,
     selectedTags: PersistentSet<String>,
     onSelectTag: (String) -> Unit,
     onDeselectAll: () -> Unit,
 ) {
     if (allTags.isNotEmpty()) {
         Column(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -271,18 +271,23 @@ private fun FilterTags(
                     Text(text = "Deselect")
                 }
             }
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
+            LazyHorizontalStaggeredGrid(
+                modifier = Modifier.height(tagsGridHeight),
+                rows = StaggeredGridCells.Fixed(tagsRows),
+                horizontalItemSpacing = 8.dp,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                allTags.forEach { tag ->
+                items(allTags.toList()) { tag ->
                     FilterChip(
                         selected = tag in selectedTags,
                         onClick = { onSelectTag(tag) },
                         label = {
                             Text(text = tag)
-                        }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     )
                 }
             }
@@ -296,7 +301,7 @@ private fun FilterRangeSlider(
     label: String,
     validRange: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
-    selectedRange: ClosedFloatingPointRange<Float>,
+    selectedRange: ClosedFloatingPointRange<Float>?,
 ) {
     Column(
         modifier = Modifier,
@@ -306,7 +311,7 @@ private fun FilterRangeSlider(
             modifier = modifier,
             steps = validRange.run { endInclusive - start - 1 }.toInt(),
             onValueChange = onValueChange,
-            selectedRange = selectedRange,
+            selectedRange = selectedRange ?: validRange,
             valueRange = validRange
         )
     }
@@ -322,6 +327,7 @@ private fun DecksFilterDialogPreviewLight() {
         ) {
             DecksFilterDialog(
                 state = DecksFilterMutableUiState(),
+                dbInfo = DecksDatabaseInfo(setOf("tag 1", "tag 2")),
                 actions = object : DecksFilterDialogUiActions {
                     override fun onSelectGroupType(groupType: DecksGroupType) {}
 

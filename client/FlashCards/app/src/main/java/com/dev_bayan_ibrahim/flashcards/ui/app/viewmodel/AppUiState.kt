@@ -7,5 +7,4 @@ interface AppUiState {
 }
 
 class AppMutableUiState: AppUiState {
-
 }

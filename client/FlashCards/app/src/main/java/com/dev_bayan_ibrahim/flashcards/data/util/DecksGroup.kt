@@ -17,33 +17,27 @@ enum class DecksGroupType (
 }
 sealed class DecksGroup(
     val name: String,
-    @StringRes
-    val emptyNameRes: Int,
     val type: DecksGroupType,
 ) {
     data class Collection(
         val collection: String?
     ) : DecksGroup(
         name = collection ?: "",
-        emptyNameRes = R.string.app_name,
         type = DecksGroupType.COLLECTION
     )
 
     data class Tag(val tag: String) : DecksGroup(
         name = tag,
-        emptyNameRes = R.string.app_name,
         type = DecksGroupType.TAG
     )
 
     data class Level(val level: Int) : DecksGroup(
         name = level.toString(),
-        emptyNameRes = R.string.app_name,
         type = DecksGroupType.LEVEL
     )
 
     data object None : DecksGroup(
         name = "",
-        emptyNameRes = R.string.app_name,
         type = DecksGroupType.NONE
     )
 }
