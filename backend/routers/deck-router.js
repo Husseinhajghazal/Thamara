@@ -25,7 +25,9 @@ router.post(
   ],
   deckController.createDeck
 );
-
 router.get("/", deckController.getAllDecks);
+router.get("/:id", deckController.getOneDeck);
+router.delete("/:id", deckController.deleteDeckById);
+router.put("/:id", deckController.editDeck);
 
 module.exports = router;

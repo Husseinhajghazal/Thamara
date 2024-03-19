@@ -24,6 +24,7 @@ const Deck = sequelize.define("deck", {
     type: Sequelize.ENUM("سهل", "متوسط", "صعب"),
     allowNull: false,
   },
+  ratesCount: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
   rate: {
     type: Sequelize.INTEGER,
     allowNull: false,
