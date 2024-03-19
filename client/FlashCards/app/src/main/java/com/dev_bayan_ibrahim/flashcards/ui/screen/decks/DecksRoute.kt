@@ -20,13 +20,12 @@ fun DecksRoute(
     }
 
     val dbInfo by decksViewModel.dbInfo.collectAsState()
-    val downloadStatus by decksViewModel.downloadStatus.collectAsState()
 
     DecksScreen(
         modifier = modifier,
         state = decksViewModel.state,
         dbInfo = dbInfo,
-        downloadStatus = downloadStatus,
+        downloadStatus = decksViewModel.downloadStatus,
         actions = decksViewModel.getDecksActions(navigateToDeckPlay = navigateToDeckPlay)
     )
 }

@@ -1,5 +1,8 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
@@ -20,10 +23,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab.LIBRARY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -45,8 +45,8 @@ class DecksViewModel @Inject constructor(
         DecksDatabaseInfo(allTags = setOf())
     )
 
-    private val _downloadStatus = MutableStateFlow<DownloadStatus?>(null)
-    val downloadStatus: StateFlow<DownloadStatus?> = _downloadStatus.asStateFlow()
+    var downloadStatus: DownloadStatus? by mutableStateOf(null)
+        private set
 
     fun getDecksActions(
         navigateToDeckPlay: (Long) -> Unit
@@ -70,7 +70,7 @@ class DecksViewModel @Inject constructor(
         }
 
         override fun onDownloadDeck() {
-            if (true/*selectedTab == BROWSE*/) {
+            if (selectedTab == BROWSE) {
                 state.selectedDeck?.let {
                     downloadDeck(it)
                 }
@@ -78,7 +78,7 @@ class DecksViewModel @Inject constructor(
         }
 
         override fun onCancelDownloadDeck() {
-            if (true/*selectedTab == BROWSE*/) {
+            if (selectedTab == BROWSE) {
                 state.selectedDeck?.let {
                     cancelDownloadDeck(it)
                     state.selectedDeck = null
@@ -212,14 +212,15 @@ class DecksViewModel @Inject constructor(
 
     private fun downloadDeck(deck: DeckHeader) {
         viewModelScope.launch(IO) {
-            _downloadStatus.value = MutableDownloadStatus {}
+            downloadStatus = MutableDownloadStatus {}
 
             getDeckCards(deck.id)?.let { cards ->
                 repo.downloadDeck(Deck(deck, cards)).collect {
-                    _downloadStatus.value = it
+                    downloadStatus = it
                 }
-            } ?: let { _downloadStatus.value = null }
+            } ?: let { downloadStatus = null }
             state.selectedDeck = null
+            downloadStatus = null
         }
     }
 
@@ -228,11 +229,11 @@ class DecksViewModel @Inject constructor(
     }
 
     private fun cancelDownloadDeck(deck: DeckHeader) {
-        _downloadStatus.value?.cancelDownload?.let { cancel ->
+        downloadStatus?.cancelDownload?.let { cancel ->
             viewModelScope.launch {
                 cancel()
             }
         }
-        _downloadStatus.value = null
+        downloadStatus = null
     }
 }

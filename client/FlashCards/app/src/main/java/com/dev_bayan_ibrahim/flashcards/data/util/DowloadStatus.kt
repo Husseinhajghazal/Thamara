@@ -31,11 +31,12 @@ class MutableDownloadStatus(override val cancelDownload: suspend () -> Unit) : D
             cancelDownload()
             other.cancelDownload()
         }
-        if (other.error == null && error == null) {
-            sum.total = this.total + other.total
-            sum.progress = this.progress + other.progress
-            sum.success = this.success && other.success
-        }
+        sum.error = this.error ?: other.error
+
+        sum.total = this.total + other.total
+        sum.progress = this.progress + other.progress
+        sum.success = this.success && other.success
+
         sum.finished = this.finished && other.finished
 
         return sum

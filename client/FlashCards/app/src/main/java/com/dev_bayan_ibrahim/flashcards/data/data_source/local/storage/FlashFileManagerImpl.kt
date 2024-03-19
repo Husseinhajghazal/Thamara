@@ -19,6 +19,7 @@ import java.io.File
 import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
+const val bufferSize = 4096
 class FlashFileManagerImpl(
     filesDir: File,
     private val client: HttpClient,
@@ -49,9 +50,15 @@ class FlashFileManagerImpl(
         return combine(
             flows
         ) { status ->
-            status.reduce { i, j ->
-                i + j
+            val downloadStatus = MutableDownloadStatus {
+                status.forEach { it.cancelDownload() }
             }
+            downloadStatus.total = status.sumOf { it.total }
+            downloadStatus.progress = status.sumOf { it.progress }
+
+            downloadStatus.error = status.firstNotNullOfOrNull { it.error }
+
+            downloadStatus
         }.flowOn(context)
     }
 
@@ -121,6 +128,7 @@ class FlashFileManagerImpl(
         val status = MutableDownloadStatus {
             currentCoroutineContext().cancel(null)
         }
+        emit(status)
 
         try {
             val response = client.get(url)
@@ -133,8 +141,13 @@ class FlashFileManagerImpl(
             var offset = 0
 
             do {
-                val currentRead = response.content.readAvailable(data, offset, data.size)
-                file.write(data, offset, currentRead)
+                val currentRead = response.content.readAvailable(
+                    dst = data,
+                    offset = offset,
+                    length = data.size,
+//                    length = bufferSize.coerceAtMost(data.size - offset)
+                )
+//                file.write(data, offset, currentRead)
                 offset += currentRead
 
                 status.progress = offset.toLong()

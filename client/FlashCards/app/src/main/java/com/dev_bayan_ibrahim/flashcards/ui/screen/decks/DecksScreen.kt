@@ -15,6 +15,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DownloadDeckDialog
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.LibraryDeckDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.PaginatedDecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
@@ -58,19 +59,12 @@ fun DecksScreen(
             when (DecksTab.entries[page]) {
                 DecksTab.LIBRARY -> {
                     state.selectedDeck?.let {
-                        DownloadDeckDialog(
+                        LibraryDeckDialog(
                             show = true,
                             deck = it,
-                            onDownload = actions::onDownloadDeck,
-                            onCancel = actions::onCancelDownloadDeck,
-                            downloadStatus = downloadStatus,
+                            onDismiss = actions::onDismissSelectedDeck,
+                            onPlay = actions::onPlayDeck
                         )
-//                        LibraryDeckDialog(
-//                            show = true,
-//                            deck = it,
-//                            onDismiss = actions::onDismissSelectedDeck,
-//                            onPlay = actions::onPlayDeck
-//                        )
                     }
                     DecksList(
                         decksGroups = state.libraryDecks,

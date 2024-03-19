@@ -191,7 +191,7 @@ class FlashRepoImpl(
         deleteDownloadingDecks()
         if (!preferences.initializedDb()) {
             val decksCount = 10
-            val cardsForEachDeck = 5
+            val cardsForEachDeck = 50
             insertDecks(
                 generateLargeFakeDecks(decksCount, cardsForEachDeck)
             )

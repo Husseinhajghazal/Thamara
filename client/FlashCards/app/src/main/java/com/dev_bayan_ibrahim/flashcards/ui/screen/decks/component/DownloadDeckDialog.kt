@@ -12,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,13 +58,14 @@ private fun DownloadActions(
     if (downloadStatus != null) {
         Column(
             modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(40.dp),
-                    progress = { (downloadStatus.progress.toFloat()) / downloadStatus.total.coerceAtLeast(1) }
+//                    progress = { (downloadStatus.progress.toFloat()) / downloadStatus.total.coerceAtLeast(1) }
                 )
                 IconButton(
                     onClick = onCancel
@@ -76,10 +76,10 @@ private fun DownloadActions(
                     )
                 }
             }
-            Text(
-                text = "${downloadStatus.progress.formatSize()} - ${downloadStatus.total.formatSize()}",
-                style = MaterialTheme.typography.bodyLarge
-            )
+//            Text(
+//                text = "${downloadStatus.progress.formatSize()}/${downloadStatus.total.formatSize()}",
+//                style = MaterialTheme.typography.bodyLarge
+//            )
         }
     } else {
         FilledIconButton(
