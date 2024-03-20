@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksViewModel
 
 
@@ -13,6 +14,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksViewModel
 fun DecksRoute(
     modifier: Modifier = Modifier,
     decksViewModel: DecksViewModel = hiltViewModel(),
+    onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
     navigateToDeckPlay: (Long) -> Unit
 ) {
     LaunchedEffect(key1 = Unit) {
@@ -26,6 +28,9 @@ fun DecksRoute(
         state = decksViewModel.state,
         dbInfo = dbInfo,
         downloadStatus = decksViewModel.downloadStatus,
-        actions = decksViewModel.getDecksActions(navigateToDeckPlay = navigateToDeckPlay)
+        actions = decksViewModel.getDecksActions(
+            navigateToDeckPlay = navigateToDeckPlay,
+            onShowSnackbarMessage = onShowSnackbarMessage,
+        )
     )
 }

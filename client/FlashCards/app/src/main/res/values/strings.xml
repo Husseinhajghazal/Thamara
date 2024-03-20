@@ -18,5 +18,8 @@
     <string name="none">None</string>
     <string name="name">Name</string>
     <string name="rate">Rate</string>
+    <string name="success">Success</string>
+    <string name="finish_download_deck">Deck downloaded successfully</string>
+    <string name="fail_download_deck">There a problem in download, retry later</string>
 
 </resources>

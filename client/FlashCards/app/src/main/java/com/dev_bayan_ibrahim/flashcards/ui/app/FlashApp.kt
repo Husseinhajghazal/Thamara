@@ -1,6 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.ui.app
 
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,6 +10,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -17,7 +20,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -29,11 +34,13 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.UserRankChangeDialog
 import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppViewModel
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun FlashApp(
     modifier: Modifier = Modifier,
     widthSizeClass: WindowWidthSizeClass,
+    context: Context = LocalContext.current,
     appViewModel: AppViewModel = hiltViewModel()
 ) {
     val user by appViewModel.user.collectAsState()
@@ -56,6 +63,11 @@ fun FlashApp(
         }
     }
 
+    val snackbarState by remember {
+        mutableStateOf(SnackbarHostState())
+    }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         bottomBar = {
             AnimatedVisibility(
@@ -70,14 +82,23 @@ fun FlashApp(
                     }
                 )
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarState)
         }
     ) {
         FlashNavGraph(
             modifier = Modifier
                 .padding(it),
             navController = navController,
-            navActions = navActions,
-        )
+            navActions = navActions
+        ) {
+            scope.launch {
+                snackbarState.showSnackbar(
+                    it.asSnackbarVisuals(context)
+                )
+            }
+        }
     }
 }
 

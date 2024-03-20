@@ -14,6 +14,8 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarMessages
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toIntRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksFilterMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
@@ -49,7 +51,8 @@ class DecksViewModel @Inject constructor(
         private set
 
     fun getDecksActions(
-        navigateToDeckPlay: (Long) -> Unit
+        navigateToDeckPlay: (Long) -> Unit,
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
     ): DecksUiActions = object : DecksUiActions {
         override fun onSearchQueryChange(query: String) {
             state.query = query
@@ -72,7 +75,30 @@ class DecksViewModel @Inject constructor(
         override fun onDownloadDeck() {
             if (selectedTab == BROWSE) {
                 state.selectedDeck?.let {
-                    downloadDeck(it)
+                    downloadDeck(it) { error ->
+                        if (error == null) {
+                            onShowSnackbarMessage(
+                                FlashSnackbarMessages.FinishDownloadDeck
+                            )
+                        } else {
+                            val (code, message) = error
+                            if (code != null) {
+                                onShowSnackbarMessage(
+                                    FlashSnackbarMessages.Factory(
+                                        actionLabel = { null },
+                                        message = { "error code $code" }
+                                    )
+                                )
+                            } else if (message != null) {
+                                onShowSnackbarMessage(
+                                    FlashSnackbarMessages.Factory(
+                                        actionLabel = { null },
+                                        message = { message }
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -210,7 +236,7 @@ class DecksViewModel @Inject constructor(
 
     }
 
-    private fun downloadDeck(deck: DeckHeader) {
+    private fun downloadDeck(deck: DeckHeader, onFinish: (Pair<Int?, String?>?) -> Unit = {}) {
         viewModelScope.launch(IO) {
             downloadStatus = MutableDownloadStatus {}
 
@@ -219,6 +245,8 @@ class DecksViewModel @Inject constructor(
                     downloadStatus = it
                 }
             } ?: let { downloadStatus = null }
+
+            onFinish(downloadStatus?.error)
             state.selectedDeck = null
             downloadStatus = null
         }
