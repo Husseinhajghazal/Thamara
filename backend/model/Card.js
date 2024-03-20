@@ -8,6 +8,10 @@ const Card = sequelize.define("card", {
     primaryKey: true,
     allowNull: false,
   },
+  deck_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
   quesition: {
     type: Sequelize.STRING,
     allowNull: false,

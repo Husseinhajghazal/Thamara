@@ -8,6 +8,7 @@ const compression = require("compression");
 const NewError = require("./model/new-error");
 const deckRouter = require("./routers/deck-router");
 const rateRouter = require("./routers/rate-router");
+const tagRouter = require("./routers/tag-router");
 const bodyParser = require("body-parser");
 const Admin = require("./model/Admin");
 const Card = require("./model/Card");
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use("/deck", deckRouter);
 app.use("/rate", rateRouter);
+app.use("/tag", tagRouter);
 
 app.use((req, res, next) => {
   return next(new NewError("Could not find this route.", 404));
@@ -43,12 +45,6 @@ app.use(async (error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-// sequelize
-//   .sync()
-//   .then((res) => {
-//     app.listen(process.env.PORT || 5000);
-//   })
-//   .catch((error) => console.log(error));
 deck.belongsToMany(tag, { through: "DeckTag" });
 deck.hasMany(rate);
 deck.hasMany(Card);

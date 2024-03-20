@@ -26,6 +26,7 @@ router.post(
   deckController.createDeck
 );
 router.get("/", deckController.getAllDecks);
+router.get("/version/:id", deckController.checkVersion);
 router.get("/:id", deckController.getOneDeck);
 router.delete("/:id", deckController.deleteDeckById);
 router.put("/:id", deckController.editDeck);

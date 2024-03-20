@@ -148,8 +148,36 @@ const getOneDeck = async (req, res, next) => {
   });
 };
 
+const checkVersion = async (req, res, next) => {
+  const id = req.params.id;
+
+  let deck;
+  try {
+    deck = await Deck.findByPk(id);
+  } catch (e) {
+    return next(
+      new NewError(
+        "حصلت مشكلة أثناء الحصول على المجموعة, الرجاء المحاولة لاحقا",
+        500
+      )
+    );
+  }
+
+  if (!deck) {
+    return next(
+      new NewError("لا يجود مجموعة بهذا المعرف, الرجاء المحاولة لاحقا", 404)
+    );
+  }
+
+  res.json({
+    message: "تم الحصول على المجموعة بنجاح",
+    deckVersion: deck.version,
+  });
+};
+
 exports.createDeck = createDeck;
 exports.getAllDecks = getAllDecks;
 exports.deleteDeckById = deleteDeckById;
 exports.editDeck = editDeck;
 exports.getOneDeck = getOneDeck;
+exports.checkVersion = checkVersion;
