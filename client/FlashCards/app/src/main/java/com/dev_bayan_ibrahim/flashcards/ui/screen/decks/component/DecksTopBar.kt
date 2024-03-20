@@ -92,7 +92,7 @@ private fun BarTitle(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.filter),
-                contentDescription = "Filter",
+                contentDescription = stringResource(R.string.filter),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
             DecksFilterDialog(
@@ -133,7 +133,7 @@ private fun BarSearch(
             onValueChange = onQueryChange,
             imeAction = ImeAction.Search,
             onKeyboardAction = { onSearch() },
-            placeHolder = "Search for decks",
+            placeHolder = stringResource(R.string.search_for_decks),
         )
     }
 }

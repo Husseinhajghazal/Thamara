@@ -25,9 +25,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
@@ -186,7 +188,7 @@ private fun CardTrueFalseAnswer(
                         cornerRadius = CornerRadius(32.dp.toPx())
                     )
                 },
-            text = "False",
+            text = stringResource(id = R.string._false),
         )
         Text(
             modifier = Modifier
@@ -198,7 +200,7 @@ private fun CardTrueFalseAnswer(
                         cornerRadius = CornerRadius(32.dp.toPx())
                     )
                 },
-            text = "False",
+            text = stringResource(id = R.string._true),
         )
     }
 }
@@ -220,7 +222,7 @@ private fun CardWriteAnswer(
                 iterations = Int.MAX_VALUE,
                 animationMode = MarqueeAnimationMode.Immediately
             ),
-            text = incorrectAnswer.ifBlank { "\"Blank Text\"" },
+            text = incorrectAnswer.ifBlank { stringResource(R.string.blank_text) },
             color = MaterialTheme.colorScheme.error,
             maxLines = 1,
             textDecoration = TextDecoration.LineThrough,

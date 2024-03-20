@@ -9,8 +9,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
@@ -33,7 +35,7 @@ fun LibraryDeckDialog(
         deck = deck,
     ) {
         Button(onClick = onPlay) {
-            Text("Play")
+            Text(stringResource(id = R.string.play))
         }
     }
 }

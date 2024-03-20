@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
@@ -46,13 +47,13 @@ fun HomeUser(
                 UserInfo(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.star,
-                    label = "plays",
+                    label = stringResource(R.string.plays),
                     value = user.totalPlays.toString(),
                 )
                 UserInfo(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.rank,
-                    label = "rank",
+                    label = stringResource(R.string.rank),
                     value = user.rank.toString(),
                 )
             }

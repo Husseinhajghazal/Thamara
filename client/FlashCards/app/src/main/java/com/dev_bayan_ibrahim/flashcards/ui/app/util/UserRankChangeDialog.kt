@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
@@ -51,7 +52,7 @@ fun UserRankChangeDialog(
         }
     }
     FlashDialog(
-        modifier = Modifier
+        modifier = modifier
             .height(300.dp)
             .aspectRatio(cardRatio),
         show = show,
@@ -68,7 +69,7 @@ fun UserRankChangeDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = if (rise) "New Rank!" else "Rank Drop",
+                text = if (rise) stringResource(R.string.new_rank) else stringResource(R.string.rank_drop),
                 style = MaterialTheme.typography.titleMedium
             )
             Icon(
@@ -83,19 +84,19 @@ fun UserRankChangeDialog(
                 contentDescription = null
             )
             Text(
-                text = "rank ${rank.rank} (${rank.expPercent}%)",
+                text = stringResource(R.string.rank_x, rank),
                 style = MaterialTheme.typography.headlineLarge,
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = if (rise) "Congrats you reached a higher level!" else "No problem, try again when you are ready!",
+                text = if (rise) stringResource(R.string.promotion_congrats) else stringResource(R.string.rank_drop_message),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )
             OutlinedButton(
                 onClick = { show = false }
             ) {
-                Text(text = "Close")
+                Text(text = stringResource(R.string.close))
             }
         }
     }

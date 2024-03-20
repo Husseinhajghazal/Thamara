@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
@@ -48,7 +49,7 @@ fun TimeStatisticsItemsPager(
             } ?: run {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "No Data",
+                    text = stringResource(R.string.no_data),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
@@ -94,13 +95,13 @@ private fun HomeTimeStatisticsItems(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        StatisticsItem(label = "plays times", value = item.plays.toString())
-        StatisticsItem(label = "decks count change", value = item.decksCount.toString())
-        StatisticsItem(label = "cards count change", value = item.cardsCount.toString())
-        StatisticsItem(label = "correct answers", value = item.correctAnswers.toString())
-        StatisticsItem(label = "incorrect answers", value = item.incorrectAnswers.toString())
+        StatisticsItem(label = stringResource(R.string.plays_times), value = item.plays.toString())
+        StatisticsItem(label = stringResource(R.string.new_decks), value = item.decksCount.toString())
+        StatisticsItem(label = stringResource(R.string.new_cards), value = item.cardsCount.toString())
+        StatisticsItem(label = stringResource(R.string.correct_answers), value = item.correctAnswers.toString())
+        StatisticsItem(label = stringResource(R.string.incorrect_answers), value = item.incorrectAnswers.toString())
         StatisticsItem(
-            label = "accuracy average",
+            label = stringResource(id = R.string.accuracy_average),
             value = "${item.answerAccuracyAverage.roundToInt()}"
         )
     }

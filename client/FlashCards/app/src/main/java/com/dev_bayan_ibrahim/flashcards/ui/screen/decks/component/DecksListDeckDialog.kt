@@ -16,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
@@ -82,25 +84,25 @@ private fun InfoItems(
     ) {
         InfoItem(
             modifier = Modifier.fillMaxWidth(),
-            label = "Rate",
-            value = "$rate ($rates rates)"
+            label = stringResource(id = R.string.rate),
+            value = stringResource(R.string.x_rate_y_rates, rate, rates)
         )
         InfoItem(
             modifier = Modifier.fillMaxWidth(),
-            label = "Level",
+            label = stringResource(id = R.string.level),
             value = level.toString()
         )
         InfoItem(
             modifier = Modifier.fillMaxWidth(),
-            label = "cards",
-            value = "$cardsCount card"
+            label = stringResource(R.string.cards),
+            value = stringResource(R.string.x_cards, cardsCount)
         )
         if (tags.isNotEmpty()) {
             InfoItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .basicMarquee(Int.MAX_VALUE),
-                label = "tags",
+                label = stringResource(R.string.tags),
                 value = tags.joinToString(" - ")
             )
         }

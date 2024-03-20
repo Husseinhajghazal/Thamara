@@ -35,9 +35,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
@@ -167,7 +169,7 @@ private fun CardInfoAnswer(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Enable reminder")
+        Text(stringResource(R.string.enable_reminder))
         OutlinedButton(
             onClick = onClick,
             enabled = clickable
@@ -241,7 +243,7 @@ private fun CardTrueFalseAnswer(
             enabled = clickable,
             onClick = { onSelectAnswer(false.toString()) },
         ) {
-            Text(text = "False")
+            Text(text = stringResource(R.string._false))
         }
         OutlinedButton(
             modifier = Modifier
@@ -250,7 +252,7 @@ private fun CardTrueFalseAnswer(
             enabled = clickable,
             onClick = { onSelectAnswer(true.toString()) },
         ) {
-            Text(text = "True")
+            Text(text = stringResource(R.string._true))
         }
     }
 }
@@ -278,10 +280,10 @@ private fun CardWriteAnswer(
                 answerValue = it
             },
             label = {
-                Text(text = "answer")
+                Text(text = stringResource(R.string.answer).lowercase())
             },
             placeholder = {
-                Text(text = "enter your answer")
+                Text(text = stringResource(R.string.enter_answer))
             },
             maxLines = 2,
         )
@@ -289,7 +291,7 @@ private fun CardWriteAnswer(
             onClick = { onSelectAnswer(answerValue) },
             enabled = clickable,
         ) {
-            Text(text = "Answer")
+            Text(text = stringResource(R.string.answer))
         }
     }
 }

@@ -17,9 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
@@ -52,12 +54,12 @@ fun HomeUserDialog(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Welcome New User",
+                text = stringResource(R.string.welcome_new_user),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
                 modifier = Modifier.alpha(0.75f),
-                text = "enter your name and age and start playing",
+                text = stringResource(R.string.enter_name_and_age),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -75,7 +77,7 @@ fun HomeUserDialog(
                 onClick = onSave,
                 enabled = name.isNotBlank()
             ) {
-                Text("Start")
+                Text(stringResource(R.string.start))
             }
         }
     }
@@ -96,7 +98,7 @@ private fun UserName(
             modifier = Modifier.fillMaxWidth(),
             value = name,
             onValueChange = onNameChange,
-            placeHolder = "Name",
+            placeHolder = stringResource(id = R.string.name),
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth()

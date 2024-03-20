@@ -24,6 +24,7 @@ fun <T : FlashSelectableItem> FlashDropDown(
 ) {
 
     DropdownMenu(
+        modifier = modifier,
         expanded = expanded,
         onDismissRequest = onDismiss
     ) {

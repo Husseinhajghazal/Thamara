@@ -3,57 +3,61 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.StatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeGeneralStatistics(
     modifier: Modifier = Modifier,
     statistics: GeneralStatistics
 
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        StatisticsItem(
-            label = "accuracy average",
-            value = "${statistics.accuracyAverage.roundToInt()}%"
-        )
-        StatisticsItem(
-            label = "total decks",
-            value = statistics.totalDecksCount.toString(),
-        )
-        StatisticsItem(
-            label = "total cards",
-            value = statistics.totalCardsCount.toString(),
-        )
-        Column {
-            Text("Tags", style = MaterialTheme.typography.titleSmall)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                statistics.tags.forEach { (tag, decks) ->
-                    Text(
-                        text = "$tag ($decks decks)"
-                    )
-                }
-            }
+        item {
+            StatisticsItem(
+                label = stringResource(R.string.accuracy_average),
+                value = "${statistics.accuracyAverage.roundToInt()}%"
+            )
+        }
+        item {
+            StatisticsItem(
+                label = stringResource(R.string.total_decks),
+                value = statistics.totalDecksCount.toString(),
+            )
+        }
+        item {
+            StatisticsItem(
+                label = stringResource(R.string.total_cards),
+                value = statistics.totalCardsCount.toString(),
+            )
+        }
+        stickyHeader {
+            Text(stringResource(id = R.string.tags), style = MaterialTheme.typography.titleSmall)
+        }
+        items(statistics.tags.toList()) {(tag, decks) ->
+            Text(
+                text = stringResource(R.string.x_tag_y_decks, tag, decks)
+            )
         }
     }
 }

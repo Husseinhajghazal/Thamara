@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
@@ -116,7 +117,7 @@ fun DecksFilterDialog(
                 .padding(32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterSection(title = "Group By") {
+            FilterSection(title = stringResource(R.string.group_by)) {
                 FilterDialogItem(
                     items = DecksGroupType.entries,
                     selectedItem = state.groupType ?: DecksGroupType.NONE,
@@ -124,7 +125,7 @@ fun DecksFilterDialog(
                 )
             }
 
-            FilterSection(title = "Order By") {
+            FilterSection(title = stringResource(R.string.order_by)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -148,12 +149,12 @@ fun DecksFilterDialog(
                             checked = state.ascOrder,
                             onCheckedChange = null
                         )
-                        Text("asc order")
+                        Text(stringResource(R.string.asc_order))
                     }
                 }
             }
 
-            FilterSection(title = "Filter By") {
+            FilterSection(title = stringResource(R.string.filter_by)) {
                 FilterTags(
 
                     allTags = dbInfo.allTags,
@@ -162,14 +163,14 @@ fun DecksFilterDialog(
                     onDeselectAll = actions::onDeselectAll,
                 )
                 FilterRangeSlider(
-                    label = "Levels",
+                    label = stringResource(R.string.levels),
                     validRange = 0f..10f,
                     selectedRange = state.filter.levels?.toFloatRange(),
                     onValueChange = actions::onLevelsValueChange
                 )
 
                 FilterRangeSlider(
-                    label = "Rate",
+                    label = stringResource(id = R.string.rate),
                     validRange = 0f..5f,
                     selectedRange = state.filter.rate,
                     onValueChange = actions::onRateValueChange
@@ -180,10 +181,10 @@ fun DecksFilterDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = actions::onCancel) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.rate))
                 }
                 TextButton(onClick = actions::onApply) {
-                    Text("Apply")
+                    Text(stringResource(R.string.apply))
                 }
             }
         }

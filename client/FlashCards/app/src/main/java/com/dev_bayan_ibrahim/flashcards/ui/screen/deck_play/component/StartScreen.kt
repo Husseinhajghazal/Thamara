@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 
 @Composable
@@ -30,25 +32,29 @@ fun StartScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "${deckHeader.name.ifBlank { "\"No name\"" }} (${deckHeader.cardsCount} cards)",
+                text = stringResource(
+                    R.string.name_x_cards_y,
+                    deckHeader.name.ifBlank { stringResource(R.string.no_name) },
+                    deckHeader.cardsCount
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = "cards will be visible to you in random order, answer each card question according to card type",
+                text = stringResource(R.string.cards_play_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = buildString {
-                    appendLine("1. true false cards: choose true of false according to question")
-                    appendLine("2. multi-choice cards: choose the correct answer between several answers (only one is correct)")
-                    appendLine("3. sentence cards: write the correct answer")
+                    appendLine(stringResource(R.string.cards_play_hint_1))
+                    appendLine(stringResource(R.string.cards_play_hint_2))
+                    appendLine(stringResource(R.string.cards_play_hint_3))
                 },
                 style = MaterialTheme.typography.bodyMedium,
             )
             OutlinedButton(onClick = onStart) {
-                Text("Play")
+                Text(stringResource(id = R.string.play))
             }
         }
     }

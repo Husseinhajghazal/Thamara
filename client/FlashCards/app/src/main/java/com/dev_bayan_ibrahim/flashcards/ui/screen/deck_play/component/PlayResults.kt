@@ -28,7 +28,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashSlider
@@ -75,22 +77,22 @@ fun PlayResults(
             valueRange = 0f..100f
         )
         Text(
-            text = "you answered $correctAnswers correct answer from $count",
+            text = stringResource(R.string.card_answers_result, correctAnswers, count),
             style = MaterialTheme.typography.bodyLarge
         )
 
         Text(
-            text = "incorrect card ${count - correctAnswers}",
+            text = stringResource(R.string.incorrect_answers_x, count - correctAnswers),
             style = MaterialTheme.typography.bodyMedium
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(onClick = onClose) {
-                Text(text = "Close")
+                Text(text = stringResource(id = R.string.close))
             }
             OutlinedButton(onClick = onRepeat) {
-                Text(text = "Repeat")
+                Text(text = stringResource(R.string.repeat))
             }
         }
         IncorrectCardsPager(
@@ -131,7 +133,7 @@ private fun IncorrectCardsPager(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Previous"
+                contentDescription = stringResource(R.string.previous)
             )
         }
         HorizontalPager(
@@ -165,7 +167,7 @@ private fun IncorrectCardsPager(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Previous"
+                contentDescription = stringResource(R.string.next)
             )
         }
     }
