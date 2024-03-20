@@ -8,6 +8,10 @@ const Rate = sequelize.define("rate", {
     primaryKey: true,
     allowNull: false,
   },
+  deck_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
   user_id: {
     type: Sequelize.STRING,
     allowNull: false,
