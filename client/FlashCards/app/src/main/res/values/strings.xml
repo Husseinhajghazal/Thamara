@@ -47,10 +47,8 @@
     <string name="filter_by">Filter By</string>
     <string name="levels">Levels</string>
     <string name="apply">Apply</string>
-    <string name="x_decks">%1$s Decks</string>
     <string name="x_rate_y_rates">%1$s (%2$s rates)</string>
     <string name="cards">Cards</string>
-    <string name="x_cards">%1$s cards</string>
     <string name="tags">Tags</string>
     <string name="filter">Filter</string>
     <string name="search_for_decks">Search for decks</string>
@@ -80,4 +78,10 @@
     <string name="megabyte_long">%s megabyte</string>
     <string name="gigabyte_long">%s gigabyte</string>
     <string name="terabyte_long">%s terabyte</string>
+    <string name="loading">Loading</string>
+    <string name="x_exp_of_y">%s exp of %s</string>
+    <string name="give_up">Give up!</string>
+    <string name="give_up_action">Give up</string>
+    <string name="_continue">Continue</string>
+    <string name="give_up_play_hint">if you canceled the play now, all results will be ignored</string>
 </resources>

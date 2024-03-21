@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="deck">
+        <item quantity="zero">لا حزم</item>
+        <item quantity="one">حزمة واحدة</item>
+        <item quantity="two">حزمتان</item>
+        <item quantity="few">%d حزم</item>
+        <item quantity="many">%d حزمة</item>
+    </plurals>
+
+    <plurals name="card">
+        <item quantity="zero">لا بطاقات</item>
+        <item quantity="one">بطاقة واحدة</item>
+        <item quantity="two">بطاقتان</item>
+        <item quantity="few">%d بطاقات</item>
+        <item quantity="many">%d بطاقة</item>
+    </plurals>
+
+    <plurals name="collection">
+        <item quantity="zero">لا مجموعات</item>
+        <item quantity="one">مجموعة واحدة</item>
+        <item quantity="two">مجموعتان</item>
+        <item quantity="few">%d مجموعة</item>
+        <item quantity="many">%d مجموعة</item>
+    </plurals>
+
+    <plurals name="rank">
+        <item quantity="zero">لا رتب</item>
+        <item quantity="one">رتبة</item>
+        <item quantity="two">رتبتان</item>
+        <item quantity="few">%d رتب</item>
+        <item quantity="many">%d رتبة</item>
+    </plurals>
+
+    <plurals name="level">
+        <item quantity="zero">لا مستويات</item>
+        <item quantity="one">مستوى</item>
+        <item quantity="two">مستويان</item>
+        <item quantity="few">%d مستويات</item>
+        <item quantity="many">%d مستوى</item>
+    </plurals>
+
+    <plurals name="tag">
+        <item quantity="zero">لا فئات</item>
+        <item quantity="one">وسم</item>
+        <item quantity="two">وسمان</item>
+        <item quantity="few">%d وسوم</item>
+        <item quantity="many">%d وسم</item>
+    </plurals>
+
+    <plurals name="answer">
+        <item quantity="zero">لا إجابات</item>
+        <item quantity="one">إجابة</item>
+        <item quantity="two">إجابتان</item>
+        <item quantity="few">%d إجابات</item>
+        <item quantity="many">%d إجابة</item>
+    </plurals>
+
+</resources>

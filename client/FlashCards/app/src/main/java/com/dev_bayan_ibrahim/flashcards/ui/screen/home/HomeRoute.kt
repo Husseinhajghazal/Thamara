@@ -23,6 +23,6 @@ fun HomeRoute(
         state = homeViewModel.state,
         user = user,
         generalStatistics = generalStatistics,
-        actions = homeViewModel
+        actions = homeViewModel.getUiActions()
     )
 }

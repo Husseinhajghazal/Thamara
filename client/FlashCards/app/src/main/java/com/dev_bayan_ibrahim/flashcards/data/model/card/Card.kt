@@ -27,7 +27,10 @@ data class Card(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val deckId: Long,
+    val index: Int = 0,
     val question: String = "",
     val image: String = "",
     val answer: CardAnswer = CardAnswer.Info(1.days)
 )
+
+fun List<Card>.fixCardsIndexes(): List<Card> = mapIndexed { index, card -> card.copy(index = index) }

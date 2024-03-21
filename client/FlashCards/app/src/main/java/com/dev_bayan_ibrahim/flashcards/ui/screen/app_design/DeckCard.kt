@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpCardAccentColor
 
 @Composable
 fun DeckCard(
@@ -31,7 +32,7 @@ fun DeckCard(
             )
             .padding(0.5.dp)
             .background(
-                color = accent.lerpCard(),
+                color = accent.lerpCardAccentColor(),
                 shape = RoundedCornerShape(8.dp)
             ).run {
                 if (enableClick) clickable(onClick = onClick) else this
@@ -41,15 +42,4 @@ fun DeckCard(
         content = content
     )
 
-}
-
-@Composable
-fun Color.lerpCard(percent: Float = 0.25f): Color {
-    return MaterialTheme.colorScheme.surface.let { s ->
-        Color(
-            red = s.red * (1 - percent) + (red * percent),
-            green = s.green * (1 - percent) + (green * percent),
-            blue = s.blue * (1 - percent) + (blue * percent),
-        )
-    }
 }

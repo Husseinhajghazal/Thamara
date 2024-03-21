@@ -2,13 +2,13 @@ package com.dev_bayan_ibrahim.flashcards.data.repo
 
 import androidx.compose.ui.text.intl.Locale
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.cardsInitialValues
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.generateLargeFakeCardsForDeck
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.generateLargeFakeDecks
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.decksInitialValue
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
@@ -29,9 +29,11 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
+import com.dev_bayan_ibrahim.flashcards.data.util.shuffle
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -167,8 +169,17 @@ class FlashRepoImpl(
 
     override suspend fun getDeckCards(id: Long): Deck {
         val header = getDeck(id)!! // todo, handle not found
-        val cards = getCards(id)
-        return Deck(header = header, cards = cards)
+        val cards = getCards(id).run {
+            if (header.allowShuffle) {
+                shuffle()
+            } else {
+                sortedBy { it.index }
+            }
+        }
+        return Deck(
+            header = header,
+            cards = cards
+        )
     }
 
     override suspend fun saveDeckResults(
@@ -186,24 +197,26 @@ class FlashRepoImpl(
         insertAllCards(cards)
     }
 
-    override suspend fun initializedDb() {
+    override fun initializedDb() = flow {
+        emit(false)
         fileManager.deleteDecks(getDownloadingDecks())
         deleteDownloadingDecks()
         if (!preferences.initializedDb()) {
-            val decksCount = 10
-            val cardsForEachDeck = 50
-            insertDecks(
-                generateLargeFakeDecks(decksCount, cardsForEachDeck)
-            )
-            repeat(decksCount) {
-                insertCards(
-                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
-                )
-            }
-//            insertDecks(decksInitialValue)
-//            insertCards(cardsInitialValues.values.flatten())
+//            val decksCount = 10
+//            val cardsForEachDeck = 50
+//            insertDecks(
+//                generateLargeFakeDecks(decksCount, cardsForEachDeck)
+//            )
+//            repeat(decksCount) {
+//                insertCards(
+//                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
+//                )
+//            }
+            insertDecks(decksInitialValue)
+            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
         }
+        emit(true)
     }
 
     override fun getDatabaseInfo(): Flow<DecksDatabaseInfo> = getFormattedTags().map { tags ->

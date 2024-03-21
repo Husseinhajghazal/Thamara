@@ -1,6 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play
 
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.colorAccent
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.CancelPlayDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.DecksQueue
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.PlayResults
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.StartScreen
@@ -21,6 +23,12 @@ fun PlayScreen(
     state: PlayUiState,
     actions: PlayUiActions,
 ) {
+    BackHandler (onBack = actions::onBackHandelerClick)
+    CancelPlayDialog(
+        show = state.showCancelPlayDialog,
+        onCancelPlay = actions::onCancelPlay,
+        onContinuePlay = actions::onContinuePlay,
+    )
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,

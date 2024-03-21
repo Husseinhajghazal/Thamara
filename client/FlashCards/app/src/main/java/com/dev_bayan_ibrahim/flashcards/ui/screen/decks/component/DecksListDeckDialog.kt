@@ -25,6 +25,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 
 @Composable
 fun DecksListDeckDialog(
@@ -95,7 +96,7 @@ private fun InfoItems(
         InfoItem(
             modifier = Modifier.fillMaxWidth(),
             label = stringResource(R.string.cards),
-            value = stringResource(R.string.x_cards, cardsCount)
+            value = cardsCount.asFlashPlural(id = R.plurals.card)
         )
         if (tags.isNotEmpty()) {
             InfoItem(

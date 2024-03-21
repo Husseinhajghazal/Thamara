@@ -5,4 +5,14 @@ data class User(
     val age: Int = 0,
     val rank: UserRank = UserRank.Init,
     val totalPlays: Int = 0,
-)
+) {
+    companion object Comanion {
+        val INVALID = User(
+            name = "",
+            age = 0,
+            rank = UserRank.Init,
+            totalPlays = 0
+        )
+
+    }
+}

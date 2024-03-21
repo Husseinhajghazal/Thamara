@@ -14,7 +14,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 @Composable
 fun FlashDialog(
     modifier: Modifier = Modifier,
-    accent: Color = MaterialTheme.colorScheme.primary,
+    accent: Color = MaterialTheme.colorScheme.primaryContainer,
     show: Boolean,
     onDismiss: () -> Unit,
     content: @Composable BoxScope.() -> Unit,

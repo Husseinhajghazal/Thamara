@@ -132,7 +132,7 @@ private fun BarSearch(
             value = query,
             onValueChange = onQueryChange,
             imeAction = ImeAction.Search,
-            onKeyboardAction = { onSearch() },
+            keyboardAction = { onSearch() },
             placeHolder = stringResource(R.string.search_for_decks),
         )
     }

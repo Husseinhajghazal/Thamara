@@ -6,8 +6,11 @@ import com.dev_bayan_ibrahim.flashcards.data.level_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.level_manager.PlayCardResult
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,12 +30,13 @@ class PlayViewModel @Inject constructor(
     }
 
     private fun handleAnswer(card: Card, answer: String) {
-        state.cardsAnswers[card] = if (card.answer.checkIfCorrect(answer)) {
+        val ans = if (card.answer.checkIfCorrect(answer)) {
             state.correctAnswers += 1
             null
         } else {
             answer
         }
+        state.cardsAnswers.add(card to ans)
     }
 
     private fun handleNextCard() {
@@ -64,12 +68,10 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             calculateAndSaveNewRank()
             repo.saveDeckResults(
-                state.deck.header.id!!,
-                state.cardsAnswers.mapKeys { (card, _) ->
-                    card.id!!
-                }.mapValues { (_, wrongAnswer) ->
-                    wrongAnswer == null
-                }
+                state.deck.header.id,
+                state.cardsAnswers.associate { (card, answer) ->
+                    card.id to (answer == null)
+                },
             )
 
         }
@@ -96,5 +98,47 @@ class PlayViewModel @Inject constructor(
         }
 
         override fun onClose() = navigateUp()
+
+        override fun onBackHandelerClick() {
+            when (state.status) {
+                PlayStatus.PLAYING -> {
+                    state.showCancelPlayDialog = true
+                }
+                else -> navigateUp()
+            }
+        }
+
+        override fun onCancelPlay() {
+            state.showCancelPlayDialog = false
+            navigateUp()
+        }
+
+        override fun onContinuePlay() {
+            state.showCancelPlayDialog = false
+        }
+    }
+
+    private var enableBackButton: Boolean = false
+
+    private var enableBackButtonJob: Job? = null
+    private fun updateBackButtonEnabled() {
+        enableBackButtonJob?.cancel()
+        enableBackButtonJob = viewModelScope.launch {
+            enableBackButton = true
+            delay(500)
+            enableBackButton = false
+        }
+    }
+
+    fun onBackRequest(
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
+        navigateUp: () -> Unit
+    ) {
+        if (enableBackButton) {
+            navigateUp()
+        } else {
+        }
+        updateBackButtonEnabled()
+
     }
 }

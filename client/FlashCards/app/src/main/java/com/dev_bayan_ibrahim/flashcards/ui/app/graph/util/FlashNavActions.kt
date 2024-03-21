@@ -8,6 +8,10 @@ class FlashNavActions(
     private val navHostController: NavHostController
 ) {
     fun navigateTo(route: String, isTopLevelDestination: Boolean = false) {
+        val currentRoute = navHostController.currentBackStackEntry?.destination?.route
+        if (route == currentRoute) {
+            return
+        }
         if (isTopLevelDestination) {
             navHostController.popBackStack()
         }

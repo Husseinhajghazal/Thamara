@@ -48,10 +48,8 @@
     <string name="filter_by">Filtrer Par</string>
     <string name="levels">Niveaux</string>
     <string name="apply">Appliquer</string>
-    <string name="x_decks">%1$s Decks</string>
     <string name="x_rate_y_rates">%1$s (%2$s évaluations)</string>
     <string name="cards">Cartes</string>
-    <string name="x_cards">%1$s cartes</string>
     <string name="tags">Étiquettes</string>
     <string name="filter">Filtre</string>
     <string name="search_for_decks">Rechercher des decks</string>
@@ -81,4 +79,11 @@
     <string name="megabyte_long">%s méga-octet</string>
     <string name="gigabyte_long">%s giga-octet</string>
     <string name="terabyte_long">%s téra-octet</string>
+
+    <string name="loading">Loading</string>
+    <string name="x_exp_of_y">%s exp of %s</string>
+    <string name="give_up">Give up!</string>
+    <string name="give_up_action">Give up</string>
+    <string name="_continue">Continue</string>
+    <string name="give_up_play_hint">if you canceled the play now, all results will be ignored</string>
 </resources>

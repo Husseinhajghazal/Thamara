@@ -25,6 +25,7 @@ data class DeckHeader(
     val rate: Float = 0f, // average rate
     val creation: Instant = Instant.fromEpochMilliseconds(0),
     val downloadInProgress: Boolean = false,
+    val allowShuffle : Boolean = true,
 )
 
 val DeckHeader.colorAccent: Color get() = Color(color)

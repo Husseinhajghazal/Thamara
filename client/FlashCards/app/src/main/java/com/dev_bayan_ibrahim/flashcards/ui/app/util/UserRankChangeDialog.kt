@@ -6,10 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,20 +58,26 @@ fun UserRankChangeDialog(
             .aspectRatio(cardRatio),
         show = show,
         accent = if (rise) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.primaryContainer
         } else {
-            MaterialTheme.colorScheme.error
+            MaterialTheme.colorScheme.errorContainer
         },
         onDismiss = { show = false }
     ) {
+        val color = if (rise) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.error
+        }
         Column(
             modifier = Modifier,
-            verticalArrangement = Arrangement.spacedBy(32.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = if (rise) stringResource(R.string.new_rank) else stringResource(R.string.rank_drop),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = color,
             )
             Icon(
                 modifier = Modifier.size(64.dp),
@@ -81,20 +88,24 @@ fun UserRankChangeDialog(
                         R.drawable.sad
                     }
                 ),
-                contentDescription = null
+                contentDescription = null,
+                tint = color,
             )
             Text(
-                text = stringResource(R.string.rank_x, rank),
-                style = MaterialTheme.typography.headlineLarge,
+                text = stringResource(R.string.rank_x, rank.asString()),
+                style = MaterialTheme.typography.titleSmall,
+                color = color,
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = if (rise) stringResource(R.string.promotion_congrats) else stringResource(R.string.rank_drop_message),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
+                color = color,
             )
-            OutlinedButton(
-                onClick = { show = false }
+            TextButton(
+                onClick = { show = false },
+                colors = ButtonDefaults.textButtonColors(contentColor = color)
             ) {
                 Text(text = stringResource(R.string.close))
             }

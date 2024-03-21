@@ -1,4 +1,4 @@
-package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
+package com.dev_bayan_ibrahim.flashcards.ui.app.util
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +35,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeUserDialog(
+fun NewUserDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     name: String,
@@ -55,13 +58,16 @@ fun HomeUserDialog(
         ) {
             Text(
                 text = stringResource(R.string.welcome_new_user),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 modifier = Modifier.alpha(0.75f),
                 text = stringResource(R.string.enter_name_and_age),
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(modifier = Modifier.weight(1f))
             UserName(
@@ -86,6 +92,7 @@ fun HomeUserDialog(
 @Composable
 private fun UserName(
     modifier: Modifier = Modifier,
+    focusManager: FocusManager = LocalFocusManager.current,
     name: String,
     onNameChange: (String) -> Unit,
 ) {
@@ -99,6 +106,10 @@ private fun UserName(
             value = name,
             onValueChange = onNameChange,
             placeHolder = stringResource(id = R.string.name),
+            imeAction = ImeAction.Done,
+            keyboardAction = {
+                focusManager.clearFocus()
+            },
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth()
@@ -134,7 +145,7 @@ private fun HomeUserDialogPreviewLight() {
             color = MaterialTheme.colorScheme.background,
         ) {
             val user = User(name = "", age = 0, rank = UserRank.Init)
-            HomeUserDialog(
+            NewUserDialog(
                 show = true,
                 name = user.name,
                 age = user.age,

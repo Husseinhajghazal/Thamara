@@ -1,6 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home
 
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +14,6 @@ import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeGeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUser
-import com.dev_bayan_ibrahim.flashcards.ui.screen.home.component.HomeUserDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel.HomeMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel.HomeUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel.HomeUiState
@@ -27,17 +27,10 @@ fun HomeScreen(
     generalStatistics: GeneralStatistics,
     actions: HomeUiActions,
 ) {
-    HomeUserDialog(
-        show = user == null,
-        name = state.newUserName,
-        age = state.newUserAge,
-        onNameChange = actions::onNameChange,
-        onAgeChange = actions::onAgeChange,
-        onSave = actions::onSave
-    )
     Column(
         modifier = modifier
             .padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         HomeUser(
             user = user,
@@ -55,16 +48,7 @@ private fun HomeScreenPreviewLight() {
             color = MaterialTheme.colorScheme.background,
         ) {
             val state = HomeMutableUiState()
-            val actions = object : HomeUiActions {
-                override fun onNameChange(name: String) {
-                }
-
-                override fun onAgeChange(age: Int) {
-                }
-
-                override fun onSave() {
-                }
-            }
+            val actions = object : HomeUiActions {}
             HomeScreen(
                 state = state,
                 actions = actions,

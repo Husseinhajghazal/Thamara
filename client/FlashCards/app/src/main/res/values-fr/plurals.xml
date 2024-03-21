@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <plurals name="deck">
+        <item quantity="one">%d jeu</item>
+        <item quantity="many">%d jeux</item>
+    </plurals>
+
+    <plurals name="card">
+        <item quantity="one">%d carte</item>
+        <item quantity="many">%d cartes</item>
+    </plurals>
+
+    <plurals name="collection">
+        <item quantity="one">%d collection</item>
+        <item quantity="many">%d collections</item>
+    </plurals>
+
+    <plurals name="rank">
+        <item quantity="one">%d rang</item>
+        <item quantity="many">%d rangs</item>
+    </plurals>
+
+    <plurals name="level">
+        <item quantity="one">%d niveau</item>
+        <item quantity="many">%d niveaux</item>
+    </plurals>
+
+    <plurals name="tag">
+        <item quantity="one">%d étiquette</item>
+        <item quantity="many">%d étiquettes</item>
+    </plurals>
+
+    <plurals name="answer">
+        <item quantity="one">%d réponse</item>
+        <item quantity="many">%d réponses</item>
+    </plurals>
+
+
+</resources>

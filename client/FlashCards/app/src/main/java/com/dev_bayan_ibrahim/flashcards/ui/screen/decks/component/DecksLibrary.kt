@@ -14,13 +14,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
+import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 import java.util.Objects
 
 @Composable
@@ -121,7 +121,10 @@ private fun LazyGridScope.countItem(
             GridItemSpan(maxLineSpan)
         },
     ) {
-        Text(text = stringResource(R.string.x_decks, count), style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = count.asFlashPlural(id = R.plurals.deck),
+            style = MaterialTheme.typography.titleSmall
+        )
     }
 }
 

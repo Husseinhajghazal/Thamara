@@ -37,7 +37,7 @@ interface FlashRepo {
         cardsResults: Map<Long, Boolean> // answer status
     )
 
-    suspend fun initializedDb()
+    fun initializedDb(): Flow<Boolean>
 
     fun getDatabaseInfo(): Flow<DecksDatabaseInfo>
     suspend fun isFirstPlay(id: Long): Boolean

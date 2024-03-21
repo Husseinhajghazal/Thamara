@@ -4,8 +4,11 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +23,7 @@ import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.StatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -52,11 +56,19 @@ fun HomeGeneralStatistics(
             )
         }
         stickyHeader {
-            Text(stringResource(id = R.string.tags), style = MaterialTheme.typography.titleSmall)
+            Text(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+                text = stringResource(id = R.string.tags),
+                style = MaterialTheme.typography.titleSmall,
+
+            )
         }
         items(statistics.tags.toList()) {(tag, decks) ->
             Text(
-                text = stringResource(R.string.x_tag_y_decks, tag, decks)
+                text = "$tag (${decks.asFlashPlural(id = R.plurals.deck)})"
             )
         }
     }

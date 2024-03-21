@@ -8,13 +8,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repo: FlashRepo,
-) : ViewModel(), HomeUiActions {
+) : ViewModel() {
     val state = HomeMutableUiState()
     val user = repo
         .getUser()
@@ -35,27 +34,7 @@ class HomeViewModel @Inject constructor(
             initialValue = GeneralStatistics()
         )
 
+    fun getUiActions(): HomeUiActions = object : HomeUiActions {
 
-    init {
-        viewModelScope.launch {
-            repo.initializedDb()
-        }
-    }
-
-    override fun onNameChange(name: String) {
-        state.newUserName = name
-    }
-
-    override fun onAgeChange(age: Int) {
-        state.newUserAge = age
-    }
-
-    override fun onSave() {
-        viewModelScope.launch {
-            repo.setUser(
-                name = state.newUserName,
-                age = state.newUserAge
-            )
-        }
     }
 }

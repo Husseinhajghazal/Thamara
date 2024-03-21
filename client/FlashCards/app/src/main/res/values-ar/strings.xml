@@ -47,11 +47,9 @@
     <string name="asc_order">ترتيب تصاعدي</string>
     <string name="filter_by">فلترة حسب</string>
     <string name="levels">المستويات</string>
-    <string name="apply">تططبيق</string>
-    <string name="x_decks">الحزم %1$s</string>
+    <string name="apply">تطبيق</string>
     <string name="x_rate_y_rates">%1$s (%2$s مقيمين)</string>
     <string name="cards">البطاقات</string>
-    <string name="x_cards">البطاقات %1$s</string>
     <string name="tags">الفئات</string>
     <string name="filter">فلترة</string>
     <string name="search_for_decks">بحث عن الحزم</string>
@@ -81,4 +79,10 @@
     <string name="megabyte_long">%s ميغابايت</string>
     <string name="gigabyte_long">%s غيغابايت</string>
     <string name="terabyte_long">%s تيرابايت</string>
+    <string name="loading">جاري المعالجة</string>
+    <string name="x_exp_of_y">%s نقطة خبرة من %s</string>
+    <string name="give_up">Give up!</string>
+    <string name="give_up_action">Give up</string>
+    <string name="_continue">Continue</string>
+    <string name="give_up_play_hint">if you canceled the play now, all results will be ignored</string>
 </resources>

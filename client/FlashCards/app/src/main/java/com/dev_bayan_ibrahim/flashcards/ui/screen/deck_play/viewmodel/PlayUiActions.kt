@@ -8,4 +8,8 @@ interface PlayUiActions {
     fun onStartPlay()
     fun onRepeat()
     fun onClose()
+    fun onCancelPlay()
+
+    fun onContinuePlay()
+    fun onBackHandelerClick()
 }

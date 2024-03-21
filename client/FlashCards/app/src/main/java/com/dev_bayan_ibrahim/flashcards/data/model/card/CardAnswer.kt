@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.data.model.card
 
+import com.dev_bayan_ibrahim.flashcards.data.util.shuffle
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -34,9 +35,11 @@ sealed interface CardAnswer {
 
     @Serializable
     data class MultiChoice(
-        val choices: List<String>,
+        private val originalChoices: List<String>,
         val correctChoice: String,
     ) : CardAnswer {
+        val choices = originalChoices.shuffle()
+
         constructor(
             correctChoice: Int,
             firstChoice: String,
@@ -44,10 +47,19 @@ sealed interface CardAnswer {
             thirdChoice: String? = null,
             forthChoice: String? = null,
             fifthChoice: String? = null,
-        ): this(
-            choices = listOfNotNull(firstChoice, secondChoice, thirdChoice, forthChoice, fifthChoice),
-            correctChoice = when(correctChoice.coerceIn(1..5)) {
-                1 -> firstChoice; 2 -> secondChoice 3 -> thirdChoice!! 4 -> forthChoice!! else -> fifthChoice!!
+        ) : this(
+            originalChoices = listOfNotNull(
+                firstChoice,
+                secondChoice,
+                thirdChoice,
+                forthChoice,
+                fifthChoice
+            ),
+            correctChoice = when (correctChoice.coerceIn(1..5)) {
+                1 -> firstChoice; 2 -> secondChoice
+                3 -> thirdChoice!!
+                4 -> forthChoice!!
+                else -> fifthChoice!!
             }
         )
     }
@@ -115,7 +127,8 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
                 }
             }
         }
-        return info ?: trueFalse ?: multiChoice ?: write ?: throw IllegalArgumentException("unexpected type")
+        return info ?: trueFalse ?: multiChoice ?: write
+        ?: throw IllegalArgumentException("unexpected type")
     }
 
 
@@ -148,7 +161,8 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
         }
     }
 }
-object DurationSerializer: KSerializer<Duration> {
+
+object DurationSerializer : KSerializer<Duration> {
     override fun deserialize(decoder: Decoder): Duration {
         return decoder.decodeLong().toDuration(DurationUnit.MILLISECONDS)
     }
@@ -162,3 +176,28 @@ object DurationSerializer: KSerializer<Duration> {
         encoder.encodeLong(value.inWholeMicroseconds)
     }
 }
+/*
+
+{
+  "id": 19,
+  "question": "من هو نبي الله الخليل؟",  // Who is the Prophet of Allah, the Khalil?
+  "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Ibrahim_by_Sandro_Botticelli.jpg/1200px-Ibrahim_by_Sandro_Botticelli.jpg",
+  "answer": {
+    "multi_choice": {
+      "correctChoice": "النبي إبراهيم عليه السلام",  // (Used for MultiChoice)
+      "choices": [  // (Used for MultiChoice)
+        "النبي إبراهيم عليه السلام",
+        "النبي موسى عليه السلام",
+        "النبي عيسى عليه السلام"
+      ]
+    },
+    "true_false": {
+      "answer": true  // (Used for TrueFalse)
+    },
+    "sentence": {
+      "answer": "correct answer"  // (Used for Write)
+    }
+  }
+}
+
+ */

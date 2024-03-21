@@ -46,7 +46,7 @@ fun PlayResults(
     modifier: Modifier = Modifier,
     count: Int,
     correctAnswers: Int,
-    incorrectCards: Map<Card, String?>, // card, answer
+    incorrectCards: List<Pair<Card, String?>>, // card, answer
     accent: Color,
     bgPattern: String,
     onRepeat: () -> Unit,
@@ -119,7 +119,7 @@ private fun IncorrectCardsPager(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
     ) {
         IconButton(
             enabled = pagerState.currentPage > 0,
@@ -137,9 +137,10 @@ private fun IncorrectCardsPager(
             )
         }
         HorizontalPager(
-            modifier = Modifier.aspectRatio(cardRatio),
+            modifier = Modifier
+                .aspectRatio(cardRatio),
             state = pagerState,
-            userScrollEnabled = false,
+            userScrollEnabled = true,
         ) { i ->
             val (card, answer) = cards[i]
             Box(

@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpCardAccentColor
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpCardContainerAccentColor
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 
 @Composable
@@ -66,6 +68,7 @@ fun IncorrectExpandedCard(
                 url = card.image,
             )
             CardAnswer(
+                accent = accent,
                 answer = card.answer,
                 incorrectAnswer = incorrectAnswer
             )
@@ -91,6 +94,7 @@ private fun CardQuestion(
 @Composable
 private fun CardAnswer(
     modifier: Modifier = Modifier,
+    accent: Color,
     answer: CardAnswer,
     incorrectAnswer: String,
 ) {
@@ -99,17 +103,20 @@ private fun CardAnswer(
 
         is CardAnswer.MultiChoice -> CardMultiChoiceAnswer(
             modifier = modifier,
+            accent = accent,
             answer = answer,
             incorrectAnswer = incorrectAnswer,
         )
 
         is CardAnswer.TrueFalse -> CardTrueFalseAnswer(
             modifier = modifier,
+            accent = accent,
             answer = answer,
         )
 
         is CardAnswer.Write -> CardWriteAnswer(
             modifier = modifier,
+            accent = accent,
             answer = answer,
             incorrectAnswer = incorrectAnswer
         )
@@ -120,12 +127,13 @@ private fun CardAnswer(
 @Composable
 private fun CardMultiChoiceAnswer(
     modifier: Modifier = Modifier,
+    accent: Color,
     answer: CardAnswer.MultiChoice,
     incorrectAnswer: String,
 ) {
     require(answer.choices.count() in 2..5)
     val errorColor: Color = MaterialTheme.colorScheme.error
-    val correctColor: Color = MaterialTheme.colorScheme.primary
+    val correctColor: Color = accent.lerpCardContainerAccentColor()
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
@@ -158,7 +166,7 @@ private fun CardMultiChoiceAnswer(
                     text = choice,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        if (correct) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        if (correct) accent.lerpCardAccentColor() else MaterialTheme.colorScheme.onSurface
                     ),
                     maxLines = 1
                 )
@@ -170,10 +178,11 @@ private fun CardMultiChoiceAnswer(
 @Composable
 private fun CardTrueFalseAnswer(
     modifier: Modifier = Modifier,
+    accent: Color,
     answer: CardAnswer.TrueFalse,
 ) {
     val errorColor: Color = MaterialTheme.colorScheme.error
-    val correctColor: Color = MaterialTheme.colorScheme.primary
+    val correctColor: Color = accent.lerpCardContainerAccentColor()
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
@@ -189,6 +198,7 @@ private fun CardTrueFalseAnswer(
                     )
                 },
             text = stringResource(id = R.string._false),
+            color = accent.lerpCardAccentColor(),
         )
         Text(
             modifier = Modifier
@@ -201,6 +211,7 @@ private fun CardTrueFalseAnswer(
                     )
                 },
             text = stringResource(id = R.string._true),
+            color = accent.lerpCardAccentColor(),
         )
     }
 }
@@ -209,6 +220,7 @@ private fun CardTrueFalseAnswer(
 @Composable
 private fun CardWriteAnswer(
     modifier: Modifier = Modifier,
+    accent: Color,
     answer: CardAnswer.Write,
     incorrectAnswer: String,
 ) {

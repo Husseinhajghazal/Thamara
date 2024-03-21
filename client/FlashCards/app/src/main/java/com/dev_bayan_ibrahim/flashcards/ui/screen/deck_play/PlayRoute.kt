@@ -18,7 +18,6 @@ fun PlayRoute(
 ) {
     LaunchedEffect(key1 = id) {
         playViewModel.initScreen(id)
-
     }
 
     if (playViewModel.state.deck.header.let { it.id != invalid_id }) {
@@ -27,7 +26,5 @@ fun PlayRoute(
             state = playViewModel.state,
             actions = playViewModel.getUiActions(navigateUp = navigateUp)
         )
-    } else {
-        navigateUp()
     }
 }

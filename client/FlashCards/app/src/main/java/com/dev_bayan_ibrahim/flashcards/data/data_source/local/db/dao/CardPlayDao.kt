@@ -14,7 +14,7 @@ interface CardPlayDao {
 
     // percent of accuracy
     @Query("""
-        select count(*) / (select max(count(*), 1) from card_play) * 100
+        select count(*) * 100.0 / (select max(count(*), 1) from card_play)
         from card_play 
         where not failed
     """)

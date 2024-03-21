@@ -37,6 +37,7 @@ fun TimeStatisticsItemsPager(
     val scope = rememberCoroutineScope()
     Column(
         modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PagerTab(selected = TimeGroup.entries[pagerState.currentPage]) {
             scope.launch {
@@ -102,7 +103,7 @@ private fun HomeTimeStatisticsItems(
         StatisticsItem(label = stringResource(R.string.incorrect_answers), value = item.incorrectAnswers.toString())
         StatisticsItem(
             label = stringResource(id = R.string.accuracy_average),
-            value = "${item.answerAccuracyAverage.roundToInt()}"
+            value = "${item.answerAccuracyAverage.roundToInt()}%"
         )
     }
 }
