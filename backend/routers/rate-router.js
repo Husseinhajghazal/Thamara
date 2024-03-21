@@ -16,7 +16,7 @@ router.post(
     body("rate")
       .trim()
       .notEmpty()
-      .withMessage("التقيم مطلوب مطلوب")
+      .withMessage("التقيم مطلوب")
       .isInt({ min: 0, max: 5 })
       .withMessage("يجب أن يكون التقيم بين 0 و 5"),
     body("user_id").trim().notEmpty().withMessage("معرف المستخدم مطلوب"),

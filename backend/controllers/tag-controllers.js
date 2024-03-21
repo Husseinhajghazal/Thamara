@@ -1,6 +1,8 @@
-const NewError = require("../model/new-error");
+const NewError = require("../models/new-error");
 const { validationResult } = require("express-validator");
-const Tag = require("../model/tag");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 const createTag = async (req, res, next) => {
   const errors = validationResult(req);
@@ -12,7 +14,7 @@ const createTag = async (req, res, next) => {
 
   let foundedTag;
   try {
-    foundedTag = await Tag.findOne({ where: { name } });
+    foundedTag = await prisma.tag.findUnique({ where: { value: name } });
   } catch (e) {
     return next(
       new NewError("حصلت مشكلة أثناء الأنشاء, الرجاء المحاولة لاحقا", 500)
@@ -23,8 +25,10 @@ const createTag = async (req, res, next) => {
     return next(new NewError("يوجد تاغ مسبق بهذا الأسم", 500));
   }
 
-  const createdTag = await Tag.create({
-    value: name,
+  const createdTag = await prisma.tag.create({
+    data: {
+      value: name,
+    },
   });
 
   res.status(201).json({
@@ -36,7 +40,7 @@ const createTag = async (req, res, next) => {
 const getAllTags = async (req, res, next) => {
   let tags;
   try {
-    tags = await Tag.findAll();
+    tags = await prisma.tag.findMany();
   } catch (e) {
     return next(
       new NewError(
@@ -48,7 +52,7 @@ const getAllTags = async (req, res, next) => {
 
   res.status(201).json({
     message: "تم الحصول على التاغات",
-    decks,
+    tags,
   });
 };
 
@@ -60,35 +64,38 @@ const editTag = async (req, res, next) => {
 
   const { name } = req.body;
 
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
-  let foundedTag;
+  let updatedTag;
   try {
-    foundedTag = await Tag.findByPk(id);
+    updatedTag = await prisma.tag.findUnique({ where: { id } });
   } catch (e) {
     return next(new NewError("حصلت مشكلة, الرجاء المحاولة لاحقا", 500));
   }
 
-  if (!foundedTag) {
+  if (!updatedTag) {
     return next(new NewError("لا يوجد تاغ مسبق بهذا الأسم", 404));
   }
 
-  await foundedTag.update({
-    value: name,
+  updatedTag = await prisma.tag.update({
+    where: { id },
+    data: {
+      value: name,
+    },
   });
 
   res.status(201).json({
     message: "تم تعديل التاغ بنجاح",
-    foundedTag,
+    updatedTag,
   });
 };
 
 const deleteTag = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let foundedTag;
   try {
-    foundedTag = await Tag.findByPk(id);
+    foundedTag = await prisma.tag.findUnique({ where: { id } });
   } catch (e) {
     return next(new NewError("حصلت مشكلة, الرجاء المحاولة لاحقا", 500));
   }
@@ -98,9 +105,9 @@ const deleteTag = async (req, res, next) => {
   }
 
   try {
-    await Tag.destroy({
+    await prisma.tag.delete({
       where: {
-        id: id,
+        id,
       },
     });
   } catch (e) {
@@ -116,11 +123,11 @@ const deleteTag = async (req, res, next) => {
 };
 
 const getOneTag = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let tag;
   try {
-    tag = await Tag.findByPk(id);
+    tag = await prisma.tag.findUnique({ where: { id } });
   } catch (e) {
     return next(
       new NewError(
@@ -130,7 +137,7 @@ const getOneTag = async (req, res, next) => {
     );
   }
 
-  if (!deck) {
+  if (!tag) {
     return next(
       new NewError("لا يجود مجموعة بهذا المعرف, الرجاء المحاولة لاحقا", 404)
     );

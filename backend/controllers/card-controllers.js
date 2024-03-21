@@ -1,7 +1,5 @@
-const NewError = require("../model/new-error");
+const NewError = require("../models/new-error");
 const { validationResult } = require("express-validator");
-const Card = require("../model/Card");
-const Deck = require("../model/deck");
 
 const getDeckCards = async (req, res, next) => {
   const deck_id = req.params.deck_id;

@@ -5,16 +5,11 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
-const NewError = require("./model/new-error");
+const NewError = require("./models/new-error");
 const deckRouter = require("./routers/deck-router");
 const rateRouter = require("./routers/rate-router");
 const tagRouter = require("./routers/tag-router");
 const bodyParser = require("body-parser");
-const Admin = require("./model/Admin");
-const Card = require("./model/Card");
-const deck = require("./model/deck");
-const rate = require("./model/rate");
-const tag = require("./model/tag");
 
 const app = express();
 
@@ -44,17 +39,6 @@ app.use(async (error, req, res, next) => {
   res.status(error.code || 500);
   res.json({ message: error.message || "An unknown error occurred!" });
 });
-
-deck.belongsToMany(tag, { through: "DeckTag" });
-deck.hasMany(rate);
-deck.hasMany(Card);
-rate.belongsTo(deck);
-Card.belongsTo(deck);
-Admin.sync();
-Card.sync();
-deck.sync();
-rate.sync();
-tag.sync();
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

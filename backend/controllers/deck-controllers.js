@@ -1,6 +1,8 @@
-const NewError = require("../model/new-error");
+const NewError = require("../models/new-error");
 const { validationResult } = require("express-validator");
-const Deck = require("../model/deck");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 const createDeck = async (req, res, next) => {
   try {
@@ -11,19 +13,19 @@ const createDeck = async (req, res, next) => {
 
     const { name, image_url, color, level } = req.body;
 
-    const createdDeck = await Deck.create({
-      name,
-      image_url,
-      color,
-      level,
-      ratesCount: 0,
-      rate: 0,
-      version: 0,
+    const createdDeck = await prisma.deck.create({
+      data: {
+        name,
+        image_url,
+        color,
+        level,
+        version: 0,
+      },
     });
 
     res.status(201).json({
       message: "تم أنشاء المجموعة بنجاح",
-      createdDeck,
+      deck: { ...createdDeck, ratesCounts: 0, rate: 0 },
     });
   } catch (error) {
     return next(
@@ -35,7 +37,13 @@ const createDeck = async (req, res, next) => {
 const getAllDecks = async (req, res, next) => {
   let decks;
   try {
-    decks = await Deck.findAll();
+    decks = await prisma.deck.findMany({
+      include: {
+        rates: true,
+        cards: true,
+        tags: true,
+      },
+    });
   } catch (e) {
     return next(
       new NewError(
@@ -45,6 +53,25 @@ const getAllDecks = async (req, res, next) => {
     );
   }
 
+  decks = decks.map((deck) => {
+    const ratesCounts = deck.rates.length;
+
+    return {
+      id: deck.id,
+      name: deck.name,
+      image_url: deck.image_url,
+      color: deck.color,
+      level: deck.level,
+      version: deck.version,
+      tags: deck.tags,
+      cards: deck.cards,
+      ratesCounts,
+      rate:
+        deck.rates.reduce((total, num) => total + parseInt(num.value), 0) /
+        ratesCounts,
+    };
+  });
+
   res.status(201).json({
     message: "تم الحصول على المجموعات",
     decks,
@@ -52,11 +79,11 @@ const getAllDecks = async (req, res, next) => {
 };
 
 const deleteDeckById = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let deletedDeck;
   try {
-    deletedDeck = await Deck.findByPk(id);
+    deletedDeck = await prisma.deck.findUnique({ where: { id } });
   } catch (e) {
     return next(
       new NewError("حصلت مشكلة أثناء الحذف, الرجاء المحاولة لاحقا", 500)
@@ -70,9 +97,9 @@ const deleteDeckById = async (req, res, next) => {
   }
 
   try {
-    await Deck.destroy({
+    await prisma.deck.delete({
       where: {
-        id: id,
+        id,
       },
     });
   } catch (e) {
@@ -95,24 +122,27 @@ const editDeck = async (req, res, next) => {
 
   const { name, image_url, color, level } = req.body;
 
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let editedDeck;
   try {
-    editedDeck = await Deck.findByPk(id);
+    editedDeck = await prisma.deck.findUnique({ where: { id } });
   } catch (e) {
     return next(
       new NewError("حصلت مشكلة أثناء الحذف, الرجاء المحاولة لاحقا", 500)
     );
   }
 
-  await editedDeck.update({
-    name,
-    image_url,
-    color,
-    level,
-    version: editedDeck.version + 1,
-    ...editedDeck,
+  editedDeck = await prisma.deck.update({
+    where: { id },
+    data: {
+      ...editedDeck,
+      name,
+      image_url,
+      color,
+      level,
+      version: parseInt(editedDeck.version) + 1,
+    },
   });
 
   res.json({
@@ -122,11 +152,18 @@ const editDeck = async (req, res, next) => {
 };
 
 const getOneDeck = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let deck;
   try {
-    deck = await Deck.findByPk(id);
+    deck = await prisma.deck.findUnique({
+      where: { id },
+      include: {
+        rates: true,
+        cards: true,
+        tags: true,
+      },
+    });
   } catch (e) {
     return next(
       new NewError(
@@ -149,11 +186,14 @@ const getOneDeck = async (req, res, next) => {
 };
 
 const checkVersion = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
 
   let deck;
   try {
-    deck = await Deck.findByPk(id);
+    deck = await prisma.deck.findUnique({
+      where: { id },
+      select: { version: true },
+    });
   } catch (e) {
     return next(
       new NewError(
