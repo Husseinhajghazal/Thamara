@@ -149,6 +149,10 @@ const getOneTag = async (req, res, next) => {
   });
 };
 
+const connectTag = async (req, res, next) => {};
+
+const deleteConnectedTag = async (req, res, next) => {};
+
 exports.createTag = createTag;
 exports.editTag = editTag;
 exports.deleteTag = deleteTag;

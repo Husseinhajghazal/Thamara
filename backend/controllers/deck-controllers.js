@@ -33,6 +33,7 @@ const createDeck = async (req, res, next) => {
     );
   }
 };
+// queries =  page & tag & searchedTerm;
 
 const getAllDecks = async (req, res, next) => {
   let decks;

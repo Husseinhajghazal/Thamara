@@ -9,6 +9,8 @@ const NewError = require("./models/new-error");
 const deckRouter = require("./routers/deck-router");
 const rateRouter = require("./routers/rate-router");
 const tagRouter = require("./routers/tag-router");
+const cardRouter = require("./routers/card-router");
+const imageRouter = require("./routers/image-router");
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -30,6 +32,8 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/deck", deckRouter);
 app.use("/rate", rateRouter);
 app.use("/tag", tagRouter);
+app.use("/card", cardRouter);
+app.use("/image", imageRouter);
 
 app.use((req, res, next) => {
   return next(new NewError("Could not find this route.", 404));
