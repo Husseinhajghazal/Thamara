@@ -166,6 +166,7 @@ const getOneDeck = async (req, res, next) => {
       },
     });
   } catch (e) {
+    console.log(e);
     return next(
       new NewError(
         "حصلت مشكلة أثناء الحصول على المجموعة, الرجاء المحاولة لاحقا",
