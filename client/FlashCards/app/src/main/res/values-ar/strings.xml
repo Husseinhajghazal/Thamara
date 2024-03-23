@@ -92,4 +92,5 @@
     <string name="new_user">مستخدم جديد</string>
     <string name="enter_your_name_and_age">أدخل اسمك وعمرك</string>
     <string name="level_x">المستوى %1$s</string>
+    <string name="retry">إعادة المحاولة</string>
 </resources>

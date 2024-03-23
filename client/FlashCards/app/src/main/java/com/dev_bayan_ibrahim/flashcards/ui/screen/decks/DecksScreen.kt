@@ -4,15 +4,14 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
@@ -85,6 +84,7 @@ fun DecksScreen(
                         )
                     }
                     PaginatedDecksList(
+                        modifier = Modifier.fillMaxWidth(),
                         decks = paginatedDecks,
                         onClickDeck = actions::onClickDeck
                     )

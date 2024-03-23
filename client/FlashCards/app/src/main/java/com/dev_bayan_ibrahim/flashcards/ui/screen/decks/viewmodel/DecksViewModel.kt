@@ -71,7 +71,7 @@ class DecksViewModel @Inject constructor(
 
         override fun onSelectTab(tab: DecksTab) {
             selectedTab = tab
-
+            onApplyFilters()
         }
 
         override fun onDownloadDeck() {

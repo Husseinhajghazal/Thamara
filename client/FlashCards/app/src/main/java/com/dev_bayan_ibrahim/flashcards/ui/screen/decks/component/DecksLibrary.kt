@@ -1,20 +1,28 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
@@ -31,13 +39,52 @@ fun PaginatedDecksList(
 ) {
     DecksGrid(modifier = modifier) {
         countItem(decks.itemCount)
-        repeat(decks.itemCount) {
-            decks[it]?.let { deck ->
-                deckItem(deck, onClickDeck)
+        lazyPagingLoadState(loadState = decks.loadState.prepend, retry = decks::retry)
+        lazyPagingLoadState(
+            loadState = decks.loadState.refresh,
+            retry = decks::retry
+        ) {
+            repeat(decks.itemCount) {
+                decks[it]?.let { deck ->
+                    deckItem(deck, onClickDeck)
+                }
             }
         }
+        lazyPagingLoadState(loadState = decks.loadState.append, retry = decks::retry)
     }
 }
+fun LazyGridScope.lazyPagingLoadState(
+    loadState: LoadState,
+    retry: () -> Unit,
+    notLoadingItems: (LazyGridScope.() -> Unit)? = null,
+) {
+    when (loadState) {
+        is LoadState.Error -> item (
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            Column(
+                modifier = Modifier,
+            ) {
+                Text(text = loadState.error.message ?: "Unknown error") // todo handle error messages
+                OutlinedButton(onClick = retry) {
+                    Text(text = stringResource(R.string.retry))
+                }
+            }
+        }
+        LoadState.Loading -> item (
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(40.dp))
+            }
+        }
+        is LoadState.NotLoading -> notLoadingItems?.let { items -> items() }
+    }
+}
+
 
 @Composable
 fun DecksList(
