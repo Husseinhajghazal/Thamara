@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
-import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpCardAccentColor
-import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpCardContainerAccentColor
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpSurface
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpOnSurface
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 
 @Composable
@@ -59,7 +59,9 @@ fun IncorrectExpandedCard(
             imageUrl = bgPattern
         )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CardQuestion(question = card.question)
@@ -114,7 +116,7 @@ private fun CardAnswer(
             answer = answer,
         )
 
-        is CardAnswer.Write -> CardWriteAnswer(
+        is CardAnswer.Sentence -> CardSentenceAnswer(
             modifier = modifier,
             accent = accent,
             answer = answer,
@@ -133,7 +135,7 @@ private fun CardMultiChoiceAnswer(
 ) {
     require(answer.choices.count() in 2..5)
     val errorColor: Color = MaterialTheme.colorScheme.error
-    val correctColor: Color = accent.lerpCardContainerAccentColor()
+    val correctColor: Color = accent.lerpOnSurface()
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
@@ -166,7 +168,7 @@ private fun CardMultiChoiceAnswer(
                     text = choice,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        if (correct) accent.lerpCardAccentColor() else MaterialTheme.colorScheme.onSurface
+                        if (correct) accent.lerpSurface() else MaterialTheme.colorScheme.onSurface
                     ),
                     maxLines = 1
                 )
@@ -182,7 +184,7 @@ private fun CardTrueFalseAnswer(
     answer: CardAnswer.TrueFalse,
 ) {
     val errorColor: Color = MaterialTheme.colorScheme.error
-    val correctColor: Color = accent.lerpCardContainerAccentColor()
+    val correctColor: Color = accent.lerpOnSurface()
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
@@ -198,7 +200,8 @@ private fun CardTrueFalseAnswer(
                     )
                 },
             text = stringResource(id = R.string._false),
-            color = accent.lerpCardAccentColor(),
+            color = if(!answer.answer) accent.lerpSurface() else accent.lerpOnSurface(),
+            textAlign = TextAlign.Center,
         )
         Text(
             modifier = Modifier
@@ -211,17 +214,18 @@ private fun CardTrueFalseAnswer(
                     )
                 },
             text = stringResource(id = R.string._true),
-            color = accent.lerpCardAccentColor(),
+            color = if(answer.answer) accent.lerpSurface() else accent.lerpOnSurface(),
+            textAlign = TextAlign.Center,
         )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun CardWriteAnswer(
+private fun CardSentenceAnswer(
     modifier: Modifier = Modifier,
     accent: Color,
-    answer: CardAnswer.Write,
+    answer: CardAnswer.Sentence,
     incorrectAnswer: String,
 ) {
     Column(
@@ -238,7 +242,7 @@ private fun CardWriteAnswer(
             color = MaterialTheme.colorScheme.error,
             maxLines = 1,
             textDecoration = TextDecoration.LineThrough,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelLarge
         )
         Text(
             modifier = Modifier.basicMarquee(
@@ -246,9 +250,9 @@ private fun CardWriteAnswer(
                 animationMode = MarqueeAnimationMode.Immediately
             ),
             text = answer.answer,
-            color = MaterialTheme.colorScheme.primary,
+            color = accent.lerpOnSurface(),
             maxLines = 1,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }

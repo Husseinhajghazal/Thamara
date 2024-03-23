@@ -2,18 +2,24 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component
 
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +32,8 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,13 +42,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
@@ -53,8 +66,10 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDropDown
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashRangeSlider
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toFloatRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksFilterTab
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.coroutines.launch
 
 @Stable
 interface DecksFilterUiState {
@@ -65,14 +80,15 @@ interface DecksFilterUiState {
     val filter: DecksFilter
 }
 
-const val tagsRows = 2
-val tagsGridHeight = FilterChipDefaults.Height.times(tagsRows).plus(8.dp * tagsRows.dec())
-
 class DecksFilterMutableUiState : DecksFilterUiState {
     fun onApply(appliedFilters: DecksFilterMutableUiState) {
         groupType = appliedFilters.groupType
         orderType = appliedFilters.orderType
         filter = appliedFilters.filter
+    }
+
+    fun reset() {
+        onApply(DecksFilterMutableUiState())
     }
 
     override var show: Boolean by mutableStateOf(false)
@@ -90,12 +106,14 @@ interface DecksFilterDialogUiActions {
     fun onDeselectAll()
     fun onApply()
     fun onCancel()
+    fun onReset()
     fun onLevelsValueChange(levels: ClosedFloatingPointRange<Float>)
     fun onRateValueChange(rates: ClosedFloatingPointRange<Float>)
     fun onShowDialog()
     fun changeOrderType(asc: Boolean)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DecksFilterDialog(
     modifier: Modifier = Modifier,
@@ -112,85 +130,169 @@ fun DecksFilterDialog(
         onDismiss = actions::onCancel
     ) {
         Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterSection(title = stringResource(R.string.group_by)) {
-                FilterDialogItem(
-                    items = DecksGroupType.entries,
-                    selectedItem = state.groupType ?: DecksGroupType.NONE,
-                    onSelectItem = actions::onSelectGroupType,
-                )
+            val pagerState = rememberPagerState {
+                DecksFilterTab.entries.count()
             }
+            val scope = rememberCoroutineScope()
+            FilterTabs(
+                selectedTab = DecksFilterTab.entries[pagerState.currentPage]
+            ) {
+                scope.launch {
+                    pagerState.animateScrollToPage(it.ordinal)
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .padding(
+                        start = 32.dp,
+                        top = 8.dp,
+                        end = 32.dp,
+                        bottom = 24.dp
+                    ),
+            ) {
+                HorizontalPager(
+                    modifier = Modifier.weight(1f),
+                    state = pagerState,
+                    userScrollEnabled = false,
+                    verticalAlignment = Alignment.Top
+                ) { page ->
+                    when (DecksFilterTab.entries[page]) {
+                        DecksFilterTab.Display -> DisplayPage(
+                            modifier = Modifier.fillMaxWidth(),
+                            state = state,
+                            actions = actions
+                        )
 
-            FilterSection(title = stringResource(R.string.order_by)) {
+                        DecksFilterTab.Tag -> {
+                            FilterTags(
+                                modifier = Modifier.fillMaxWidth(),
+                                allTags = dbInfo.allTags,
+                                selectedTags = state.filter.tags,
+                                onSelectTag = actions::onSelectTag,
+                                onDeselectAll = actions::onDeselectAll,
+                            )
+                        }
+
+                        DecksFilterTab.Filter -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                FilterRangeSlider(
+                                    label = stringResource(R.string.levels),
+                                    validRange = 0f..10f,
+                                    selectedRange = state.filter.levels?.toFloatRange(),
+                                    onValueChange = actions::onLevelsValueChange
+                                )
+
+                                FilterRangeSlider(
+                                    label = stringResource(id = R.string.rate),
+                                    validRange = 0f..5f,
+                                    selectedRange = state.filter.rate,
+                                    onValueChange = actions::onRateValueChange
+                                )
+                            }
+                        }
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    FilterDialogItem(
-                        items = DecksOrderType.entries,
-                        selectedItem = state.orderType ?: DecksOrderType.NAME,
-                        onSelectItem = actions::onSelectOrderType,
-                    )
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(24.dp))
-                            .padding(8.dp)
-                            .clickable {
-                                actions.changeOrderType(!state.ascOrder)
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = state.ascOrder,
-                            onCheckedChange = null
-                        )
-                        Text(stringResource(R.string.asc_order))
+                    TextButton(onClick = actions::onReset) {
+                        Text(stringResource(R.string.reset))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = actions::onCancel) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                    TextButton(onClick = actions::onApply) {
+                        Text(stringResource(R.string.apply))
                     }
                 }
             }
 
-            FilterSection(title = stringResource(R.string.filter_by)) {
-                FilterTags(
-
-                    allTags = dbInfo.allTags,
-                    selectedTags = state.filter.tags,
-                    onSelectTag = actions::onSelectTag,
-                    onDeselectAll = actions::onDeselectAll,
-                )
-                FilterRangeSlider(
-                    label = stringResource(R.string.levels),
-                    validRange = 0f..10f,
-                    selectedRange = state.filter.levels?.toFloatRange(),
-                    onValueChange = actions::onLevelsValueChange
-                )
-
-                FilterRangeSlider(
-                    label = stringResource(id = R.string.rate),
-                    validRange = 0f..5f,
-                    selectedRange = state.filter.rate,
-                    onValueChange = actions::onRateValueChange
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = actions::onCancel) {
-                    Text(stringResource(id = R.string.rate))
-                }
-                TextButton(onClick = actions::onApply) {
-                    Text(stringResource(R.string.apply))
-                }
-            }
         }
     }
 }
 
+
+@Composable
+private fun FilterTabs(
+    modifier: Modifier = Modifier,
+    selectedTab: DecksFilterTab,
+    onSelectTab: (DecksFilterTab) -> Unit,
+) {
+    TabRow(
+        modifier = modifier.fillMaxWidth(),
+        selectedTabIndex = selectedTab.ordinal,
+        containerColor = Color.Transparent
+    ) {
+        DecksFilterTab.entries.forEach { tab ->
+            Tab(
+                selected = tab == selectedTab,
+                onClick = { onSelectTab(tab) },
+                text = {
+                    Text(text = stringResource(id = tab.nameRes))
+                },
+                icon = {
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(id = tab.icon),
+                        contentDescription = null,
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DisplayPage(
+    modifier: Modifier = Modifier,
+    state: DecksFilterUiState,
+    actions: DecksFilterDialogUiActions,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        FilterSection(title = stringResource(R.string.group_by)) {
+            FilterDialogItem(
+                items = DecksGroupType.entries,
+                selectedItem = state.groupType ?: DecksGroupType.NONE,
+                onSelectItem = actions::onSelectGroupType,
+            )
+        }
+        FilterSection(title = stringResource(R.string.order_by)) {
+            FilterDialogItem(
+                items = DecksOrderType.entries,
+                selectedItem = state.orderType ?: DecksOrderType.NAME,
+                onSelectItem = actions::onSelectOrderType,
+            )
+        }
+        Row(
+            modifier = Modifier
+                .height(40.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .padding(8.dp)
+                .clickable {
+                    actions.changeOrderType(!state.ascOrder)
+                },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Checkbox(
+                checked = state.ascOrder,
+                onCheckedChange = null
+            )
+            Text(stringResource(R.string.asc_order))
+        }
+    }
+}
 
 @Composable
 private fun FilterSection(
@@ -209,6 +311,7 @@ private fun FilterSection(
 @Composable
 private fun <T : FlashSelectableItem> FilterDialogItem(
     modifier: Modifier = Modifier,
+    direction: LayoutDirection = LocalLayoutDirection.current,
     items: List<T>,
     selectedItem: T,
     onSelectItem: (T) -> Unit,
@@ -217,7 +320,10 @@ private fun <T : FlashSelectableItem> FilterDialogItem(
         mutableStateOf(false)
     }
     val rotation by animateFloatAsState(
-        targetValue = if (expanded) 0f else -90f,
+        targetValue = if (expanded) 0f else when (direction) {
+            LayoutDirection.Ltr -> 1f
+            LayoutDirection.Rtl -> -1f
+        } * -90f,
         label = ""
     )
     Box(
@@ -251,6 +357,7 @@ private fun <T : FlashSelectableItem> FilterDialogItem(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FilterTags(
     modifier: Modifier = Modifier,
@@ -267,18 +374,17 @@ private fun FilterTags(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Tags")
+                Text(text = stringResource(id = R.string.tags))
                 TextButton(onClick = onDeselectAll) {
-                    Text(text = "Deselect")
+                    Text(text = stringResource(R.string.deselect))
                 }
             }
-            LazyHorizontalStaggeredGrid(
-                modifier = Modifier.height(tagsGridHeight),
-                rows = StaggeredGridCells.Fixed(tagsRows),
-                horizontalItemSpacing = 8.dp,
+            FlowRow(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(allTags.toList()) { tag ->
+                allTags.forEach { tag ->
                     FilterChip(
                         selected = tag in selectedTags,
                         onClick = { onSelectTag(tag) },
@@ -341,6 +447,7 @@ private fun DecksFilterDialogPreviewLight() {
                     override fun onApply() {}
 
                     override fun onCancel() {}
+                    override fun onReset() {}
 
                     override fun onLevelsValueChange(levels: ClosedFloatingPointRange<Float>) {}
 

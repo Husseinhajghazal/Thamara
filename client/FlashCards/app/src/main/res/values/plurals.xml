@@ -35,4 +35,9 @@
         <item quantity="other">%d answers</item>
     </plurals>
 
+    <plurals name="year">
+        <item quantity="one">year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+
 </resources>

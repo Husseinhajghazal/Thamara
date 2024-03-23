@@ -91,7 +91,7 @@ private fun BarTitle(
             onClick = dialogActions::onShowDialog
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.filter),
+                painter = painterResource(id = R.drawable.ic_filter),
                 contentDescription = stringResource(R.string.filter),
                 tint = MaterialTheme.colorScheme.onPrimary
             )

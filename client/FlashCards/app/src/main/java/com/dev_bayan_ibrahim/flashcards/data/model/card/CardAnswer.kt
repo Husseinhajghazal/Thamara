@@ -65,13 +65,13 @@ sealed interface CardAnswer {
     }
 
     @Serializable
-    data class Write(val answer: String) : CardAnswer
+    data class Sentence(val answer: String) : CardAnswer
 
     fun checkIfCorrect(answer: String): Boolean = when (this) {
         is Info -> true
         is MultiChoice -> answer == correctChoice
         is TrueFalse -> answer == this.answer.toString()
-        is Write -> answer == this.answer
+        is Sentence -> answer == this.answer
     }
 }
 
@@ -84,7 +84,7 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
         element("info", CardAnswer.Info::class.serializer().descriptor)
         element("true_false", CardAnswer.TrueFalse::class.serializer().descriptor)
         element("multi_choice", CardAnswer.MultiChoice::class.serializer().descriptor)
-        element("write", CardAnswer.Write::class.serializer().descriptor)
+        element("sentence", CardAnswer.Sentence::class.serializer().descriptor)
     }
 
 
@@ -92,7 +92,7 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
         var info: CardAnswer.Info? = null
         var trueFalse: CardAnswer.TrueFalse? = null
         var multiChoice: CardAnswer.MultiChoice? = null
-        var write: CardAnswer.Write? = null
+        var sentence: CardAnswer.Sentence? = null
 
         decoder.decodeStructure(descriptor) {
             while (true) {
@@ -116,10 +116,10 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
                         deserializer = CardAnswer.MultiChoice::class.serializer()
                     )
 
-                    3 -> write = decodeNullableSerializableElement(
+                    3 -> sentence = decodeNullableSerializableElement(
                         descriptor = descriptor,
                         index = index,
-                        deserializer = CardAnswer.Write::class.serializer()
+                        deserializer = CardAnswer.Sentence::class.serializer()
                     )
 
                     CompositeDecoder.DECODE_DONE -> break
@@ -127,7 +127,7 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
                 }
             }
         }
-        return info ?: trueFalse ?: multiChoice ?: write
+        return info ?: trueFalse ?: multiChoice ?: sentence
         ?: throw IllegalArgumentException("unexpected type")
     }
 
@@ -155,8 +155,8 @@ object CardAnswerSerializer : KSerializer<CardAnswer> {
             encodeNullableSerializableElement(
                 descriptor = descriptor,
                 index = 3,
-                serializer = CardAnswer.Write::class.serializer(),
-                value = value as? CardAnswer.Write
+                serializer = CardAnswer.Sentence::class.serializer(),
+                value = value as? CardAnswer.Sentence
             )
         }
     }
@@ -195,7 +195,7 @@ object DurationSerializer : KSerializer<Duration> {
       "answer": true  // (Used for TrueFalse)
     },
     "sentence": {
-      "answer": "correct answer"  // (Used for Write)
+      "answer": "correct answer"  // (Used for Sentence)
     }
   }
 }

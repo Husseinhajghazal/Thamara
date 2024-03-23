@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FlashCards</string>
+    <string name="app_name">Thamara</string>
     <string name="home">Accueil</string>
     <string name="decks">Decks</string>
     <string name="statistics">Statistiques</string>
@@ -86,4 +86,11 @@
     <string name="give_up_action">Give up</string>
     <string name="_continue">Continue</string>
     <string name="give_up_play_hint">if you canceled the play now, all results will be ignored</string>
+    <string name="display">Display</string>
+    <string name="deselect">Deselect</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset">Reset</string>
+    <string name="new_user">New User</string>
+    <string name="enter_your_name_and_age">enter your name and age</string>
+    <string name="level_x">Level %1$s</string>
 </resources>

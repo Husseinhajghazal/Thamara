@@ -24,6 +24,8 @@ ksp = "1.9.22-1.0.17"
 lifecycle-runtime-ktx = "2.7.0"
 navigation-runtime-ktx = "2.7.7"
 navigationCommonKtx = "2.7.7"
+gms = "4.4.1"
+firebaseBom = "32.7.2"
 room = "2.6.1"
 windowsizeclass = "1.2.1"
 ktor = "2.3.8"
@@ -41,6 +43,10 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "androidx-datastore"}
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-cloud-messaging = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firabse-installations = { group = "com.google.firebase", name = "firebase-installations", version = "17.2.0"}
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidx-datastore"}
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
@@ -84,3 +90,4 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinxSerializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serilalization" }
 kspPlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-gms = { id = "com.google.gms.google-services", version.ref = "gms" }

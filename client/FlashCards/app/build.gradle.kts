@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinxSerializationPlugin)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.gms)
 }
 
 android {
@@ -15,8 +16,8 @@ android {
         applicationId = "com.dev_bayan_ibrahim.flashcards"
         minSdk = 21
         targetSdk = 34
-        versionCode = 4
-        versionName = "0.3.1"
+        versionCode = 6
+        versionName = "0.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -114,9 +115,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.guava)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firabse.installations)
+    implementation(libs.firebase.cloud.messaging)
+    implementation(libs.firebase.analytics)
+
     // desugar
     coreLibraryDesugaring(libs.android.desugar.jdk.lib)
-
 
     testImplementation(libs.junit)
 

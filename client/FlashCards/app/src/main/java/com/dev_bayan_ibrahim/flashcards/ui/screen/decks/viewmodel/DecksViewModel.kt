@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
@@ -49,6 +50,7 @@ class DecksViewModel @Inject constructor(
 
     var downloadStatus: DownloadStatus? by mutableStateOf(null)
         private set
+
 
     fun getDecksActions(
         navigateToDeckPlay: (Long) -> Unit,
@@ -171,6 +173,10 @@ class DecksViewModel @Inject constructor(
             state.filterDialogState.onApply(appliedFilters)
         }
 
+        override fun onReset() {
+            state.filterDialogState.reset()
+        }
+
         override fun onLevelsValueChange(levels: ClosedFloatingPointRange<Float>) {
             state.filterDialogState.run {
                 filter = filter.copy(levels = levels.toIntRange())
@@ -197,9 +203,7 @@ class DecksViewModel @Inject constructor(
     private fun onApplyFilters() {
         when (selectedTab) {
             LIBRARY -> getLibraryDecks()
-            BROWSE -> {
-
-            }
+            BROWSE -> getBrowseDecks()
         }
     }
 
@@ -226,14 +230,25 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    private fun browseDecks(
+    private fun getBrowseDecks(
         query: String = state.query,
         groupBy: DecksGroupType? = appliedFilters.groupType,
         filterBy: DecksFilter? = appliedFilters.filter,
         orderBy: DecksOrderType? = appliedFilters.orderType,
         ascOrder: Boolean = appliedFilters.ascOrder,
     ) {
-
+        viewModelScope.launch {
+            repo.getBrowseDecks(
+                query = query,
+                groupBy = groupBy,
+                filterBy = filterBy,
+                orderBy = orderBy?.toDeckOrder(ascOrder)
+            ).distinctUntilChanged()
+                .cachedIn(viewModelScope)
+                .collect { pagingData ->
+                    state.searchResults.value = pagingData
+                }
+        }
     }
 
     private fun downloadDeck(deck: DeckHeader, onFinish: (Pair<Int?, String?>?) -> Unit = {}) {

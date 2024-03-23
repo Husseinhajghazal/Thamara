@@ -11,5 +11,5 @@ interface PlayUiActions {
     fun onCancelPlay()
 
     fun onContinuePlay()
-    fun onBackHandelerClick()
+    fun onBackHandlerClick()
 }

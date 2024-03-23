@@ -61,23 +61,18 @@ fun FlashApp(
 
     val initialized by appViewModel.initialized.collectAsState()
     if (!initialized) {
-        Box (
+        Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Column (
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator(modifier = Modifier.size(56.dp))
                 Text(stringResource(R.string.loading))
             }
         }
-    } else {
-
-        user?.let {
-            UserRankChangeDialog(rank = it.rank)
-        }
-
+    } else if (user == null) {
         NewUserDialog(
             show = user == null,
             name = uiState.newUserName,
@@ -86,6 +81,11 @@ fun FlashApp(
             onAgeChange = uiActions::onAgeChange,
             onSave = uiActions::onSave,
         )
+    } else {
+        user?.let {
+            UserRankChangeDialog(rank = it.rank)
+        }
+
 
         val navController = rememberNavController()
         val navActions by remember(navController) {

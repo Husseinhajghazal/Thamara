@@ -36,5 +36,10 @@
         <item quantity="many">%d réponses</item>
     </plurals>
 
+<!--    todo check spilling-->
+    <plurals name="year">
+        <item quantity="one">%d anne</item>
+        <item quantity="many">%d annes</item>
+    </plurals>
 
 </resources>

@@ -24,7 +24,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.dev_bayan_ibrahim.flashcards.R
-import java.io.File
 
 @Composable
 fun DynamicAsyncImage(
@@ -34,14 +33,10 @@ fun DynamicAsyncImage(
     contentScale: ContentScale = ContentScale.Crop,
     placeholder: Painter = painterResource(id = R.drawable.ic_broken_image),
 ) {
-    var isLoading by remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(!imageUrl.isResUrl()) }
     var isError by remember { mutableStateOf(false) }
-    val imageLoader = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .data(imageUrl)
-            .build(),
+    val imageLoader = getImagePainter(
+        imageUrl = imageUrl,
         onState = { state ->
             isLoading = state is AsyncImagePainter.State.Loading
             isError = state is AsyncImagePainter.State.Error
@@ -70,3 +65,29 @@ fun DynamicAsyncImage(
         )
     }
 }
+
+@Composable
+private fun getImagePainter(
+    imageUrl: String,
+    onState: (AsyncImagePainter.State) -> Unit
+): Painter = imageUrl.parseStringResUrl()?.let {
+    painterResource(id = it)
+} ?: rememberAsyncImagePainter(
+    model = ImageRequest.Builder(LocalContext.current)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .data(imageUrl)
+        .build(),
+    onState = onState
+)
+
+fun Int.getLinkOfResDrawable(): String = "$drawableResScheme://$this"
+private fun String.parseStringResUrl(): Int? {
+    return removePrefix("$drawableResScheme://").toIntOrNull()
+}
+
+private fun String.isResUrl(): Boolean {
+    return startsWith("$drawableResScheme://")
+}
+
+private const val drawableResScheme = "drawableRes"

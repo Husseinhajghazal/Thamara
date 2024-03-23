@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.data.repo
 
+import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
@@ -30,6 +31,13 @@ interface FlashRepo {
         orderBy: DecksOrder?,
     ): Flow<Map<DecksGroup, List<DeckHeader>>>
 
+    suspend fun getBrowseDecks(
+        query: String,
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?,
+    ): Flow<PagingData<DeckHeader>>
+
     suspend fun getDeckCards(id: Long): Deck
 
     suspend fun saveDeckResults(
@@ -43,4 +51,10 @@ interface FlashRepo {
     suspend fun isFirstPlay(id: Long): Boolean
     suspend fun updateUserRank(newRank: UserRank)
     suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus>
+
+    suspend fun rateDeck(
+        id: Long,
+        rate: Int,
+        deviceId: String
+    ): Result<DeckHeader>
 }

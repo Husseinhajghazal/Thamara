@@ -1,25 +1,31 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dev_bayan_ibrahim.flashcards.data.level_manager.FlashRankManager
-import com.dev_bayan_ibrahim.flashcards.data.level_manager.PlayCardResult
+import com.dev_bayan_ibrahim.flashcards.data.di.AppInstallation
+import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
+import com.dev_bayan_ibrahim.flashcards.data.rank_manager.PlayCardResult
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayViewModel @Inject constructor(
-    private val repo: FlashRepo
+    private val repo: FlashRepo,
+    appInstallationMonitor: AppInstallation,
 ) : ViewModel() {
     val state = PlayMutableUiState()
+    val deviceId = appInstallationMonitor.id
 
     fun initScreen(deckId: Long) {
         if (deckId != state.deck.header.id) {
@@ -29,14 +35,26 @@ class PlayViewModel @Inject constructor(
         }
     }
 
+    private suspend fun getDeviceId() = try {
+        FirebaseMessaging.getInstance().token.await()
+        val deviceId = deviceId.first()
+        Log.d("device_id", deviceId)
+        deviceId
+    } catch (e: Exception) {
+        null
+    }
+
+
     private fun handleAnswer(card: Card, answer: String) {
-        val ans = if (card.answer.checkIfCorrect(answer)) {
-            state.correctAnswers += 1
-            null
-        } else {
-            answer
+        if (state.cardsAnswers.all { it.first.id != card.id }) { // check not to add a card twice
+            val ans = if (card.answer.checkIfCorrect(answer)) {
+                state.correctAnswers += 1
+                null
+            } else {
+                answer
+            }
+            state.cardsAnswers.add(card to ans)
         }
-        state.cardsAnswers.add(card to ans)
     }
 
     private fun handleNextCard() {
@@ -50,7 +68,7 @@ class PlayViewModel @Inject constructor(
 
     private suspend fun calculateAndSaveNewRank() {
         val oldRank = repo.getUser().first()?.rank ?: return
-        val firstPlay = repo.isFirstPlay(state.deck.header.id!!)
+        val firstPlay = repo.isFirstPlay(state.deck.header.id)
         val newRank = FlashRankManager.calculateNewRank(
             oldRank = oldRank,
             deckLevel = state.deck.header.level,
@@ -99,11 +117,12 @@ class PlayViewModel @Inject constructor(
 
         override fun onClose() = navigateUp()
 
-        override fun onBackHandelerClick() {
+        override fun onBackHandlerClick() {
             when (state.status) {
                 PlayStatus.PLAYING -> {
                     state.showCancelPlayDialog = true
                 }
+
                 else -> navigateUp()
             }
         }
@@ -115,6 +134,12 @@ class PlayViewModel @Inject constructor(
 
         override fun onContinuePlay() {
             state.showCancelPlayDialog = false
+        }
+
+    }
+    private suspend fun rateDeck(id: Long, rate: Int) {
+        getDeviceId()?.let { deviceId ->
+            repo.rateDeck(id, rate, deviceId)
         }
     }
 

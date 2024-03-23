@@ -9,6 +9,7 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreMana
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManagerImpl
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.uri_decerator.UriDirector
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepoImpl
 import dagger.Module
@@ -20,6 +21,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.URLBuilder
+import io.ktor.http.set
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -70,12 +73,17 @@ object DataModule {
         db: FlashDatabase,
         dataStore: DataStore<Preferences>,
         fileManager: FlashFileManager,
+        json: Json,
+        director: UriDirector,
+        client: HttpClient,
     ): FlashRepo = FlashRepoImpl(
         db = db,
         preferences = DataStoreManager(dataStore),
-        fileManager = fileManager
+        fileManager = fileManager,
+        json = json,
+        director = director,
+        client = client
     )
-
 
     @OptIn(ExperimentalSerializationApi::class)
     @Provides
@@ -115,4 +123,26 @@ object DataModule {
     @Provides
     @Singleton
     fun provideIODispatcher(): CoroutineContext = Dispatchers.IO
+
+    @Provides
+    @Singleton
+    fun provideSwatUriDirector(
+    ): UriDirector = object : UriDirector {
+        override fun URLBuilder.director(): URLBuilder {
+            set(
+                scheme = "https",
+                // don't hard code this host, chnage the vairable instead, it is used in other places
+                host = apiHost,
+                path = null
+            )
+            return this
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun providesAppInstallationIdMonitor(): AppInstallation {
+        return FirebaseAppInstallation()
+    }
 }
+private const val apiHost = "host"

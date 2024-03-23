@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -28,7 +29,7 @@ fun CancelPlayDialog(
     onContinuePlay: () -> Unit,
 ) {
     FlashDialog(
-        modifier = Modifier
+        modifier = modifier
             .height(300.dp)
             .aspectRatio(cardRatio),
         show = show,
@@ -36,6 +37,12 @@ fun CancelPlayDialog(
         onDismiss = onContinuePlay,
     ) {
         Column(
+            modifier = Modifier.padding(
+                start = 16.dp,
+                top = 16.dp,
+                end = 16.dp,
+                bottom = 8.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -51,21 +58,26 @@ fun CancelPlayDialog(
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(
-                onClick = onContinuePlay,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+            Column(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string._continue),
-                )
-            }
-            TextButton(
-                onClick = onCancelPlay,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text(
-                    text = stringResource(R.string.give_up_action),
-                )
+                OutlinedButton(
+                    onClick = onContinuePlay,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                ) {
+                    Text(
+                        text = stringResource(R.string._continue),
+                    )
+                }
+                TextButton(
+                    onClick = onCancelPlay,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text(
+                        text = stringResource(R.string.give_up_action),
+                    )
+                }
             }
         }
     }

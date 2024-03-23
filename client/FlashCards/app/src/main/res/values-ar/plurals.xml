@@ -56,4 +56,12 @@
         <item quantity="many">%d إجابة</item>
     </plurals>
 
+    <plurals name="year">
+        <item quantity="zero">0 سنة</item>
+        <item quantity="one">سنة</item>
+        <item quantity="two">سنتان</item>
+        <item quantity="few">%d سنوات</item>
+        <item quantity="many">%d سنة</item>
+    </plurals>
+
 </resources>

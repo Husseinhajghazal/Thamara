@@ -1,17 +1,27 @@
 package com.dev_bayan_ibrahim.flashcards.data.repo
 
 import androidx.compose.ui.text.intl.Locale
+import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.cardsInitialValues
+import com.dev_bayan_ibrahim.flashcards.data.data_source.init.cardsInitialValues
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
-import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.decksInitialValue
+import com.dev_bayan_ibrahim.flashcards.data.data_source.init.decksInitialValue
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.Endpoint
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.getEndpoint
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.input.InputField
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldRate
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.paging.FlashPagingSource
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.request_builder.RequestBuilder
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.uri_decerator.UriDirector
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.util.BodyParam
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.play.CardPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
@@ -31,6 +41,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.shuffle
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
@@ -42,17 +53,47 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import kotlin.time.Duration.Companion.days
 
+@OptIn(InternalSerializationApi::class)
 class FlashRepoImpl(
     private val db: FlashDatabase,
     private val preferences: DataStoreManager,
     private val fileManager: FlashFileManager,
+    private val json: Json,
+    private val director: UriDirector,
+    private val client: HttpClient,
 ) : FlashRepo,
     DeckDao by db.getDeckDao(),
     CardDao by db.getCardDao(),
     DeckPlayDao by db.getDeckPlayDao(),
     CardPlayDao by db.getCardPlayDao() {
+
+
+    private val endpoints: MutableMap<Endpoint, RequestBuilder> = mutableMapOf()
+
+    private suspend fun <T> getEndpointRequest(
+        endpoint: Endpoint,
+        body: suspend (RequestBuilder) -> T
+    ): T {
+        val request = if (endpoints.containsKey(endpoint)) {
+            endpoints[endpoint]!!
+        } else {
+            val e = getEndpoint(
+                client = client,
+                director = director,
+                json = json,
+                endpoint = endpoint
+            )
+            endpoints[endpoint] = e
+            e
+        }
+        return body(request)
+    }
+
     override fun getTotalPlaysCount(): Flow<Int> = getDeckPlaysCount()
 
     override fun getUser(): Flow<User?> = preferences.getUser()
@@ -167,6 +208,21 @@ class FlashRepoImpl(
         }.filter { (_, value) -> value.isNotEmpty() }
     }
 
+    override suspend fun getBrowseDecks(
+        query: String,
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?
+    ): Flow<PagingData<DeckHeader>> = getEndpointRequest(
+        Endpoint.Deck
+    ) {
+        FlashPagingSource.buildPagingDataFlow(
+            input = InputField(),
+            requestBuilder = it,
+            serializer = DeckSerializer
+        )
+    }
+
     override suspend fun getDeckCards(id: Long): Deck {
         val header = getDeck(id)!! // todo, handle not found
         val cards = getCards(id).run {
@@ -243,5 +299,24 @@ class FlashRepoImpl(
                 }
             }
         }
+    }
+
+    override suspend fun rateDeck(
+        id: Long,
+        rate: Int,
+        deviceId: String
+    ): Result<DeckHeader> = getEndpointRequest(
+        Endpoint.Rate
+    ) {
+        it.buildPostRequest(
+            InputField(
+                bodyParams = listOf(
+                    BodyParam.Text("deck_id", id.toString()),
+                    BodyParam.Text("rate", rate.toString()),
+                    BodyParam.Text("user_id", deviceId),
+                )
+            ),
+            OutputFieldRate::class.serializer(),
+        ).execute().map { it.updatedDeck }
     }
 }

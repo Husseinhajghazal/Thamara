@@ -69,7 +69,9 @@ fun ExpandedCard(
             imageUrl = bgPattern
         )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CardQuestion(question = card.question)
@@ -149,7 +151,7 @@ private fun CardAnswer(
             onSelectAnswer = onSelectAnswer
         )
 
-        is CardAnswer.Write -> CardWriteAnswer(
+        is CardAnswer.Sentence -> CardSentenceAnswer(
             modifier = modifier,
             answer = answer,
             clickable = clickable,
@@ -258,9 +260,9 @@ private fun CardTrueFalseAnswer(
 }
 
 @Composable
-private fun CardWriteAnswer(
+private fun CardSentenceAnswer(
     modifier: Modifier = Modifier,
-    answer: CardAnswer.Write,
+    answer: CardAnswer.Sentence,
     clickable: Boolean,
     onSelectAnswer: (String) -> Unit
 ) {
@@ -309,7 +311,7 @@ private fun ExpandedCardPreviewLight() {
                 card = Card(
                     question = "this is a cat",
                     image = "https://drive.google.com/uc?export=download&id=1HiRtIjas0UjWmmAqEvAhkw5wVgMGPr2O",
-                    answer = CardAnswer.Write(
+                    answer = CardAnswer.Sentence(
                         "correct answer",
                     ),
                     deckId = 0,

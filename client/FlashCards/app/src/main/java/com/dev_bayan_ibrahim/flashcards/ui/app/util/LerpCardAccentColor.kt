@@ -8,16 +8,16 @@ import androidx.compose.ui.graphics.Color
 private const val percent = 0.25f
 
 @Composable
-fun Color.lerpCardAccentColor(): Color {
+fun Color.lerpSurface(): Color {
     return lerp(MaterialTheme.colorScheme.surface, percent)
 }
 
 @Composable
-fun Color.lerpCardContainerAccentColor(): Color {
-    return MaterialTheme.colorScheme.onSurface.lerp(this, percent)
+fun Color.lerpOnSurface(): Color {
+    return lerp(MaterialTheme.colorScheme.onSurface, percent)
 }
 
-private fun Color.lerp(other: Color, percent: Float = 0.5f): Color =
+fun Color.lerp(other: Color, percent: Float = 0.5f): Color =
     Color(
         red = red.weightedAvg(other.red, percent),
         green = green.weightedAvg(other.green, percent),

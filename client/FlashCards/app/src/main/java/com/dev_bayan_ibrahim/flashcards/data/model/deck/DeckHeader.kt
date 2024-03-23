@@ -6,10 +6,28 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.converter.InstantConverter
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.converter.StringListConverter
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+/*
+{
+            "id": 1,
+            "name": "test",
+            "image_url": "test",
+            "color": "test",
+            "level": "e",
+            "version": 0,
+            "tags": [],
+            "cards": [],
+            "ratesCounts": 0,
+            "rate": null
+        }
+
+ */
 @Entity(tableName = "decks")
 @TypeConverters(StringListConverter::class, InstantConverter::class)
+@Serializable
 data class DeckHeader(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
@@ -23,7 +41,7 @@ data class DeckHeader(
     val level: Int = 0,
     val rates: Int = 0, // rates count
     val rate: Float = 0f, // average rate
-    val creation: Instant = Instant.fromEpochMilliseconds(0),
+    val creation: Instant = Clock.System.now(),
     val downloadInProgress: Boolean = false,
     val allowShuffle : Boolean = true,
 )

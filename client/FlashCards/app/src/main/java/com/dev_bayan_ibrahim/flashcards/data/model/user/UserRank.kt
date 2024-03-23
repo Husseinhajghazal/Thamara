@@ -3,7 +3,7 @@ package com.dev_bayan_ibrahim.flashcards.data.model.user
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.dev_bayan_ibrahim.flashcards.R
-import com.dev_bayan_ibrahim.flashcards.data.level_manager.FlashRankManager
+import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.util.formatWithChar
 
 data class UserRank(
@@ -11,7 +11,11 @@ data class UserRank(
     val exp: Int,
 ) {
     companion object Companion {
-        val Init = UserRank(0, 0)
+        val top_rank = 18
+        val min_rank = 0
+
+        val ranks_range = min_rank..top_rank
+        val Init = UserRank(min_rank, 0)
     }
 
     val requiredExp = FlashRankManager.requiredExpOfRank(rank)

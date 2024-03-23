@@ -23,7 +23,7 @@ fun PlayScreen(
     state: PlayUiState,
     actions: PlayUiActions,
 ) {
-    BackHandler (onBack = actions::onBackHandelerClick)
+    BackHandler (onBack = actions::onBackHandlerClick)
     CancelPlayDialog(
         show = state.showCancelPlayDialog,
         onCancelPlay = actions::onCancelPlay,

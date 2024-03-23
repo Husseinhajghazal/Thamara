@@ -6,5 +6,6 @@ plugins {
     alias(libs.plugins.kotlinxSerializationPlugin) apply false
     alias(libs.plugins.kspPlugin) apply false
     alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.google.gms) apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block

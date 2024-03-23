@@ -1,4 +1,4 @@
-package com.dev_bayan_ibrahim.flashcards.data.level_manager
+package com.dev_bayan_ibrahim.flashcards.data.rank_manager
 
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 

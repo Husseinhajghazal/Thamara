@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">فلاش</string>
+    <string name="app_name">ثمرة</string>
     <string name="home">الرئيسية</string>
     <string name="decks">الحزم</string>
     <string name="statistics">الإحصائيات</string>
@@ -85,4 +85,11 @@
     <string name="give_up_action">Give up</string>
     <string name="_continue">Continue</string>
     <string name="give_up_play_hint">if you canceled the play now, all results will be ignored</string>
+    <string name="display">عرض</string>
+    <string name="deselect">إلغاء التحديد</string>
+    <string name="cancel">إلغاء</string>
+    <string name="reset">إعادة تعيين</string>
+    <string name="new_user">مستخدم جديد</string>
+    <string name="enter_your_name_and_age">أدخل اسمك وعمرك</string>
+    <string name="level_x">المستوى %1$s</string>
 </resources>
