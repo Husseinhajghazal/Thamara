@@ -16,6 +16,8 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.StartScree
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiState
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.deckPlaEnterAnim
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.deckPlaExitAnim
 
 @Composable
 fun PlayScreen(
@@ -34,7 +36,9 @@ fun PlayScreen(
         contentAlignment = Alignment.Center,
     ) {
         AnimatedVisibility(
-            visible = state.status == PlayStatus.NOT_STARTED
+            visible = state.status == PlayStatus.NOT_STARTED,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
         ) {
             StartScreen(
                 onStart = actions::onStartPlay,
@@ -43,7 +47,9 @@ fun PlayScreen(
         }
 
         AnimatedVisibility(
-            visible = state.status == PlayStatus.PLAYING
+            visible = state.status == PlayStatus.PLAYING,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
         ) {
             DecksQueue(
                 deck = state.deck,
@@ -53,7 +59,9 @@ fun PlayScreen(
         }
 
         AnimatedVisibility(
-            visible = state.status == PlayStatus.RESULTS
+            visible = state.status == PlayStatus.RESULTS,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
         ) {
             PlayResults(
                 count = state.deck.cards.count(),

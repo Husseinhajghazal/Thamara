@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,7 +20,7 @@ fun HomeRoute(
     val generalStatistics by homeViewModel.generalStatistics.collectAsState()
 
     HomeScreen(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         state = homeViewModel.state,
         user = user,
         generalStatistics = generalStatistics,

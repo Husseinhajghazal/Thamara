@@ -1,12 +1,12 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksViewModel
 
@@ -25,7 +25,7 @@ fun DecksRoute(
     val dbInfo by decksViewModel.dbInfo.collectAsState()
 
     DecksScreen(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         state = decksViewModel.state,
         dbInfo = dbInfo,
         downloadStatus = decksViewModel.downloadStatus,

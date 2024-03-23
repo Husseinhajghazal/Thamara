@@ -74,7 +74,7 @@ fun FlashApp(
         }
     } else if (user == null) {
         NewUserDialog(
-            show = user == null,
+            show = true,
             name = uiState.newUserName,
             age = uiState.newUserAge,
             onNameChange = uiActions::onNameChange,

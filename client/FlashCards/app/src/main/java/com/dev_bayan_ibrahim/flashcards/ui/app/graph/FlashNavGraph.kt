@@ -15,6 +15,10 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.PlayRoute
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.DecksRoute
 import com.dev_bayan_ibrahim.flashcards.ui.screen.home.HomeRoute
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.StatisticsRoute
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.navEnterAnim
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.navExitAnim
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.topNavEnterAnim
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.topNavExitAnim
 
 
 @Composable
@@ -30,7 +34,21 @@ fun FlashNavGraph(
         startDestination = TopLevel.Home.route
     ) {
         TopLevel.entries.forEach { screen ->
-            composable(screen.route) {
+            composable(
+                route = screen.route,
+                enterTransition = {
+                    topNavEnterAnim(screen)
+                },
+                exitTransition = {
+                    topNavExitAnim(screen)
+                },
+                popEnterTransition = {
+                    topNavEnterAnim(screen)
+                },
+                popExitTransition = {
+                    topNavExitAnim(screen)
+                },
+            ) {
                 when (screen) {
                     TopLevel.Home -> {
                         HomeRoute(
@@ -39,7 +57,7 @@ fun FlashNavGraph(
                     }
 
                     TopLevel.Decks -> {
-                        DecksRoute (
+                        DecksRoute(
                             onShowSnackbarMessage = onShowSnackbarMessage
                         ) {
                             navActions.navigateTo(Play.getDestination(it))
@@ -56,6 +74,10 @@ fun FlashNavGraph(
         }
         composable(
             route = Play.route,
+            enterTransition = { navEnterAnim() },
+            exitTransition = { navExitAnim() },
+            popEnterTransition = { navEnterAnim() },
+            popExitTransition = { navExitAnim() },
             arguments = listOf(
                 navArgument(Play.Arg.id.name) {
                     type = NavType.LongType

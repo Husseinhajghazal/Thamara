@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,7 +18,7 @@ fun StatisticsRoute(
     val timedStatistics by statisticsViewModel.timedStatistics.collectAsState()
 
     StatisticsScreen(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         timedStatistics = timedStatistics
     )
 }
