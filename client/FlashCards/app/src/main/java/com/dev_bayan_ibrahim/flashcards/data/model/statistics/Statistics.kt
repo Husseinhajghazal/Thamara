@@ -5,8 +5,9 @@ import com.dev_bayan_ibrahim.flashcards.R
 
 
 data class GeneralStatistics(
-    val tags: Map<String, Int> = mapOf(), // count of decks in tags
-    val accuracyAverage: Float = 0f, // percentage
+    val tags: Map<String?, Int> = mapOf(), // count of decks in tags
+    val correctAnswers: Int = 0,
+    val failedAnswers: Int = 0,
     val totalDecksCount: Int = 0,
     val totalCardsCount: Int = 0,
 )

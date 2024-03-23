@@ -29,6 +29,7 @@ firebaseBom = "32.7.2"
 room = "2.6.1"
 windowsizeclass = "1.2.1"
 ktor = "2.3.8"
+y-chart = "2.1.0"
 
 [libraries]
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
@@ -38,16 +39,16 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
-dagger-compiler = {group = "com.google.dagger", name = "dagger-compiler", version.ref = "hilt"}
+dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "hilt" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "androidx-datastore"}
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "androidx-datastore" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-cloud-messaging = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
-firabse-installations = { group = "com.google.firebase", name = "firebase-installations", version = "17.2.0"}
-androidx-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidx-datastore"}
+firabse-installations = { group = "com.google.firebase", name = "firebase-installations", version = "17.2.0" }
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidx-datastore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
@@ -66,23 +67,24 @@ ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 # Networking Library: Ktor
 ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-engine-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
-ktor-engine-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor"}
+ktor-engine-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
 ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor"}
-ktor-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor"}
-ktor-mock =  { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor"}
+ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
+ktor-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 
-android-desugar-jdk-lib = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "android-desugar-jdk-libs"}
+android-desugar-jdk-lib = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "android-desugar-jdk-libs" }
 
-androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidxPaging"}
-androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPaging"}
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidxPaging" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidxPaging" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-windowsizeclass = {  group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "windowsizeclass" }
+windowsizeclass = { group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "windowsizeclass" }
 
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-guava = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-guava", version.ref = "kotlinxCoroutines" }
+yChart = { group = "co.yml", name = "ycharts", version.ref = "y-chart" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
-import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpSurface
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpOnSurface
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpSurface
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 
 @Composable

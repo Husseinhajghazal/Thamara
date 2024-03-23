@@ -26,7 +26,7 @@ class OutputFieldSerializer<T>(
         element<Int>("total_count")
         element<String>("current_page")
         element<String>("last_page")
-        element("results", resultsSerializer.descriptor)
+        element("decks", resultsSerializer.descriptor)
 //        element("property", SomeSerializer.descriptor)
     }
 
@@ -50,7 +50,7 @@ class OutputFieldSerializer<T>(
             }
         }
         return OutputField(
-            count = count!!,
+            count = count ?: results.count(),
             currentPage = next,
             lastPage = previous,
             results = results

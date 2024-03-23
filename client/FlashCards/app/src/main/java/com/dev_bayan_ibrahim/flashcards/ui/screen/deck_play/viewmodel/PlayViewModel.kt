@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev_bayan_ibrahim.flashcards.data.di.AppInstallation
+import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.PlayCardResult
-import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import com.google.firebase.messaging.FirebaseMessaging

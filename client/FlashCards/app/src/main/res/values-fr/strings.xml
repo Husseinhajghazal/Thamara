@@ -94,4 +94,11 @@
     <string name="enter_your_name_and_age">enter your name and age</string>
     <string name="level_x">Level %1$s</string>
     <string name="retry">Retry</string>
+    <string name="top_tags">Top tags</string>
+    <string name="other">Other</string>
+    <string name="no_tags">No Tags</string>
+    <string name="details">details</string>
+    <string name="failed_answers">Failed Answers</string>
+    <string name="correct">correct</string>
+    <string name="failed">failed</string>
 </resources>

@@ -1,7 +1,5 @@
 package com.dev_bayan_ibrahim.flashcards.data.model.deck
 
-import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
-import com.dev_bayan_ibrahim.flashcards.data.model.card.CardSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.card.ColorHexSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
@@ -37,7 +35,6 @@ object DeckSerializer : KSerializer<DeckHeader> {
         element<Float>("rate")
         element<Boolean>("shuffle")
     }
-
     @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(decoder: Decoder): DeckHeader {
         var id: Long = INVALID_ID
@@ -51,7 +48,7 @@ object DeckSerializer : KSerializer<DeckHeader> {
         var pattern: String = "" // url for an image
         var color: Int = 0xFFFFFF
 
-        var level: Int = 0
+        var level: String? = null
         var rates: Int = 0 // rates count
         var rate: Float = 0f // average rate
 
@@ -81,9 +78,14 @@ object DeckSerializer : KSerializer<DeckHeader> {
 
                     6 -> pattern = decodeStringElement(descriptor, index)
                     7 -> color = decodeSerializableElement(descriptor, index, ColorHexSerializer)
-                    8 -> level = decodeIntElement(descriptor, index)
+                    8 -> level = decodeStringElement(descriptor, index)
                     9 -> rates = decodeIntElement(descriptor, index)
-                    10 -> rate = decodeNullableSerializableElement(descriptor, index, Float::class.serializer()) ?: 0f
+                    10 -> rate = decodeNullableSerializableElement(
+                        descriptor,
+                        index,
+                        Float::class.serializer()
+                    ) ?: 0f
+
                     11 -> allowShuffle = decodeBooleanElement(descriptor, index)
 
                     CompositeDecoder.DECODE_DONE -> break
@@ -102,7 +104,12 @@ object DeckSerializer : KSerializer<DeckHeader> {
 
             pattern = pattern,
             color = color,
-            level = level,
+            level = when (level) {
+                "e" -> 1
+                "m" -> 3
+                "h" -> 5
+                else -> 0
+            },
 
             rates = rates,
             rate = rate,

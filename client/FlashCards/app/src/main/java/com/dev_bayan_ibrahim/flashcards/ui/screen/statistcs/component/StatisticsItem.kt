@@ -2,6 +2,7 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -13,6 +14,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
+
+@Composable
+fun StatisticsItem(
+    modifier: Modifier = Modifier,
+    @DrawableRes
+    icon: Int? = null,
+    label: String,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        icon?.let {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(id = it),
+                contentDescription = null
+            )
+        }
+        Text(
+            modifier = modifier,
+            text = label,
+            style = MaterialTheme.typography.labelLarge
+        )
+        content()
+    }
+}
 @Composable
 fun StatisticsItem(
     modifier: Modifier = Modifier,

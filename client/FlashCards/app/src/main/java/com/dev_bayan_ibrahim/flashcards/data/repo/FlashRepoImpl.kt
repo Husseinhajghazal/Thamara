@@ -4,12 +4,12 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
 import com.dev_bayan_ibrahim.flashcards.data.data_source.init.cardsInitialValues
+import com.dev_bayan_ibrahim.flashcards.data.data_source.init.decksInitialValue
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
-import com.dev_bayan_ibrahim.flashcards.data.data_source.init.decksInitialValue
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.Endpoint
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.getEndpoint
@@ -101,21 +101,37 @@ class FlashRepoImpl(
 
     override fun getGeneralStatistics(): Flow<GeneralStatistics> {
         return combine(
-            getCardsAccuracyAverage(),
+            getAnswersOf(0, false),
+            getAnswersOf(0, true),
             getFormattedTags().map {
-                val tags = mutableMapOf<String, Int>()
-                it.forEach { deckTags ->
-                    deckTags.split(", ").forEach { tag ->
-                        tags[tag] = 1 + (tags[tag] ?: 0)
+                val tags = mutableMapOf<String?, Int>()
+                it.forEach { tag ->
+                    tags[tag] = 1 + (tags[tag] ?: 0)
+                }
+
+                val top10 = tags.toList().sortedByDescending {
+                    it.second
+                }.subList(
+                    fromIndex = 0,
+                    toIndex = minOf(0, tags.count())
+                ).mapNotNull { it.first }.toSet()
+
+                var others = 0
+                tags.forEach {(tag, count) ->
+                    if (!top10.contains(tag))  {
+                        others += count
                     }
                 }
+                tags[null] = others
+
                 tags
             },
             getDecksCount(),
             getCardsCount(),
-        ) { avg, tags, decks, cards ->
+        ) { correctAns, failedAns, tags, decks, cards ->
             GeneralStatistics(
-                accuracyAverage = avg,
+                correctAnswers = correctAns,
+                failedAnswers = failedAns,
                 tags = tags,
                 totalDecksCount = decks,
                 totalCardsCount = cards

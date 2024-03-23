@@ -145,4 +145,4 @@ object DataModule {
         return FirebaseAppInstallation()
     }
 }
-private const val apiHost = "host"
+private const val apiHost = "one18-team.onrender.com"

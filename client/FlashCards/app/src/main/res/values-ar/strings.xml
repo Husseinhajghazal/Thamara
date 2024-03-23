@@ -93,4 +93,11 @@
     <string name="enter_your_name_and_age">أدخل اسمك وعمرك</string>
     <string name="level_x">المستوى %1$s</string>
     <string name="retry">إعادة المحاولة</string>
+    <string name="top_tags">أشهر الفئات</string>
+    <string name="other">آخر</string>
+    <string name="no_tags">لا يوجد فئات</string>
+    <string name="details">details</string>
+    <string name="failed_answers">الأجوبة الخاطئة</string>
+    <string name="correct">صحيح</string>
+    <string name="failed">خاطئة</string>
 </resources>

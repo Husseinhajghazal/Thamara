@@ -1,7 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -9,7 +8,6 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.dev_bayan_ibrahim.flashcards.ui.app.FlashApp
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
 import com.google.firebase.initialize
 import dagger.hilt.android.AndroidEntryPoint
 

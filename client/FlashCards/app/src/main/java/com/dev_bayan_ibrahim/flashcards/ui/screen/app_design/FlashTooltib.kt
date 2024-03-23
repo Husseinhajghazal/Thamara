@@ -1,8 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.app_design
 
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -33,7 +31,6 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpOnSurface
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpSurface
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.coroutines.launch
-import kotlin.jvm.internal.MutablePropertyReference0Impl
 
 object TooltibPositionProvider : PopupPositionProvider {
     override fun calculatePosition(

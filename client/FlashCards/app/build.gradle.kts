@@ -120,6 +120,8 @@ dependencies {
     implementation(libs.firebase.cloud.messaging)
     implementation(libs.firebase.analytics)
 
+    implementation(libs.yChart)
+
     // desugar
     coreLibraryDesugaring(libs.android.desugar.jdk.lib)
 

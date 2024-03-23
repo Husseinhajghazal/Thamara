@@ -26,7 +26,6 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import io.ktor.http.appendEncodedPathSegments
 import io.ktor.http.appendPathSegments
-import io.ktor.http.takeFrom
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
