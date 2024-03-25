@@ -14,10 +14,10 @@ const postRate = async (req, res, next) => {
   const { deck_id, rate, user_id } = req.body;
 
   try {
-    const foundedRate = await prisma.rate.findUnique({
-      where: { user_id: user_id },
+    const foundedRate = await prisma.rate.findMany({
+      where: { deck_id: parseInt(deck_id), user_id: user_id },
     });
-    if (foundedRate) {
+    if (foundedRate.length == 1) {
       return next(
         new NewError("لقد قمت بالتقييم من قبل، لا يمكنك التقييم مرة أخرى", 400)
       );
@@ -38,7 +38,7 @@ const postRate = async (req, res, next) => {
       },
     });
 
-    let { id, name, image_url, color, level, version, rates } =
+    let { id, name, image_url, color, level, version, rates, allowShuffle } =
       await prisma.deck.update({
         where: { id: parseInt(deck_id) },
         data: {
@@ -58,6 +58,7 @@ const postRate = async (req, res, next) => {
       color,
       level,
       version,
+      allowShuffle,
       ratesCounts,
       rate:
         rates.reduce((total, num) => total + parseInt(num.value), 0) /
@@ -70,6 +71,7 @@ const postRate = async (req, res, next) => {
       updatedDeck,
     });
   } catch (error) {
+    console.log(error);
     return next(new NewError("حصلت مشكلة، الرجاء المحاولة لاحقا", 500));
   }
 };

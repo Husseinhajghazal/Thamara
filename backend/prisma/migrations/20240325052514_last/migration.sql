@@ -1,7 +1,4 @@
 -- CreateEnum
-CREATE TYPE "DeckLevel" AS ENUM ('e', 'm', 'h');
-
--- CreateEnum
 CREATE TYPE "AnswerType" AS ENUM ('mc', 'tf', 's');
 
 -- CreateTable
@@ -16,13 +13,23 @@ CREATE TABLE "Admin" (
 );
 
 -- CreateTable
+CREATE TABLE "Collection" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Collection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Deck" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "image_url" TEXT NOT NULL,
     "color" TEXT NOT NULL,
-    "level" "DeckLevel" NOT NULL,
+    "level" INTEGER NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 0,
+    "allowShuffle" BOOLEAN NOT NULL,
+    "col_id" INTEGER NOT NULL,
 
     CONSTRAINT "Deck_pkey" PRIMARY KEY ("id")
 );
@@ -74,10 +81,16 @@ CREATE TABLE "DeckTag" (
 CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Collection_name_key" ON "Collection"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Rate_user_id_key" ON "Rate"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tag_value_key" ON "Tag"("value");
+
+-- AddForeignKey
+ALTER TABLE "Deck" ADD CONSTRAINT "Deck_col_id_fkey" FOREIGN KEY ("col_id") REFERENCES "Collection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Card" ADD CONSTRAINT "Card_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

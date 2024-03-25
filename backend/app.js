@@ -11,6 +11,7 @@ const rateRouter = require("./routers/rate-router");
 const tagRouter = require("./routers/tag-router");
 const cardRouter = require("./routers/card-router");
 const imageRouter = require("./routers/image-router");
+const collectionRouter = require("./routers/collection-router");
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/deck", deckRouter);
 app.use("/rate", rateRouter);
 app.use("/tag", tagRouter);
 app.use("/card", cardRouter);
+app.use("/collection", collectionRouter);
 app.use("/image", imageRouter);
 
 app.use((req, res, next) => {

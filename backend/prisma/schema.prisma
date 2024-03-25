@@ -15,22 +15,25 @@ model Admin {
   password   String
 }
 
-model Deck {
-  id        Int       @id @default(autoincrement())
-  name      String
-  image_url String
-  color     String
-  level     DeckLevel
-  version   Int       @default(0)
-  rates     Rate[]
-  cards     Card[]
-  tags      DeckTag[]
+model Collection {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  decks Deck[]
 }
 
-enum DeckLevel {
-  e
-  m
-  h
+model Deck {
+  id           Int        @id @default(autoincrement())
+  name         String
+  image_url    String
+  color        String
+  level        Int
+  version      Int        @default(0)
+  allowShuffle Boolean
+  collection   Collection @relation(fields: [col_id], references: [id])
+  col_id       Int
+  rates        Rate[]
+  cards        Card[]
+  tags         DeckTag[]
 }
 
 model Card {
@@ -56,7 +59,7 @@ enum AnswerType {
 
 model Rate {
   id      Int    @id @default(autoincrement())
-  user_id String @unique
+  user_id String
   deck    Deck   @relation(fields: [deck_id], references: [id])
   deck_id Int
   value   Int

@@ -10,18 +10,17 @@ router.post(
     body("name").trim().notEmpty().withMessage("اسم المجموعة مطلوب"),
     body("image_url").trim().notEmpty().withMessage("صورة المجموعة مطلوب"),
     body("color").trim().notEmpty().withMessage("لون المجموعة مطلوب"),
+    body("col_id").notEmpty().withMessage("معرف الرابطة مطلوب"),
+    body("allowShuffle")
+      .notEmpty()
+      .withMessage("أمكانية الخربطة مطلوبة")
+      .isBoolean()
+      .withMessage("يجب أن يكون السماح بالخربطة صح أو خطأ"),
     body("level")
-      .trim()
       .notEmpty()
       .withMessage("مستوى المجموعة مطلوب")
-      .custom((value) => {
-        if (!["e", "m", "h"].includes(value)) {
-          throw new Error(
-            "المستوى يجب أن يكون أحد الكلمات التالية: سهل، متوسط، صعب"
-          );
-        }
-        return true;
-      }),
+      .isInt({ min: 0, max: 10 })
+      .withMessage("يجب أن يكون مستوى الصعوبة بين 0 و 10"),
   ],
   deckController.createDeck
 );
@@ -35,18 +34,17 @@ router.put(
     body("name").trim().notEmpty().withMessage("اسم المجموعة مطلوب"),
     body("image_url").trim().notEmpty().withMessage("صورة المجموعة مطلوب"),
     body("color").trim().notEmpty().withMessage("لون المجموعة مطلوب"),
+    body("col_id").notEmpty().withMessage("معرف الرابطة مطلوب"),
+    body("allowShuffle")
+      .notEmpty()
+      .withMessage("أمكانية الخربطة مطلوبة")
+      .isBoolean()
+      .withMessage("يجب أن يكون السماح بالخربطة صح أو خطأ"),
     body("level")
-      .trim()
       .notEmpty()
       .withMessage("مستوى المجموعة مطلوب")
-      .custom((value) => {
-        if (!["e", "m", "h"].includes(value)) {
-          throw new Error(
-            "المستوى يجب أن يكون أحد الكلمات التالية: سهل، متوسط، صعب"
-          );
-        }
-        return true;
-      }),
+      .isInt({ min: 0, max: 10 })
+      .withMessage("يجب أن يكون مستوى الصعوبة بين 0 و 10"),
   ],
   deckController.editDeck
 );

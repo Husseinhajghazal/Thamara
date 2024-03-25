@@ -149,12 +149,93 @@ const getOneTag = async (req, res, next) => {
   });
 };
 
-const connectTag = async (req, res, next) => {};
+const connectTag = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new NewError(errors.array()[0].msg, 422));
+  }
 
-const deleteConnectedTag = async (req, res, next) => {};
+  const { tag_id, deck_id } = req.body;
+
+  let connection;
+  try {
+    connection = await prisma.deckTag.findMany({
+      where: {
+        deck_id: parseInt(deck_id),
+        tag_id: parseInt(tag_id),
+      },
+    });
+  } catch (e) {
+    return next(
+      new NewError("حصلت مشكلة أثناء الربط, الرجاء المحاولة لاحقا", 500)
+    );
+  }
+
+  if (connection.length == 1) {
+    return next(new NewError("المجموعة والتاغ مربوطين مسبقا", 400));
+  }
+
+  connection = await prisma.deckTag.create({
+    data: {
+      tag_id: parseInt(tag_id),
+      deck_id: parseInt(deck_id),
+    },
+  });
+
+  res.status(201).json({
+    message: "تم الوصل بنجاح",
+    connection,
+  });
+};
+
+const disconnectTag = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new NewError(errors.array()[0].msg, 422));
+  }
+
+  const { tag_id, deck_id } = req.body;
+
+  let connection;
+  try {
+    connection = await prisma.deckTag.findMany({
+      where: {
+        deck_id: parseInt(deck_id),
+        tag_id: parseInt(tag_id),
+      },
+    });
+  } catch (e) {
+    return next(
+      new NewError("حصلت مشكلة أثناء الربط, الرجاء المحاولة لاحقا", 500)
+    );
+  }
+
+  if (connection.length != 1) {
+    return next(new NewError("المجموعة والتاغ ليسوا مربوطين", 400));
+  }
+
+  try {
+    connection = await prisma.deckTag.deleteMany({
+      where: {
+        tag_id: parseInt(tag_id),
+        deck_id: parseInt(deck_id),
+      },
+    });
+  } catch (e) {
+    return next(
+      new NewError("حصلت مشكلة أثناء الربط, الرجاء المحاولة لاحقا", 500)
+    );
+  }
+
+  res.status(201).json({
+    message: "تم الفصل بنجاح",
+  });
+};
 
 exports.createTag = createTag;
 exports.editTag = editTag;
 exports.deleteTag = deleteTag;
 exports.getAllTags = getAllTags;
 exports.getOneTag = getOneTag;
+exports.connectTag = connectTag;
+exports.disconnectTag = disconnectTag;

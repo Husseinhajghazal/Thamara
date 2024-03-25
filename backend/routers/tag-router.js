@@ -16,6 +16,22 @@ router.put(
   [body("name").trim().notEmpty().withMessage("أسم التاغ مطلوب")],
   tagController.editTag
 );
+router.delete(
+  "/connection",
+  [
+    body("tag_id").trim().notEmpty().withMessage("معرف التاغ مطلوب"),
+    body("deck_id").trim().notEmpty().withMessage("معرف التاغ مطلوب"),
+  ],
+  tagController.disconnectTag
+);
 router.delete("/:id", tagController.deleteTag);
+router.post(
+  "/connection",
+  [
+    body("tag_id").trim().notEmpty().withMessage("معرف التاغ مطلوب"),
+    body("deck_id").trim().notEmpty().withMessage("معرف التاغ مطلوب"),
+  ],
+  tagController.connectTag
+);
 
 module.exports = router;
