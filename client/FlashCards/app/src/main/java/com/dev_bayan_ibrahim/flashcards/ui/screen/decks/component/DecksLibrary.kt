@@ -35,6 +35,7 @@ import java.util.Objects
 fun PaginatedDecksList(
     modifier: Modifier = Modifier,
     decks: LazyPagingItems<DeckHeader>,
+    libraryDecksIds: Map<Long, Boolean>,
     onClickDeck: (DeckHeader) -> Unit,
 ) {
     DecksGrid(modifier = modifier) {
@@ -46,32 +47,43 @@ fun PaginatedDecksList(
         ) {
             repeat(decks.itemCount) {
                 decks[it]?.let { deck ->
-                    deckItem(deck, onClickDeck)
+                    val offlineImages = libraryDecksIds[deck.id]
+
+                    deckItem(
+                        deck = deck,
+                        overrideOfflineData = offlineImages?.let { true },
+                        overrideOfflineImages = offlineImages,
+                        onClickDeck = onClickDeck
+                    )
                 }
             }
         }
         lazyPagingLoadState(loadState = decks.loadState.append, retry = decks::retry)
     }
 }
+
 fun LazyGridScope.lazyPagingLoadState(
     loadState: LoadState,
     retry: () -> Unit,
     notLoadingItems: (LazyGridScope.() -> Unit)? = null,
 ) {
     when (loadState) {
-        is LoadState.Error -> item (
+        is LoadState.Error -> item(
             span = { GridItemSpan(maxLineSpan) }
         ) {
             Column(
                 modifier = Modifier,
             ) {
-                Text(text = loadState.error.message ?: "Unknown error") // todo handle error messages
+                Text(
+                    text = loadState.error.message ?: "Unknown error"
+                ) // todo handle error messages
                 OutlinedButton(onClick = retry) {
                     Text(text = stringResource(R.string.retry))
                 }
             }
         }
-        LoadState.Loading -> item (
+
+        LoadState.Loading -> item(
             span = { GridItemSpan(maxLineSpan) }
         ) {
             Box(
@@ -81,6 +93,7 @@ fun LazyGridScope.lazyPagingLoadState(
                 CircularProgressIndicator(modifier = Modifier.size(40.dp))
             }
         }
+
         is LoadState.NotLoading -> notLoadingItems?.let { items -> items() }
     }
 }
@@ -94,7 +107,7 @@ fun DecksList(
 ) {
     val totalCount by remember(decksGroups) {
         derivedStateOf {
-            decksGroups.map {(_, values) ->
+            decksGroups.map { (_, values) ->
                 values.map { it.id }
             }.flatten().toSet().count()
         }
@@ -131,6 +144,8 @@ private fun DecksGrid(
 
 private fun LazyGridScope.deckItem(
     deck: DeckHeader,
+    overrideOfflineData: Boolean? = null,
+    overrideOfflineImages: Boolean? = null,
     onClickDeck: (DeckHeader) -> Unit,
 ) {
     item(
@@ -138,7 +153,9 @@ private fun LazyGridScope.deckItem(
         contentType = { "c" }
     ) {
         DeckItem(
-            deckHeader = deck
+            deckHeader = deck,
+            overrideOfflineData = overrideOfflineData,
+            overrideOfflineImages = overrideOfflineImages,
         ) { onClickDeck(deck) }
     }
 }
@@ -154,7 +171,8 @@ private fun LazyGridScope.deckItems(
         contentType = { "c" }
     ) { deck ->
         DeckItem(
-            deckHeader = deck
+            deckHeader = deck,
+            overrideOfflineData = false,
         ) { onClickDeck(deck) }
     }
 }

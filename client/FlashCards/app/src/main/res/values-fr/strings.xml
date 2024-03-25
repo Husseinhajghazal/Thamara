@@ -101,4 +101,9 @@
     <string name="failed_answers">Failed Answers</string>
     <string name="correct">correct</string>
     <string name="failed">failed</string>
+    <string name="year">year</string>
+    <string name="nine_months">9 months</string>
+    <string name="six_months">6 months</string>
+    <string name="three_months">3 months</string>
+    <string name="unknown_error">Unknown Error</string>
 </resources>

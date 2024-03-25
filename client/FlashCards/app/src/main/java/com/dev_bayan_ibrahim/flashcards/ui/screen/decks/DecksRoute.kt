@@ -23,11 +23,13 @@ fun DecksRoute(
     }
 
     val dbInfo by decksViewModel.dbInfo.collectAsState()
+    val libraryDecksIds by decksViewModel.libraryDecksIds.collectAsState()
 
     DecksScreen(
         modifier = modifier.fillMaxSize(),
         state = decksViewModel.state,
         dbInfo = dbInfo,
+        libraryDecksIds =libraryDecksIds,
         downloadStatus = decksViewModel.downloadStatus,
         actions = decksViewModel.getDecksActions(
             navigateToDeckPlay = navigateToDeckPlay,

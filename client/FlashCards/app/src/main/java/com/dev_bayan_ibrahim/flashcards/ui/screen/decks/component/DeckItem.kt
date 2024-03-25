@@ -3,6 +3,7 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -26,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.colorAccent
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpOnSurface
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckCard
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckLevelIcon
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
 
@@ -36,6 +39,8 @@ import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 fun DeckItem(
     modifier: Modifier = Modifier,
     deckHeader: DeckHeader,
+    overrideOfflineData: Boolean? = null,
+    overrideOfflineImages: Boolean? = null,
     onClick: (() -> Unit)?,
 ) {
 
@@ -45,7 +50,7 @@ fun DeckItem(
     ) {
         Box(
             modifier = modifier.padding(4.dp),
-            contentAlignment = Alignment.BottomStart
+            contentAlignment = Alignment.BottomEnd
         ) {
             DeckCard(
                 modifier = Modifier.aspectRatio(cardRatio),
@@ -53,8 +58,18 @@ fun DeckItem(
                 onClick = onClick ?: {},
                 enableClick = onClick != null,
             ) {
-                LevelIcon(level = deckHeader.level)
+                DeckLevelIcon(
+                    level = deckHeader.level,
+                    current = false,
+                    tint = deckHeader.colorAccent.lerpOnSurface(),
+                    lerpDifficultyLevelColor = false
+                )
             }
+            DownloadIcon(
+                offlineData = overrideOfflineData ?: deckHeader.offlineData,
+                offlineImage = overrideOfflineImages ?: deckHeader.offlineImages,
+                tint = deckHeader.colorAccent.lerpOnSurface(),
+            )
         }
         Text(
             modifier = Modifier.widthIn(max = smallCardWidth),
@@ -67,22 +82,34 @@ fun DeckItem(
 }
 
 @Composable
-private fun LevelIcon(
-    modifier: Modifier = Modifier,
-    level: Int,
+private fun BoxScope.DownloadIcon(
+    offlineData: Boolean,
+    offlineImage: Boolean,
+    tint: Color,
 ) {
-    Icon(
-        modifier = modifier.size(32.dp),
-        painter =  painterResource(id = level.levelIconRes()),
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.onSurface
-    )
+    if (offlineImage) {
+        Icon(
+            modifier = Modifier
+                .padding(2.dp)
+                .size(16.dp)
+                .align(Alignment.BottomStart),
+            painter = painterResource(R.drawable.ic_offline_image),
+            contentDescription = "offline_data",
+            tint = tint,
+        )
+    }
+    if (offlineData) {
+        Icon(
+            modifier = Modifier
+                .padding(2.dp)
+                .size(16.dp)
+                .align(Alignment.BottomEnd),
+            painter = painterResource(R.drawable.ic_offline_data),
+            contentDescription = "offline_data",
+            tint = tint,
+        )
+    }
 }
-
-private fun Int.levelIconRes(): Int {
-    return R.drawable.unknown
-}
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview(showBackground = true)
@@ -94,7 +121,7 @@ private fun DeckItemPreviewLight() {
             color = MaterialTheme.colorScheme.background,
         ) {
             val deck = DeckHeader(
-                color =  Color.Red.toArgb(),
+                color = Color.Red.toArgb(),
                 cardsCount = 10,
                 id = 0
             )
@@ -119,9 +146,11 @@ private fun DeckItemPreviewLight() {
                     DeckItem(
                         deckHeader = DeckHeader(
                             name = "deck $it",
-                            color =  it.toArgb(),
+                            color = it.toArgb(),
                             cardsCount = 10,
                             id = 0,
+                            offlineData = true,
+                            offlineImages = true
                         )
                     ) { }
                 }

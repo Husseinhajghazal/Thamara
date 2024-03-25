@@ -100,4 +100,10 @@
     <string name="failed_answers">الأجوبة الخاطئة</string>
     <string name="correct">صحيح</string>
     <string name="failed">خاطئة</string>
+    <string name="year">سنة</string>
+    <string name="nine_months">9 أشهر</string>
+    <string name="six_months">6 أشهر</string>
+    <string name="three_months">3 أشهر</string>
+
+    <string name="unknown_error">خطأ غير معروف</string>
 </resources>

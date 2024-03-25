@@ -30,6 +30,7 @@ fun DecksScreen(
     modifier: Modifier = Modifier,
     state: DecksUiState,
     dbInfo: DecksDatabaseInfo,
+    libraryDecksIds: Map<Long, Boolean>,
     downloadStatus: DownloadStatus?,
     actions: DecksUiActions,
 ) {
@@ -56,17 +57,29 @@ fun DecksScreen(
             dialogActions = actions,
         )
         val paginatedDecks = state.searchResults.collectAsLazyPagingItems()
+
+        state.selectedDeck?.let { deckHeader ->
+            if (deckHeader.id in libraryDecksIds) {
+                LibraryDeckDialog(
+                    show = true,
+                    deck = deckHeader,
+                    onDismiss = actions::onDismissSelectedDeck,
+                    onPlay = actions::onPlayDeck
+                )
+            } else {
+                DownloadDeckDialog(
+                    show = true,
+                    deck = deckHeader,
+                    onDownload = actions::onDownloadDeck,
+                    onCancel = actions::onCancelDownloadDeck,
+                    downloadStatus = downloadStatus,
+                )
+            }
+        }
+
         HorizontalPager(state = pagerState) { page ->
             when (DecksTab.entries[page]) {
                 DecksTab.LIBRARY -> {
-                    state.selectedDeck?.let {
-                        LibraryDeckDialog(
-                            show = true,
-                            deck = it,
-                            onDismiss = actions::onDismissSelectedDeck,
-                            onPlay = actions::onPlayDeck
-                        )
-                    }
                     DecksList(
                         decksGroups = state.libraryDecks,
                         onClickDeck = actions::onClickDeck
@@ -74,19 +87,11 @@ fun DecksScreen(
                 }
 
                 DecksTab.BROWSE -> {
-                    state.selectedDeck?.let {
-                        DownloadDeckDialog(
-                            show = true,
-                            deck = it,
-                            onDownload = actions::onDownloadDeck,
-                            onCancel = actions::onCancelDownloadDeck,
-                            downloadStatus = downloadStatus,
-                        )
-                    }
                     PaginatedDecksList(
                         modifier = Modifier.fillMaxWidth(),
                         decks = paginatedDecks,
-                        onClickDeck = actions::onClickDeck
+                        libraryDecksIds = libraryDecksIds,
+                        onClickDeck = actions::onClickDeck,
                     )
                 }
             }

@@ -14,6 +14,7 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFile
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.Endpoint
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.getEndpoint
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.input.InputField
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldDeck
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldRate
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.paging.FlashPagingSource
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.request_builder.RequestBuilder
@@ -21,6 +22,7 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.uri_decerator.Ur
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.util.BodyParam
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeaderSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.play.CardPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
@@ -117,8 +119,8 @@ class FlashRepoImpl(
                 ).mapNotNull { it.first }.toSet()
 
                 var others = 0
-                tags.forEach {(tag, count) ->
-                    if (!top10.contains(tag))  {
+                tags.forEach { (tag, count) ->
+                    if (!top10.contains(tag)) {
                         others += count
                     }
                 }
@@ -136,6 +138,12 @@ class FlashRepoImpl(
                 totalDecksCount = decks,
                 totalCardsCount = cards
             )
+        }
+    }
+
+    override fun getLibraryDecksIds(): Flow<Map<Long, Boolean>> = getDecks().map {
+        it.associate { header ->
+            header.id to fileManager.imagesOffline(header.id, header.cardsCount)
         }
     }
 
@@ -220,7 +228,14 @@ class FlashRepoImpl(
         }
     }.map { map ->
         map.mapValues { (_, value) ->
-            value.applyDecksFilter(filterBy).applyDecksOrder(orderBy)
+            value.applyDecksFilter(filterBy)
+                .applyDecksOrder(orderBy)
+                .map {
+                    if (fileManager.imagesOffline(it.id, it.cardsCount)) {
+                        it.copy(offlineImages = true)
+                    } else it
+                }
+
         }.filter { (_, value) -> value.isNotEmpty() }
     }
 
@@ -235,7 +250,7 @@ class FlashRepoImpl(
         FlashPagingSource.buildPagingDataFlow(
             input = InputField(),
             requestBuilder = it,
-            serializer = DeckSerializer
+            serializer = DeckHeaderSerializer
         )
     }
 
@@ -248,10 +263,11 @@ class FlashRepoImpl(
                 sortedBy { it.index }
             }
         }
-        return Deck(
+        val deck = Deck(
             header = header,
             cards = cards
         )
+        return fileManager.appendFilePathForImages(deck)
     }
 
     override suspend fun saveDeckResults(
@@ -273,7 +289,8 @@ class FlashRepoImpl(
         emit(false)
         fileManager.deleteDecks(getDownloadingDecks())
         deleteDownloadingDecks()
-        if (!preferences.initializedDb()) {
+//        if (!preferences.initializedDb()) {
+        if (false) {
 //            val decksCount = 10
 //            val cardsForEachDeck = 50
 //            insertDecks(
@@ -299,10 +316,18 @@ class FlashRepoImpl(
 
     override suspend fun isFirstPlay(id: Long): Boolean = checkDeckFirstPlay(id)
 
-    private fun getFormattedTags() = getTags().map { it.map { it.split(", ") }.flatten() }
+    private fun getFormattedTags() = getTags().map {
+        it.mapNotNull {
+            if (it.isNotBlank()) {
+                it.split(", ")
+            } else {
+                null
+            }
+        }.flatten()
+    }
 
     override suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus> {
-        insertDeck(deck.header.copy(downloadInProgress = true))
+        insertDeck(deck.header.copy(downloadInProgress = true, offlineData = true))
         insertCards(deck.cards)
         return fileManager.saveDeck(deck).map {
             it.also {
@@ -334,5 +359,11 @@ class FlashRepoImpl(
             ),
             OutputFieldRate::class.serializer(),
         ).execute().map { it.updatedDeck }
+    }
+
+    override suspend fun getDeckInfo(id: Long): Result<Deck> = getEndpointRequest(
+        Endpoint.Deck
+    ) {
+        it.buildGetRequest(id, OutputFieldDeck::class.serializer()).execute().map { it.deck }
     }
 }

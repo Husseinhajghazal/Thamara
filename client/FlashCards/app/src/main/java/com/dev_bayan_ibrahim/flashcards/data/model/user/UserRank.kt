@@ -5,21 +5,50 @@ import androidx.compose.ui.res.stringResource
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.util.formatWithChar
+import kotlin.math.roundToInt
 
 data class UserRank(
     val rank: Int,
     val exp: Int,
-) {
+) : Comparable<UserRank> {
+    constructor(floatRank: Float): this (
+        rank = floatRank.toInt(),
+        exp = (floatRank.mod(1f) * FlashRankManager.requiredExpOfRank(floatRank.toInt())).roundToInt()
+    )
     companion object Companion {
         val top_rank = 18
         val min_rank = 0
 
         val ranks_range = min_rank..top_rank
         val Init = UserRank(min_rank, 0)
+
+        fun calculateRankValue(rank: UserRank): Long {
+            var value: Long = 0
+
+            var r = rank.rank
+
+            while (r > min_rank) {
+                val rExp = FlashRankManager.requiredExpOfRank(r)
+                value += rExp
+                r -= 1
+            }
+
+            value += rank.exp
+
+            return value
+        }
     }
 
     val requiredExp = FlashRankManager.requiredExpOfRank(rank)
     val expPercent: Int = (100f * exp / requiredExp).toInt().coerceIn(0, 100)
+
+    private var _value: Long? = null
+    val value: Long
+        get() = _value ?: calculateRankValue(this).also { value -> _value = value }
+
+    override fun compareTo(other: UserRank): Int {
+        return value.compareTo(other.value)
+    }
 
     override fun toString(): String = "$rank - $expPercent%"
 
@@ -38,5 +67,8 @@ data class UserRank(
         )
         append(")")
     }
+
+    fun asFloat(): Float = rank + (expPercent / 100f)
+    operator fun inc(): UserRank = copy(rank = rank.inc().coerceAtMost(top_rank), exp = exp)
 }
 

@@ -14,4 +14,5 @@ interface FlashFileManager {
     suspend fun deleteDeck(deck: Deck) = deleteDeck(deck.header.id)
     suspend fun deleteDeck(id: Long)
     suspend fun deleteDecks(ids: List<Long>)
+    fun imagesOffline(id: Long, cardsCount: Int): Boolean
 }

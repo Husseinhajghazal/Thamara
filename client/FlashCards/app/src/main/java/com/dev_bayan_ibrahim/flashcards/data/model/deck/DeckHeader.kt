@@ -41,9 +41,11 @@ data class DeckHeader(
     val level: Int = 0,
     val rates: Int = 0, // rates count
     val rate: Float = 0f, // average rate
+    val allowShuffle : Boolean = true,
     val creation: Instant = Clock.System.now(),
     val downloadInProgress: Boolean = false,
-    val allowShuffle : Boolean = true,
+    val offlineData: Boolean = false,
+    val offlineImages: Boolean = false,
 )
 
 val DeckHeader.colorAccent: Color get() = Color(color)

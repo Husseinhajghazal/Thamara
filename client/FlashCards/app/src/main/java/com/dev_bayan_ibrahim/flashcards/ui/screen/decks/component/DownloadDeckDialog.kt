@@ -38,7 +38,9 @@ fun DownloadDeckDialog(
     DecksListDeckDialog(
         modifier = modifier,
         show = show,
-        onDismiss = {},
+        onDismiss = {
+            if (downloadStatus == null) onCancel()
+        },
         deck = deck
     ) {
         DownloadActions(
@@ -97,6 +99,7 @@ private fun DownloadActions(
 
 @Composable
 private fun Long?.formatSize(): String = (this ?: 0).toFormattedSize().getValue()
+
 @Preview(showBackground = true)
 @Composable
 private fun DownloadDeckDialogPreviewLight() {

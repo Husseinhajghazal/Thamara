@@ -6,8 +6,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
+import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsStep
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.viewmodel.StatisticsViewModel
+import java.util.SortedMap
 
 @Composable
 fun StatisticsRoute(
@@ -17,8 +20,10 @@ fun StatisticsRoute(
 ) {
     val timedStatistics by statisticsViewModel.timedStatistics.collectAsState()
 
+    val ranks : SortedMap<RankStatisticsStep, UserRank> = sortedMapOf()
     StatisticsScreen(
         modifier = modifier.fillMaxSize(),
-        timedStatistics = timedStatistics
+        ranks = ranks,
+        timedStatistics = timedStatistics,
     )
 }

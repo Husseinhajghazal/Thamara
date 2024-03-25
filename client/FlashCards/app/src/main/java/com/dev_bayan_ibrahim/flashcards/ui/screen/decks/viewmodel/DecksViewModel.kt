@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
@@ -42,10 +41,16 @@ class DecksViewModel @Inject constructor(
 
     var appliedFilters = DecksFilterMutableUiState()
     var selectedTab = LIBRARY
+
     val dbInfo = repo.getDatabaseInfo().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         DecksDatabaseInfo(allTags = setOf())
+    )
+    val libraryDecksIds = repo.getLibraryDecksIds().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        mapOf()
     )
 
     var downloadStatus: DownloadStatus? by mutableStateOf(null)
@@ -77,28 +82,13 @@ class DecksViewModel @Inject constructor(
         override fun onDownloadDeck() {
             if (selectedTab == BROWSE) {
                 state.selectedDeck?.let {
-                    downloadDeck(it) { error ->
+                    downloadDeck(deck = it, onShowSnackbarMessage) { error ->
                         if (error == null) {
                             onShowSnackbarMessage(
                                 FlashSnackbarMessages.FinishDownloadDeck
                             )
                         } else {
-                            val (code, message) = error
-                            if (code != null) {
-                                onShowSnackbarMessage(
-                                    FlashSnackbarMessages.Factory(
-                                        actionLabel = { null },
-                                        message = { "error code $code" }
-                                    )
-                                )
-                            } else if (message != null) {
-                                onShowSnackbarMessage(
-                                    FlashSnackbarMessages.Factory(
-                                        actionLabel = { null },
-                                        message = { message }
-                                    )
-                                )
-                            }
+                            onShowSnackbarMessage(FlashSnackbarMessages.Factory(error))
                         }
                     }
                 }
@@ -115,11 +105,9 @@ class DecksViewModel @Inject constructor(
         }
 
         override fun onPlayDeck() {
-            if (selectedTab == LIBRARY) {
-                state.selectedDeck?.let {
-                    navigateToDeckPlay(it.id)
-                    state.selectedDeck = null
-                }
+            state.selectedDeck?.let {
+                navigateToDeckPlay(it.id)
+                state.selectedDeck = null
             }
         }
 
@@ -251,15 +239,21 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    private fun downloadDeck(deck: DeckHeader, onFinish: (Pair<Int?, String?>?) -> Unit = {}) {
+    private fun downloadDeck(
+        deck: DeckHeader,
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
+        onFinish: (Throwable?) -> Unit = {}
+    ) {
         viewModelScope.launch(IO) {
-            downloadStatus = MutableDownloadStatus {}
+            downloadStatus = MutableDownloadStatus {} // start loading indicator
 
-            getDeckCards(deck.id)?.let { cards ->
-                repo.downloadDeck(Deck(deck, cards)).collect {
+            getDeckInfo(deck.id, onShowSnackbarMessage)?.let { deck ->
+                repo.downloadDeck(deck).collect {
                     downloadStatus = it
                 }
-            } ?: let { downloadStatus = null }
+            } ?: let {
+                downloadStatus = null
+            }
 
             onFinish(downloadStatus?.error)
             state.selectedDeck = null
@@ -267,8 +261,19 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getDeckCards(id: Long): List<Card>? {
-        return repo.getDeckCards(id).cards
+    private suspend fun getDeckInfo(
+        id: Long,
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit
+    ): Deck? {
+        return repo.getDeckInfo(id).fold(
+            onSuccess = {
+                it
+            },
+            onFailure = { error ->
+                onShowSnackbarMessage(FlashSnackbarMessages.Factory(error))
+                null
+            }
+        )
     }
 
     private fun cancelDownloadDeck(deck: DeckHeader) {

@@ -5,6 +5,11 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals
 import com.dev_bayan_ibrahim.flashcards.R
+import com.dev_bayan_ibrahim.flashcards.data.exception.CardDeserializationException
+import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
+import com.dev_bayan_ibrahim.flashcards.data.exception.CardException
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckDeserializationException
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckException
 
 interface FlashSnackbarVisuals {
     fun asSnackbarVisuals(context: Context): SnackbarVisuals
@@ -49,6 +54,16 @@ enum class FlashSnackbarMessages(
     )
 
     companion object Factory {
+
+        operator fun invoke(
+            throwable: Throwable,
+        ): FlashSnackbarVisuals = FlashGeneralSnackbarVisuals(
+            actionLabel = { null },
+            message = { context -> getThrowableMessage(context, throwable) },
+            duration = SnackbarDuration.Long,
+            withDismissAction = false,
+        )
+
         operator fun invoke(
             actionLabel: (Context) -> String?,
             message: (Context) -> String,
@@ -85,3 +100,31 @@ private data class FlashSnackbarVisualsImpl(
 ) : SnackbarVisuals
 
 
+
+private fun getThrowableMessage(
+    context: Context,
+    throwable: Throwable
+): String = when (throwable) {
+    is CardDeserializationException -> {
+        "invalid cards data ${throwable.message}"
+    }
+    is CardDownloadException -> {
+        "Download Error ${getCodeMessage(context, throwable.code.value)}"
+    }
+    is CardException -> {
+        "Problem in card data ${throwable.message}"
+    }
+    is DeckDeserializationException -> {
+        "invalid deck ${throwable.message}"
+    }
+    is DeckException -> {
+        "Problem in deck data ${throwable.message}"
+    }
+
+//    else -> context.getString(R.string.unknown_error)
+    else -> throwable.message ?: context.getString(R.string.unknown_error)
+}
+private fun getCodeMessage(
+    context: Context,
+    code: Int
+): String = "error code $code"

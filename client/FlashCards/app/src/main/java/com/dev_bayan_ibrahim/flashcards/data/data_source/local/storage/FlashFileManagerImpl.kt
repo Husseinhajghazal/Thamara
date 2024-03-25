@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage
 
+import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
@@ -19,7 +20,6 @@ import java.io.File
 import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
-const val bufferSize = 4096
 class FlashFileManagerImpl(
     filesDir: File,
     private val client: HttpClient,
@@ -57,11 +57,20 @@ class FlashFileManagerImpl(
             downloadStatus.progress = status.sumOf { it.progress }
 
             downloadStatus.error = status.firstNotNullOfOrNull { it.error }
+            downloadStatus.success = status.all { it.success }
+            downloadStatus.finished = status.all { it.finished }
 
             downloadStatus
         }.flowOn(context)
     }
 
+    override fun imagesOffline(id: Long, cardsCount: Int): Boolean {
+        val deckDir = File(decksDir, deckDirName(id))
+
+        return deckDir.listFiles()?.count()?.let {
+            cardsCount.inc() == it
+        } ?: false
+    }
     override suspend fun appendFilePathForImages(deck: Deck): Deck {
         var patternPath: String = deck.header.pattern
         val imagesPaths: MutableList<String> = deck.cards.map { it.image }.toMutableList()
@@ -162,12 +171,12 @@ class FlashFileManagerImpl(
                 }
                 status.success = true
             } else {
-                status.error = response.status.run { value to description }
+                status.error = CardDownloadException(response.status)
             }
         } catch (e: TimeoutCancellationException) {
-            status.error = 408 to e.message
+            status.error = e
         } catch (t: Throwable) {
-            status.error = null to t.message
+            status.error = t
         } finally {
             status.finished = true
             emit(status)

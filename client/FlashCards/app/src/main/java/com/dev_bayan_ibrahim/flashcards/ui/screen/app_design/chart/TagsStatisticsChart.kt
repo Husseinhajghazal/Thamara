@@ -7,16 +7,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import co.yml.charts.common.model.PlotType
-import co.yml.charts.ui.piechart.charts.PieChart
-import co.yml.charts.ui.piechart.models.PieChartConfig
-import co.yml.charts.ui.piechart.models.PieChartData
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.external.charts.common.model.PlotType
+import com.external.charts.ui.piechart.charts.PieChart
+import com.external.charts.ui.piechart.models.PieChartConfig
+import com.external.charts.ui.piechart.models.PieChartData
 import kotlin.random.Random
 
 @Composable
@@ -24,10 +28,14 @@ fun TagsStatisticsChart(
     modifier: Modifier = Modifier,
     tags: Map<String?, Int>,
 ) {
+    val sum by remember(tags) {
+        derivedStateOf{tags.values.sum()}
+    }
     Box(
         modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
-        if (tags.isNotEmpty()) {
+        if (sum > 0) {
             PieChart(
                 modifier = Modifier,
                 pieChartData = getChartData(

@@ -45,6 +45,10 @@ interface DeckDao  {
     """)
     fun getDecks(query: String): Flow<List<DeckHeader>>
     @Query("""
+        select * from decks
+    """)
+    fun getDecks(): Flow<List<DeckHeader>>
+    @Query("""
         select count(*) from decks
     """)
     fun getDecksCount(): Flow<Int>

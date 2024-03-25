@@ -72,16 +72,16 @@ fun DeckLevelIcon(
 private fun Int.iconPainter(current: Boolean): Painter {
     return painterResource(
         id = when (this) {
-            1 -> if (current) R.drawable.ic_level_fill_1 else R.drawable.ic_level_outline_1
-            2 -> if (current) R.drawable.ic_level_fill_2 else R.drawable.ic_level_outline_2
-            3 -> if (current) R.drawable.ic_level_fill_3 else R.drawable.ic_level_outline_3
-            4 -> if (current) R.drawable.ic_level_fill_4 else R.drawable.ic_level_outline_4
-            5 -> if (current) R.drawable.ic_level_fill_5 else R.drawable.ic_level_outline_5
-            6 -> if (current) R.drawable.ic_level_fill_6 else R.drawable.ic_level_outline_6
-            7 -> if (current) R.drawable.ic_level_fill_7 else R.drawable.ic_level_outline_7
-            8 -> if (current) R.drawable.ic_level_fill_8 else R.drawable.ic_level_outline_8
-            9 -> if (current) R.drawable.ic_level_fill_9 else R.drawable.ic_level_outline_9
-            10 -> if (current) R.drawable.ic_level_fill_10 else R.drawable.ic_level_outline_10
+            0 -> if (current) R.drawable.ic_level_fill_1 else R.drawable.ic_level_outline_1
+            1 -> if (current) R.drawable.ic_level_fill_2 else R.drawable.ic_level_outline_2
+            2 -> if (current) R.drawable.ic_level_fill_3 else R.drawable.ic_level_outline_3
+            3 -> if (current) R.drawable.ic_level_fill_4 else R.drawable.ic_level_outline_4
+            4 -> if (current) R.drawable.ic_level_fill_5 else R.drawable.ic_level_outline_5
+            5 -> if (current) R.drawable.ic_level_fill_6 else R.drawable.ic_level_outline_6
+            6 -> if (current) R.drawable.ic_level_fill_7 else R.drawable.ic_level_outline_7
+            7 -> if (current) R.drawable.ic_level_fill_8 else R.drawable.ic_level_outline_8
+            8 -> if (current) R.drawable.ic_level_fill_9 else R.drawable.ic_level_outline_9
+            9 -> if (current) R.drawable.ic_level_fill_10 else R.drawable.ic_level_outline_10
             else -> if (current) R.drawable.ic_level_fill_11 else R.drawable.ic_level_outline_11
         }
     )

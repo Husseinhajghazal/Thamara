@@ -57,4 +57,7 @@ interface FlashRepo {
         rate: Int,
         deviceId: String
     ): Result<DeckHeader>
+
+    suspend fun getDeckInfo(id: Long): Result<Deck>
+    fun getLibraryDecksIds(): Flow<Map<Long, Boolean>>
 }

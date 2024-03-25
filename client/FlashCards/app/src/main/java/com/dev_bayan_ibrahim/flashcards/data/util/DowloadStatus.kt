@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 
 @Stable
 interface DownloadStatus {
-    val error: Pair<Int?, String?>?
+    val error: Throwable?
     val success: Boolean
     val finished: Boolean
     val progress: Long
@@ -19,7 +19,7 @@ interface DownloadStatus {
 }
 
 class MutableDownloadStatus(override val cancelDownload: suspend () -> Unit) : DownloadStatus {
-    override var error: Pair<Int?, String?>? by mutableStateOf(null)
+    override var error: Throwable? by mutableStateOf(null)
     override var success: Boolean by mutableStateOf(false)
     override var finished: Boolean by mutableStateOf(false)
     override var progress: Long by mutableLongStateOf(0)

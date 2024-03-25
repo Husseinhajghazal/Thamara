@@ -15,12 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import co.yml.charts.common.model.PlotType
-import co.yml.charts.ui.piechart.charts.PieChart
-import co.yml.charts.ui.piechart.models.PieChartConfig
-import co.yml.charts.ui.piechart.models.PieChartData
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.external.charts.common.model.PlotType
+import com.external.charts.ui.piechart.charts.PieChart
+import com.external.charts.ui.piechart.models.PieChartConfig
+import com.external.charts.ui.piechart.models.PieChartData
 import kotlin.random.Random
 
 @Composable
@@ -47,7 +47,10 @@ fun AccuracyAvgChart(
                 pieChartConfig = getChartConfig(),
             )
         } else {
-            Text(text = stringResource(id = R.string.no_data), style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(id = R.string.no_data),
+                style = MaterialTheme.typography.headlineMedium
+            )
         }
     }
 }

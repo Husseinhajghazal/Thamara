@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    implementation(libs.material)
 
     // general
     implementation(libs.kotlinx.collections.immutable)
@@ -120,7 +121,7 @@ dependencies {
     implementation(libs.firebase.cloud.messaging)
     implementation(libs.firebase.analytics)
 
-    implementation(libs.yChart)
+//    implementation(libs.yChart)
 
     // desugar
     coreLibraryDesugaring(libs.android.desugar.jdk.lib)
