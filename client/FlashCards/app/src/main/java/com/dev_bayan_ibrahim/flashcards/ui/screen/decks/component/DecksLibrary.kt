@@ -27,6 +27,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.getThrowableMessage
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
 import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 import java.util.Objects
@@ -74,9 +75,7 @@ fun LazyGridScope.lazyPagingLoadState(
             Column(
                 modifier = Modifier,
             ) {
-                Text(
-                    text = loadState.error.message ?: "Unknown error"
-                ) // todo handle error messages
+                Text(text = getThrowableMessage(throwable = loadState.error))
                 OutlinedButton(onClick = retry) {
                     Text(text = stringResource(R.string.retry))
                 }

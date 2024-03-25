@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
@@ -23,6 +23,10 @@ fun LibraryDeckDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     deck: DeckHeader,
+    downloadStatus: SimpleDownloadStatus,
+    onDeleteDeck: (id: Long) -> Unit,
+    onRemoveDeckImages: (id: Long) -> Unit,
+    onDownloadDeckImages: (id: Long) -> Unit,
     onDismiss: () -> Unit,
     onPlay: () -> Unit,
 ) {
@@ -31,10 +35,15 @@ fun LibraryDeckDialog(
             .height(400.dp)
             .aspectRatio(cardRatio),
         show = show,
-        onDismiss = onDismiss,
         deck = deck,
+        isLibrary = true,
+        downloadStatus = downloadStatus,
+        onDismiss = onDismiss,
+        onDeleteDeck = onDeleteDeck,
+        onRemoveDeckImages = onRemoveDeckImages,
+        onDownloadDeckImages = onDownloadDeckImages,
     ) {
-        Button(onClick = onPlay) {
+        Button(onClick = onPlay, enabled = downloadStatus != SimpleDownloadStatus.LOADING) {
             Text(stringResource(id = R.string.play))
         }
     }
@@ -48,7 +57,7 @@ private fun DownloadDeckDialogPreviewLight() {
             modifier = Modifier,
             color = MaterialTheme.colorScheme.background,
         ) {
-            val downloadStatus = MutableDownloadStatus {}
+            val downloadStatus = SimpleDownloadStatus.DOWNLOADED
             DownloadDeckDialog(
                 deck = DeckHeader(
                     name = "name",

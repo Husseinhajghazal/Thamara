@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.dev_bayan_ibrahim.flashcards.ui.app
 
 
@@ -41,11 +43,14 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.bar.FlashBottomBar
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.FlashNavGraph
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavActions
 import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.ConnectivityStatusBar
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.NewUserDialog
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.UserRankChangeDialog
 import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppUiState
 import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppViewModel
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.connectivityStatus
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 @Composable
@@ -110,6 +115,7 @@ fun FlashApp(
         }
         val scope = rememberCoroutineScope()
 
+        val connectivityStatus by connectivityStatus()
         Scaffold(
             bottomBar = {
                 AnimatedVisibility(
@@ -129,16 +135,19 @@ fun FlashApp(
                 SnackbarHost(hostState = snackbarState)
             }
         ) {
-            FlashNavGraph(
-                modifier = Modifier
-                    .padding(it),
-                navController = navController,
-                navActions = navActions
-            ) {
-                scope.launch {
-                    snackbarState.showSnackbar(
-                        it.asSnackbarVisuals(context)
-                    )
+            Column {
+                ConnectivityStatusBar(status = connectivityStatus)
+                FlashNavGraph(
+                    modifier = Modifier
+                        .padding(it),
+                    navController = navController,
+                    navActions = navActions
+                ) {
+                    scope.launch {
+                        snackbarState.showSnackbar(
+                            it.asSnackbarVisuals(context)
+                        )
+                    }
                 }
             }
         }

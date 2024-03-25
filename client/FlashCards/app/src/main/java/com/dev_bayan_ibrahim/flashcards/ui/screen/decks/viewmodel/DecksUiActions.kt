@@ -7,13 +7,16 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
 
 @Immutable
 interface DecksUiActions: DecksFilterDialogUiActions {
-    fun onSearchQueryChange (query: String)
+    fun onSearchQueryChange(query: String)
     fun onClickDeck(deck: DeckHeader)
     fun onSearch()
     fun onSelectTab(tab: DecksTab)
 
-    fun onDownloadDeck()
+    fun onDownloadDeck(downloadImages: Boolean)
     fun onCancelDownloadDeck()
     fun onPlayDeck()
     fun onDismissSelectedDeck()
+    fun onDeleteDeck(id: Long)
+    fun onRemoveDeckImages(id: Long)
+    fun onDownloadDeckImages(id: Long)
 }

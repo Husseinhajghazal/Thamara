@@ -13,7 +13,8 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
-import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.asSimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarMessages
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toIntRange
@@ -53,8 +54,7 @@ class DecksViewModel @Inject constructor(
         mapOf()
     )
 
-    var downloadStatus: DownloadStatus? by mutableStateOf(null)
-        private set
+    private var downloadStatus: DownloadStatus? by mutableStateOf(null)
 
 
     fun getDecksActions(
@@ -68,6 +68,10 @@ class DecksViewModel @Inject constructor(
 
         override fun onClickDeck(deck: DeckHeader) {
             state.selectedDeck = deck
+            state.downloadStatus = when (selectedTab) {
+                LIBRARY -> deck.offlineImages.asSimpleDownloadStatus()
+                BROWSE -> SimpleDownloadStatus.NOT_DOWNLOADED
+            }
         }
 
         override fun onSearch() {
@@ -79,13 +83,18 @@ class DecksViewModel @Inject constructor(
             onApplyFilters()
         }
 
-        override fun onDownloadDeck() {
+        override fun onDownloadDeck(downloadImages: Boolean) {
             if (selectedTab == BROWSE) {
                 state.selectedDeck?.let {
-                    downloadDeck(deck = it, onShowSnackbarMessage) { error ->
+                    saveAndDownloadDeck(
+                        header = it,
+                        onShowSnackbarMessage = onShowSnackbarMessage,
+                        isLocal = false,
+                        downloadImages = downloadImages,
+                    ) { error ->
                         if (error == null) {
                             onShowSnackbarMessage(
-                                FlashSnackbarMessages.FinishDownloadDeck
+                                FlashSnackbarMessages.FinishSaveDeck
                             )
                         } else {
                             onShowSnackbarMessage(FlashSnackbarMessages.Factory(error))
@@ -112,8 +121,45 @@ class DecksViewModel @Inject constructor(
         }
 
         override fun onDismissSelectedDeck() {
-            if (selectedTab == LIBRARY) {
-                state.selectedDeck = null
+            state.selectedDeck = null
+        }
+
+        override fun onDeleteDeck(id: Long) {
+            if (id in libraryDecksIds.value) { // in library
+                viewModelScope.launch {
+                    repo.deleteDeck(id)
+                    state.selectedDeck = null
+                }
+            }
+        }
+
+        override fun onRemoveDeckImages(id: Long) {
+            if (id in libraryDecksIds.value) {
+                viewModelScope.launch {
+                    repo.deleteDeckImages(id)
+                    state.selectedDeck = null
+                }
+            }
+        }
+
+        override fun onDownloadDeckImages(id: Long) {
+            if (id in libraryDecksIds.value) {
+                state.selectedDeck?.let {
+                    saveAndDownloadDeck(
+                        header = it,
+                        onShowSnackbarMessage = onShowSnackbarMessage,
+                        isLocal = true,
+                        downloadImages = true,
+                    ) { error ->
+                        if (error == null) {
+                            onShowSnackbarMessage(
+                                FlashSnackbarMessages.FinishSaveDeck
+                            )
+                        } else {
+                            onShowSnackbarMessage(FlashSnackbarMessages.Factory(error))
+                        }
+                    }
+                }
             }
         }
 
@@ -239,24 +285,32 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    private fun downloadDeck(
-        deck: DeckHeader,
+    private fun saveAndDownloadDeck(
+        header: DeckHeader,
+        downloadImages: Boolean,
+        isLocal: Boolean,
         onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
         onFinish: (Throwable?) -> Unit = {}
     ) {
         viewModelScope.launch(IO) {
-            downloadStatus = MutableDownloadStatus {} // start loading indicator
+            state.downloadStatus = SimpleDownloadStatus.LOADING
 
-            getDeckInfo(deck.id, onShowSnackbarMessage)?.let { deck ->
-                repo.downloadDeck(deck).collect {
+            val deck = if (isLocal) repo.getDeckCards(header.id) else getDeckInfo(
+                header.id,
+                onShowSnackbarMessage
+            )
+            deck?.let { deck ->
+                repo.saveDeckToLibrary(deck, downloadImages).collect {
                     downloadStatus = it
+                    if (it.finished) {
+                        state.downloadStatus = it.success.asSimpleDownloadStatus()
+                    }
                 }
             } ?: let {
                 downloadStatus = null
             }
 
             onFinish(downloadStatus?.error)
-            state.selectedDeck = null
             downloadStatus = null
         }
     }
@@ -280,6 +334,7 @@ class DecksViewModel @Inject constructor(
         downloadStatus?.cancelDownload?.let { cancel ->
             viewModelScope.launch {
                 cancel()
+                repo.deleteDeckImages(deck.id)
             }
         }
         downloadStatus = null

@@ -6,28 +6,44 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckLevelIcon
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
@@ -44,7 +60,12 @@ fun DecksListDeckDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     deck: DeckHeader,
+    isLibrary: Boolean,
+    downloadStatus: SimpleDownloadStatus,
     onDismiss: () -> Unit,
+    onDeleteDeck: (id: Long) -> Unit,
+    onRemoveDeckImages: (id: Long) -> Unit,
+    onDownloadDeckImages: (id: Long) -> Unit,
     content: @Composable () -> Unit
 ) {
     FlashDialog(
@@ -54,6 +75,14 @@ fun DecksListDeckDialog(
         show = show,
         onDismiss = onDismiss,
     ) {
+        HeaderActions(
+            isLibrary = isLibrary,
+            onDismiss = onDismiss,
+            downloadStatus = downloadStatus,
+            onDelete = { onDeleteDeck(deck.id) },
+            onRemoveImages = { onRemoveDeckImages(deck.id) },
+            onDownloadImages = { onDownloadDeckImages(deck.id) },
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
 //            verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -121,17 +150,17 @@ private fun InfoItems(
                 items = {
                     items((1..11).toList()) {
                         DeckLevelIcon(
-                            size =LevelIconSize.BIG,
+                            size = LevelIconSize.BIG,
                             level = it,
                             current = it == level,
                             lerpDifficultyLevelColor = it == level,
 
-                        )
+                            )
                     }
                 }
             ) {
                 DeckLevelIcon(
-                    size =LevelIconSize.MEDIUM,
+                    size = LevelIconSize.MEDIUM,
                     level = level,
                     current = false,
                     lerpDifficultyLevelColor = false,
@@ -198,6 +227,123 @@ private fun InfoItem(
         content()
     }
 }
+
+@Composable
+private fun BoxScope.HeaderActions(
+    modifier: Modifier = Modifier,
+    isLibrary: Boolean,
+    downloadStatus: SimpleDownloadStatus,
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit = {},
+    onRemoveImages: () -> Unit = {},
+    onDownloadImages: () -> Unit = {},
+) {
+    var deleteImagesOnly: Boolean? by remember {
+        mutableStateOf(null)
+    }
+    val deleteAction by remember(deleteImagesOnly) {
+        derivedStateOf {
+            deleteImagesOnly?.let {
+                if (it) onRemoveImages else onDelete
+            } ?: {}
+        }
+    }
+
+    deleteImagesOnly?.let { imagesOnly ->
+        DeleteConfirmDialog(
+            message = if (imagesOnly) {
+                stringResource(R.string.remove_deck_images_hint)
+            } else {
+                stringResource(R.string.remove_deck_permanentaly_hint)
+            },
+            onConfirm = deleteAction,
+            onCancel = { deleteImagesOnly = null }
+        )
+    }
+    Row(
+        modifier = modifier.align(Alignment.TopCenter),
+    ) {
+        IconButton(
+            onClick = onDismiss,
+            enabled = downloadStatus != SimpleDownloadStatus.LOADING
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(id = R.string.close),
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        if (isLibrary) {
+            when (downloadStatus) {
+                SimpleDownloadStatus.DOWNLOADED -> {
+                    IconButton(
+                        onClick = { deleteImagesOnly = true }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_delete_images),
+                            contentDescription = stringResource(id = R.string.close),
+                        )
+                    }
+                }
+                SimpleDownloadStatus.LOADING -> {
+                    CircularProgressIndicator(modifier = Modifier
+                        .padding(12.dp)
+                        .size(24.dp))
+                }
+                SimpleDownloadStatus.NOT_DOWNLOADED -> {
+                    IconButton(
+                        onClick = onDownloadImages
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_download_image),
+                            contentDescription = stringResource(id = R.string.close),
+                        )
+                    }
+                }
+            }
+            IconButton(
+                onClick = { deleteImagesOnly = false },
+                enabled = downloadStatus != SimpleDownloadStatus.LOADING
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete_forever),
+                    contentDescription = stringResource(R.string.delete_deck),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteConfirmDialog(
+    modifier: Modifier = Modifier,
+    message: String,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onCancel,
+        title = {
+            Text(text = stringResource(R.string.confirm_delete))
+        },
+        text = {
+            Text(text = message)
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(id = R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(stringResource(id = R.string.cancel))
+            }
+        }
+    )
+
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun DownloadDeckDialogPreviewLight() {
@@ -206,7 +352,7 @@ private fun DownloadDeckDialogPreviewLight() {
             modifier = Modifier,
             color = MaterialTheme.colorScheme.background,
         ) {
-            val downloadStatus = MutableDownloadStatus {}
+            val downloadStatus = SimpleDownloadStatus.DOWNLOADED
             DownloadDeckDialog(
                 deck = DeckHeader(
                     name = "name",

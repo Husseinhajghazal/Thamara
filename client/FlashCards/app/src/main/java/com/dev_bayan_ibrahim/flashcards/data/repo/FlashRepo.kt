@@ -50,7 +50,10 @@ interface FlashRepo {
     fun getDatabaseInfo(): Flow<DecksDatabaseInfo>
     suspend fun isFirstPlay(id: Long): Boolean
     suspend fun updateUserRank(newRank: UserRank)
-    suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus>
+    suspend fun saveDeckToLibrary(
+        deck: Deck,
+        downloadImages: Boolean,
+    ): Flow<DownloadStatus>
 
     suspend fun rateDeck(
         id: Long,
@@ -60,4 +63,8 @@ interface FlashRepo {
 
     suspend fun getDeckInfo(id: Long): Result<Deck>
     fun getLibraryDecksIds(): Flow<Map<Long, Boolean>>
+    suspend fun deleteDeck(id: Long)
+    suspend fun deleteDeckImages(id: Long)
+    fun downloadDeckImages(deck: Deck): Flow<DownloadStatus>
+    suspend fun downloadDeckImages(id: Long): Flow<DownloadStatus>
 }

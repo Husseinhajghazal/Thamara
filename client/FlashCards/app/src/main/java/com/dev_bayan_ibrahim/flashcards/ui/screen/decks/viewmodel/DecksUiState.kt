@@ -9,6 +9,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
+import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksFilterMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksFilterUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ interface DecksUiState {
     val searchResults: StateFlow<PagingData<DeckHeader>>
 
     val selectedDeck: DeckHeader?
+
+    val downloadStatus: SimpleDownloadStatus
 }
 
 class DecksMutableUiState : DecksUiState {
@@ -35,4 +38,6 @@ class DecksMutableUiState : DecksUiState {
     override val libraryDecks: SnapshotStateMap<DecksGroup, List<DeckHeader>> = mutableStateMapOf()
     override val searchResults: MutableStateFlow<PagingData<DeckHeader>> = MutableStateFlow(PagingData.empty())
     override var selectedDeck: DeckHeader? by mutableStateOf(null)
+
+    override var downloadStatus: SimpleDownloadStatus by mutableStateOf(SimpleDownloadStatus.NOT_DOWNLOADED)
 }

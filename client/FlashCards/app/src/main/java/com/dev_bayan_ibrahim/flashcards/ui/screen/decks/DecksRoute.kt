@@ -30,7 +30,6 @@ fun DecksRoute(
         state = decksViewModel.state,
         dbInfo = dbInfo,
         libraryDecksIds =libraryDecksIds,
-        downloadStatus = decksViewModel.downloadStatus,
         actions = decksViewModel.getDecksActions(
             navigateToDeckPlay = navigateToDeckPlay,
             onShowSnackbarMessage = onShowSnackbarMessage,

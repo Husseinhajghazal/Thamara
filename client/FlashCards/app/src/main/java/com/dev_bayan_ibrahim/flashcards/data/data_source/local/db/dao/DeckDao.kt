@@ -15,6 +15,11 @@ interface DeckDao  {
     suspend fun insertDeck(decks: DeckHeader)
 
     @Query("""
+        update decks set offlineImages = :offline where id = :id
+    """)
+    suspend fun updateDeckOfflineImages(id: Long, offline: Boolean)
+
+    @Query("""
         select * from decks where id = :id
     """)
     suspend fun getDeck(id: Long): DeckHeader?
@@ -34,6 +39,10 @@ interface DeckDao  {
         delete from decks where downloadInProgress
     """)
     suspend fun deleteDownloadingDecks()
+    @Query("""
+        delete from decks where id = :id
+    """)
+    suspend fun deleteDeck(id: Long)
 
     @Query("""
         select tags from decks
@@ -45,9 +54,9 @@ interface DeckDao  {
     """)
     fun getDecks(query: String): Flow<List<DeckHeader>>
     @Query("""
-        select * from decks
+        select * from decks where not downloadInProgress  
     """)
-    fun getDecks(): Flow<List<DeckHeader>>
+    fun getDownloadedDecks(): Flow<List<DeckHeader>>
     @Query("""
         select count(*) from decks
     """)

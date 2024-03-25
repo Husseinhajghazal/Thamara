@@ -17,7 +17,7 @@
     <string name="name">الاسم</string>
     <string name="rate">التقييم</string>
     <string name="success">نجاح</string>
-    <string name="finish_download_deck">تم تنزيل الحزمة بنجاح</string>
+    <string name="finish_save_deck">تم حفظ الحزمة في المكتبة</string>
     <string name="fail_download_deck">هناك مشكلة في تنزيل الحزمة حاول مجدداً لاحقاً</string>
     <string name="new_rank">رتبة جديدة</string>
     <string name="rank_drop">انخفاض الرتبة</string>
@@ -106,4 +106,13 @@
     <string name="three_months">3 أشهر</string>
 
     <string name="unknown_error">خطأ غير معروف</string>
+    <string name="delete">حذف</string>
+    <string name="delete_deck">حذف حزمة</string>
+    <string name="confirm_delete">تأكيد الحذف</string>
+    <string name="remove_deck_permanentaly_hint">سيتم إزالة هذه الحزمة نهائياً من المكتبة</string>
+    <string name="remove_deck_images_hint">إزالة الصور من المكتبة (ستبقى الحزمة ضمن المكتبة)</string>
+    <string name="invalid_cards_data">معلومات البطاقات غير صالحة</string>
+    <string name="invalid_deck_data">معلومات الحزمة غير صالحة</string>
+    <string name="back_online">عودة الاتصال</string>
+    <string name="offline">بلا اتصال</string>
 </resources>

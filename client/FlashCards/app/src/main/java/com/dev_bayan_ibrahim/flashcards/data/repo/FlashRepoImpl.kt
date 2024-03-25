@@ -23,7 +23,6 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.util.BodyParam
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeaderSerializer
-import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.play.CardPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
@@ -39,6 +38,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.shuffle
@@ -141,11 +141,17 @@ class FlashRepoImpl(
         }
     }
 
-    override fun getLibraryDecksIds(): Flow<Map<Long, Boolean>> = getDecks().map {
+    override fun getLibraryDecksIds(): Flow<Map<Long, Boolean>> = getDownloadedDecks().map {
         it.associate { header ->
             header.id to fileManager.imagesOffline(header.id, header.cardsCount)
         }
     }
+
+    override suspend fun deleteDeckImages(id: Long) {
+        fileManager.deleteDeck(id)
+        updateDeckOfflineImages(id, false)
+    }
+
 
     override fun getTimeStatistics(
         group: TimeGroup
@@ -326,21 +332,40 @@ class FlashRepoImpl(
         }.flatten()
     }
 
-    override suspend fun downloadDeck(deck: Deck): Flow<DownloadStatus> {
+    override suspend fun saveDeckToLibrary(
+        deck: Deck,
+        downloadImages: Boolean,
+    ): Flow<DownloadStatus> {
         insertDeck(deck.header.copy(downloadInProgress = true, offlineData = true))
         insertCards(deck.cards)
-        return fileManager.saveDeck(deck).map {
+
+        return if (downloadImages) {
+            downloadDeckImages(deck)
+        } else {
+            finishDownloadDeck(deck.header.id)
+            flow {
+                val status = MutableDownloadStatus{}
+                status.finished = true
+                status.success = true
+                emit(status)
+            }
+        }
+    }
+
+
+    override suspend fun downloadDeckImages(id: Long) = downloadDeckImages(getDeckCards(id))
+    override fun downloadDeckImages(deck: Deck) = fileManager.saveDeck(deck).map {
             it.also {
                 if (it.finished) {
                     if (it.success) {
                         finishDownloadDeck(deck.header.id)
+                        updateDeckOfflineImages(deck.header.id, true)
                     } else {
                         deleteDownloadingDecks()
                     }
                 }
             }
         }
-    }
 
     override suspend fun rateDeck(
         id: Long,

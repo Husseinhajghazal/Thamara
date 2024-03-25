@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.exception.CardDeserializationException
 import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
@@ -30,9 +32,9 @@ enum class FlashSnackbarMessages(
         duration = SnackbarDuration.Short,
         withDismissAction = false
     ),
-    FinishDownloadDeck(
+    FinishSaveDeck(
         actionLabel = null,
-        message = R.string.finish_download_deck,
+        message = R.string.finish_save_deck,
         duration = SnackbarDuration.Short,
         withDismissAction = false
     ),
@@ -100,31 +102,99 @@ private data class FlashSnackbarVisualsImpl(
 ) : SnackbarVisuals
 
 
+@Composable
+fun getThrowableMessage(
+    throwable: Throwable
+): String = getThrowableMessage(
+    context = LocalContext.current,
+    throwable = throwable
+)
 
-private fun getThrowableMessage(
+fun getThrowableMessage(
     context: Context,
     throwable: Throwable
 ): String = when (throwable) {
     is CardDeserializationException -> {
-        "invalid cards data ${throwable.message}"
-    }
-    is CardDownloadException -> {
-        "Download Error ${getCodeMessage(context, throwable.code.value)}"
-    }
-    is CardException -> {
-        "Problem in card data ${throwable.message}"
-    }
-    is DeckDeserializationException -> {
-        "invalid deck ${throwable.message}"
-    }
-    is DeckException -> {
-        "Problem in deck data ${throwable.message}"
+        context.getString(R.string.invalid_cards_data)
     }
 
-//    else -> context.getString(R.string.unknown_error)
-    else -> throwable.message ?: context.getString(R.string.unknown_error)
+    is CardDownloadException -> {
+        getCodeMessage(context, throwable.code.value)
+    }
+
+    is CardException -> {
+        context.getString(R.string.invalid_cards_data)
+    }
+
+    is DeckDeserializationException -> {
+        context.getString(R.string.invalid_deck_data)
+    }
+
+    is DeckException -> {
+        context.getString(R.string.invalid_deck_data)
+    }
+
+    else ->  context.getString(R.string.unknown_error)
 }
+
 private fun getCodeMessage(
     context: Context,
     code: Int
-): String = "error code $code"
+): String = when (code) {
+    200 -> R.string.code_200
+    201 -> R.string.code_201
+    202 -> R.string.code_202
+    203 -> R.string.code_203
+    204 -> R.string.code_204
+    205 -> R.string.code_205
+    206 -> R.string.code_206
+    207 -> R.string.code_207
+
+    300 -> R.string.code_300
+    301 -> R.string.code_301
+    302 -> R.string.code_302
+    303 -> R.string.code_303
+    304 -> R.string.code_304
+    305 -> R.string.code_305
+    306 -> R.string.code_306
+    307 -> R.string.code_307
+    308 -> R.string.code_308
+
+    400 -> R.string.code_400
+    401 -> R.string.code_401
+    402 -> R.string.code_402
+    403 -> R.string.code_403
+    404 -> R.string.code_404
+    405 -> R.string.code_405
+    406 -> R.string.code_406
+    407 -> R.string.code_407
+    408 -> R.string.code_408
+    409 -> R.string.code_409
+    410 -> R.string.code_410
+    411 -> R.string.code_411
+    412 -> R.string.code_412
+    413 -> R.string.code_413
+    414 -> R.string.code_414
+    415 -> R.string.code_415
+    416 -> R.string.code_416
+    417 -> R.string.code_417
+    422 -> R.string.code_422
+    423 -> R.string.code_423
+    424 -> R.string.code_424
+    425 -> R.string.code_425
+    426 -> R.string.code_426
+    429 -> R.string.code_429
+    431 -> R.string.code_431
+
+    500 -> R.string.code_500
+    501 -> R.string.code_501
+    502 -> R.string.code_502
+    503 -> R.string.code_503
+    504 -> R.string.code_504
+    505 -> R.string.code_505
+    506 -> R.string.code_506
+    507 -> R.string.code_507
+    else -> R.string.unknown_error
+}.run {
+    context.getString(this)
+}

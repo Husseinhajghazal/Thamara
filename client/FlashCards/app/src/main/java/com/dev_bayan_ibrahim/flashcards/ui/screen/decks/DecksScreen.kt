@@ -12,7 +12,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DownloadDeckDialog
@@ -31,7 +30,6 @@ fun DecksScreen(
     state: DecksUiState,
     dbInfo: DecksDatabaseInfo,
     libraryDecksIds: Map<Long, Boolean>,
-    downloadStatus: DownloadStatus?,
     actions: DecksUiActions,
 ) {
     val pagerState = rememberPagerState { DecksTab.entries.count() }
@@ -63,8 +61,12 @@ fun DecksScreen(
                 LibraryDeckDialog(
                     show = true,
                     deck = deckHeader,
+                    downloadStatus = state.downloadStatus,
+                    onDeleteDeck = actions::onDeleteDeck,
+                    onRemoveDeckImages = actions::onRemoveDeckImages,
+                    onDownloadDeckImages = actions::onDownloadDeckImages,
                     onDismiss = actions::onDismissSelectedDeck,
-                    onPlay = actions::onPlayDeck
+                    onPlay = actions::onPlayDeck,
                 )
             } else {
                 DownloadDeckDialog(
@@ -72,7 +74,7 @@ fun DecksScreen(
                     deck = deckHeader,
                     onDownload = actions::onDownloadDeck,
                     onCancel = actions::onCancelDownloadDeck,
-                    downloadStatus = downloadStatus,
+                    downloadStatus = state.downloadStatus,
                 )
             }
         }

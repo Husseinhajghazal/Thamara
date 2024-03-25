@@ -1,8 +1,11 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component
 
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -21,8 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.data.util.DownloadStatus
-import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.toFormattedSize
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
@@ -31,17 +33,20 @@ fun DownloadDeckDialog(
     modifier: Modifier = Modifier,
     show: Boolean,
     deck: DeckHeader,
-    downloadStatus: DownloadStatus?,
-    onDownload: () -> Unit,
+    downloadStatus: SimpleDownloadStatus,
+    onDownload: (downloadImages: Boolean) -> Unit,
     onCancel: () -> Unit,
 ) {
     DecksListDeckDialog(
         modifier = modifier,
         show = show,
-        onDismiss = {
-            if (downloadStatus == null) onCancel()
-        },
-        deck = deck
+        deck = deck,
+        isLibrary = false,
+        downloadStatus = downloadStatus,
+        onDismiss = { if (downloadStatus != SimpleDownloadStatus.LOADING) onCancel() },
+        onDeleteDeck = {},
+        onRemoveDeckImages = {},
+        onDownloadDeckImages = {},
     ) {
         DownloadActions(
             downloadStatus = downloadStatus,
@@ -54,11 +59,11 @@ fun DownloadDeckDialog(
 @Composable
 private fun DownloadActions(
     modifier: Modifier = Modifier,
-    downloadStatus: DownloadStatus?,
+    downloadStatus: SimpleDownloadStatus,
     onCancel: () -> Unit,
-    onDownload: () -> Unit,
+    onDownload: (downloadImages: Boolean) -> Unit,
 ) {
-    if (downloadStatus != null) {
+    if (downloadStatus == SimpleDownloadStatus.LOADING) {
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -68,7 +73,6 @@ private fun DownloadActions(
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(40.dp),
-//                    progress = { (downloadStatus.progress.toFloat()) / downloadStatus.total.coerceAtLeast(1) }
                 )
                 IconButton(
                     onClick = onCancel
@@ -79,20 +83,30 @@ private fun DownloadActions(
                     )
                 }
             }
-//            Text(
-//                text = "${downloadStatus.progress.formatSize()}/${downloadStatus.total.formatSize()}",
-//                style = MaterialTheme.typography.bodyLarge
-//            )
         }
     } else {
-        FilledIconButton(
-            modifier = modifier,
-            onClick = onDownload
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.download),
-                contentDescription = stringResource(R.string.download)
-            )
+            FilledIconButton(
+                modifier = modifier,
+                onClick = { onDownload(true) }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_download_image),
+                    contentDescription = stringResource(R.string.download)
+                )
+            }
+            FilledIconButton(
+                modifier = modifier,
+                onClick = { onDownload(false) }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.download),
+                    contentDescription = stringResource(R.string.download)
+                )
+            }
         }
     }
 }
@@ -108,7 +122,7 @@ private fun DownloadDeckDialogPreviewLight() {
             modifier = Modifier,
             color = MaterialTheme.colorScheme.background,
         ) {
-            val downloadStatus = MutableDownloadStatus {}
+            val downloadStatus = SimpleDownloadStatus.DOWNLOADED
             DownloadDeckDialog(
                 deck = DeckHeader(
                     name = "name",
