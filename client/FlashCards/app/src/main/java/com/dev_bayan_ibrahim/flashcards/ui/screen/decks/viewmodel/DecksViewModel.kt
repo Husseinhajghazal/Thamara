@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckNotFoundException
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
@@ -93,9 +94,7 @@ class DecksViewModel @Inject constructor(
                         downloadImages = downloadImages,
                     ) { error ->
                         if (error == null) {
-                            onShowSnackbarMessage(
-                                FlashSnackbarMessages.FinishSaveDeck
-                            )
+                            onShowSnackbarMessage(FlashSnackbarMessages.FinishSaveDeck)
                         } else {
                             onShowSnackbarMessage(FlashSnackbarMessages.Factory(error))
                         }
@@ -307,6 +306,7 @@ class DecksViewModel @Inject constructor(
                     }
                 }
             } ?: let {
+                onFinish(DeckNotFoundException(id = header.id, searchLocal = false))
                 downloadStatus = null
             }
 

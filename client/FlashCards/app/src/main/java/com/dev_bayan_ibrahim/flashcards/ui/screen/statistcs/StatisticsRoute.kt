@@ -20,7 +20,10 @@ fun StatisticsRoute(
 ) {
     val timedStatistics by statisticsViewModel.timedStatistics.collectAsState()
 
-    val ranks : SortedMap<RankStatisticsStep, UserRank> = sortedMapOf()
+    val ranks : SortedMap<RankStatisticsStep, UserRank> = RankStatisticsStep.entries.associateWith {
+        UserRank(1f)
+    }.toSortedMap()
+
     StatisticsScreen(
         modifier = modifier.fillMaxSize(),
         ranks = ranks,
