@@ -8,7 +8,9 @@ import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.PlayCardResult
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarMessages
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.getThrowableMessage
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -97,6 +99,7 @@ class PlayViewModel @Inject constructor(
 
     fun getUiActions(
         navigateUp: () -> Unit,
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
     ): PlayUiActions = object : PlayUiActions {
         override fun onSelectAnswer(value: String) {
             val card = state.deck.cards[state.currentCard]
@@ -127,6 +130,46 @@ class PlayViewModel @Inject constructor(
             }
         }
 
+        override fun onRate(rate: Int) {
+            state.isRateLoading = true
+            viewModelScope.launch {
+                getDeviceId()?.let { deviceId ->
+                    repo.rateDeck(
+                        id = state.deck.header.id,
+                        rate = rate,
+                        deviceId = deviceId
+                    ).fold(
+                        onSuccess = {
+                            onShowSnackbarMessage(FlashSnackbarMessages.UnknownDeviceRateFailed)
+                        },
+                        onFailure = { throwable ->
+                            onShowSnackbarMessage(
+                                FlashSnackbarMessages.Factory(
+                                    actionLabel = { null },
+                                    message = { context ->
+                                        getThrowableMessage(
+                                            context = context,
+                                            throwable = throwable,
+                                            onStatusCode = {
+                                                val code = it.response.status.value
+                                                val message = it.message ?: return@getThrowableMessage null
+                                                if (code == 400 && message.contains("لقد قمت بالتقييم")) {
+                                                    context.getString(FlashSnackbarMessages.DuplicateRateError.message)
+                                                } else {
+                                                    null
+                                                }
+                                            }
+                                        )
+                                    },
+                                )
+                            )
+                        }
+                    )
+                } ?: onShowSnackbarMessage(FlashSnackbarMessages.UnknownDeviceRateFailed)
+                state.isRateLoading = false
+            }
+        }
+
         override fun onCancelPlay() {
             state.showCancelPlayDialog = false
             navigateUp()
@@ -137,6 +180,7 @@ class PlayViewModel @Inject constructor(
         }
 
     }
+
     private suspend fun rateDeck(id: Long, rate: Int) {
         getDeviceId()?.let { deviceId ->
             repo.rateDeck(id, rate, deviceId)

@@ -26,3 +26,5 @@ fun Instant.asSimpleDate(delimiter: Char = '-'): String {
 }
 
 fun Instant.daysCount() = toCurrentDatetime().date.toEpochDays()
+
+fun Instant.Companion.fromEpochDays(days: Int): Instant = Instant.fromEpochSeconds(days * 86_400L)

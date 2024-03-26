@@ -8,12 +8,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,9 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
@@ -49,15 +56,23 @@ fun PlayResults(
     incorrectCards: List<Pair<Card, String?>>, // card, answer
     accent: Color,
     bgPattern: String,
+    isRateLoading: Boolean,
     onRepeat: () -> Unit,
     onClose: () -> Unit,
+    onRate: (rate: Int) -> Unit,
 ) {
+    var animatableValue by remember {
+        mutableStateOf(0f)
+    }
+
     val animatable by remember {
-        mutableStateOf(Animatable(0f))
+        mutableStateOf(Animatable(animatableValue))
     }
     LaunchedEffect(key1 = Unit) {
+        val targetValue = correctAnswers.toFloat() / count * 100
+        animatableValue = targetValue
         animatable.animateTo(
-            targetValue = correctAnswers.toFloat() / count * 100,
+            targetValue = targetValue,
             animationSpec = tween(resultAnim, resultAnimDelay)
         )
     }
@@ -65,10 +80,40 @@ fun PlayResults(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "${animatable.value.roundToInt()}%",
-            style = MaterialTheme.typography.displayMedium
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if(isRateLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp).align(Alignment.TopEnd),
+                )
+            } else {
+                var showRateDialog by remember {
+                    mutableStateOf(false)
+                }
+
+                IconButton(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onClick = { showRateDialog = true }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_rate),
+                        contentDescription = stringResource(id = R.string.rate)
+                    )
+                    RateDialog(
+                        show = showRateDialog,
+                        onDismiss = { showRateDialog = false },
+                        onRate = onRate
+                    )
+                }
+            }
+
+            Text(
+                text = "${animatable.value.roundToInt()}%",
+                style = MaterialTheme.typography.displayMedium
+            )
+        }
         FlashSlider(
             value = animatable.value,
             steps = 0,
@@ -171,5 +216,59 @@ private fun IncorrectCardsPager(
                 contentDescription = stringResource(R.string.next)
             )
         }
+    }
+}
+
+@Composable
+private fun RateDialog(
+    modifier: Modifier = Modifier,
+    show: Boolean,
+    onDismiss: () -> Unit,
+    onRate: (rate: Int) -> Unit,
+) {
+    var selected: Int? by remember {
+        mutableStateOf(null)
+    }
+    if (show) {
+        AlertDialog(
+            modifier = modifier,
+            onDismissRequest = onDismiss,
+            title = {
+                Text(text = stringResource(id = R.string.rate))
+            },
+            text = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    repeat(5) { index ->
+                        IconButton(
+                            onClick = { selected = index.inc() }
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = when (index) {
+                                        0 -> if (selected == index.inc()) R.drawable.ic_level_fill_10 else R.drawable.ic_level_outline_10
+                                        1 -> if (selected == index.inc()) R.drawable.ic_level_fill_4 else R.drawable.ic_level_outline_4
+                                        2 -> if (selected == index.inc()) R.drawable.ic_level_fill_3 else R.drawable.ic_level_outline_3
+                                        3 -> if (selected == index.inc()) R.drawable.ic_level_fill_2 else R.drawable.ic_level_outline_2
+                                        else -> if (selected == index.inc()) R.drawable.ic_level_fill_1 else R.drawable.ic_level_outline_1
+                                    }
+                                ),
+                                contentDescription = stringResource(R.string.rate_x, index.inc())
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = selected != null,
+                    onClick = { selected?.let { onRate(it) }; onDismiss() }
+                ) {
+                    Text(text = stringResource(id = R.string.rate).lowercase())
+                }
+            }
+        )
+
     }
 }

@@ -26,6 +26,7 @@ import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeaderSerializer
 import com.dev_bayan_ibrahim.flashcards.data.model.play.CardPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
+import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckWithCardsPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.DAY
@@ -360,6 +361,7 @@ class FlashRepoImpl(
 
     override suspend fun downloadDeckImages(id: Long) = downloadDeckImages(getDeckCards(id))
     override suspend fun getRankChangesStatistics(): List<UserRank> = getRanksStatistics()
+    override suspend fun getPlaysStatistics(): List<DeckWithCardsPlay> = getAllPlays()
 
     override fun downloadDeckImages(deck: Deck) = fileManager.saveDeck(deck).map {
         it.also {
@@ -390,7 +392,13 @@ class FlashRepoImpl(
                 )
             ),
             OutputFieldRate::class.serializer(),
-        ).execute().map { it.updatedDeck }
+        ).execute().map { it.updatedDeck }.updateDeckOnRate()
+    }
+    private suspend fun Result<DeckHeader>.updateDeckOnRate(): Result<DeckHeader> {
+        getOrNull()?.let {
+            updateDeckRate(id = it.id, rate = it.rate, rates = it. rates)
+        }
+        return this
     }
 
     override suspend fun getDeckInfo(id: Long): Result<Deck> = getEndpointRequest(

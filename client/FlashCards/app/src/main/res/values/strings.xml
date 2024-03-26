@@ -115,4 +115,10 @@
     <string name="offline">Offline</string>
     <string name="rank_statistics">Rank Statistics</string>
     <string name="now">Now</string>
+    <string name="plays_statistics">Plays Statistics</string>
+    <string name="wrong_answers">Wrong Answers</string>
+    <string name="rate_x">rate %1$s</string>
+    <string name="unknown_device_rate_faield_hint">Can\'t rate from unknown device</string>
+    <string name="deck_rated_successfully">Deck Rated Successfully</string>
+    <string name="sorry_you_can_t_rate_the_same_deck_twice">Sorry you can\'t rate the same deck twice</string>
 </resources>

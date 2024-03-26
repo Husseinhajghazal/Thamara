@@ -117,4 +117,10 @@
     <string name="offline">بلا اتصال</string>
     <string name="rank_statistics">إحصائيات المستوى</string>
     <string name="now">الآن</string>
+    <string name="plays_statistics">إحصائيات اللعب</string>
+    <string name="wrong_answers">الإجابات الخاطئة</string>
+    <string name="rate_x">تقييم %1$s</string>
+    <string name="unknown_device_rate_faield_hint">لا يمكن التقييم من جهاز غير معروف</string>
+    <string name="deck_rated_successfully">تم تقييم الحزمة بنجاح</string>
+    <string name="sorry_you_can_t_rate_the_same_deck_twice">عذراً لا يمكنك تقييم الحزمة مرتين</string>
 </resources>

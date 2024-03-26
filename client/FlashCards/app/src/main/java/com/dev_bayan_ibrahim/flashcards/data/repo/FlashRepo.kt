@@ -3,6 +3,7 @@ package com.dev_bayan_ibrahim.flashcards.data.repo
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
+import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckWithCardsPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
@@ -68,4 +69,5 @@ interface FlashRepo {
     fun downloadDeckImages(deck: Deck): Flow<DownloadStatus>
     suspend fun downloadDeckImages(id: Long): Flow<DownloadStatus>
     suspend fun getRankChangesStatistics(): List<UserRank>
+    suspend fun getPlaysStatistics(): List<DeckWithCardsPlay>
 }

@@ -19,6 +19,7 @@ interface PlayUiState {
     val cardsAnswers: List<Pair<Card, String?>>
     val correctAnswers: Int
     val showCancelPlayDialog: Boolean
+    val isRateLoading: Boolean
 }
 
 class PlayMutableUiState : PlayUiState {
@@ -28,6 +29,7 @@ class PlayMutableUiState : PlayUiState {
     override val cardsAnswers: SnapshotStateList<Pair<Card, String?>> = mutableStateListOf()
     override var correctAnswers: Int by mutableIntStateOf(0)
     override var showCancelPlayDialog: Boolean by mutableStateOf(false)
+    override var isRateLoading: Boolean by mutableStateOf(false)
 }
 enum class PlayStatus {
     NOT_STARTED,

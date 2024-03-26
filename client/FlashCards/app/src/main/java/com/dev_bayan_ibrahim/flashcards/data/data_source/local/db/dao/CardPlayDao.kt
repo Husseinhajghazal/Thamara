@@ -37,4 +37,5 @@ interface CardPlayDao {
     """
     )
     fun getAnswersOf(startTimeStamp: Long, failed: Boolean): Flow<Int>
+
 }

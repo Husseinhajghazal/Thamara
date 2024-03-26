@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
+import com.dev_bayan_ibrahim.flashcards.ui.util.fromEpochDays
+import com.dev_bayan_ibrahim.flashcards.ui.util.groupByDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,16 +39,33 @@ class StatisticsViewModel @Inject constructor(
 
     fun initScreen() {
         viewModelScope.launch {
-            val ranks = repo.getRankChangesStatistics().groupBy {
-                it.datetime.toLocalDateTime(
-                    TimeZone.currentSystemDefault()
-                ).date.toEpochDays()
+            val ranks = repo.getRankChangesStatistics().groupByDay {
+                it.datetime
             }.mapNotNull {
                 it.value.lastOrNull()
             }
             state.rankStatistics.run {
                 clear()
                 addAll(ranks)
+            }
+
+            val plays = repo.getPlaysStatistics().map {
+                Triple(
+                    it.deckPlay.datetime,
+                    it.successPlays,
+                    it.failedPlays,
+                )
+            }.groupByDay { it.first }.map { (key, value) ->
+                Triple(
+                    first = Instant.fromEpochDays(key),
+                    second = value.sumOf { it.second },
+                    third = value.sumOf { it.third },
+
+                    )
+            }
+            state.playsStatistics.run {
+                clear()
+                addAll(plays)
             }
         }
     }

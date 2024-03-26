@@ -24,7 +24,10 @@ fun PlayRoute(
         PlayScreen(
             modifier = modifier,
             state = playViewModel.state,
-            actions = playViewModel.getUiActions(navigateUp = navigateUp)
+            actions = playViewModel.getUiActions(
+                navigateUp = navigateUp,
+                onShowSnackbarMessage = onShowSnackbarMessage
+            )
         )
     }
 }

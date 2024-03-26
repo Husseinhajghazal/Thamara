@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
+import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.PlaysStatisticsChart
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsChart
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.TimeStatisticsItemsPager
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.viewmodel.StatisticsUiState
@@ -31,6 +32,10 @@ fun StatisticsScreen(
     ) {
         StatisticsItem(label = stringResource(R.string.rank_statistics)) {
             RankStatisticsChart(ranks = state.rankStatistics)
+        }
+
+        StatisticsItem(label = stringResource(R.string.plays_statistics)) {
+            PlaysStatisticsChart(plays = state.playsStatistics)
         }
         TimeStatisticsItemsPager(
             modifier = Modifier,

@@ -20,6 +20,11 @@ interface DeckDao  {
     suspend fun updateDeckOfflineImages(id: Long, offline: Boolean)
 
     @Query("""
+        update decks set rate = :rate, rates = :rates where id = :id
+    """)
+    suspend fun updateDeckRate(id: Long, rate: Float, rates: Int)
+
+    @Query("""
         select * from decks where id = :id
     """)
     suspend fun getDeck(id: Long): DeckHeader?

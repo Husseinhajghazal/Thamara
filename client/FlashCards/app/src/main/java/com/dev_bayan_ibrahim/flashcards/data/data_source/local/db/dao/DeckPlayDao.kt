@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
+import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckWithCardsPlay
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,4 +22,13 @@ interface DeckPlayDao {
     """)
     suspend fun checkDeckFirstPlay(id: Long): Boolean
 
+
+    @Query(
+        """
+        select *
+        from deck_play
+        order by datetime
+    """
+    )
+    suspend fun getAllPlays(): List<DeckWithCardsPlay>
 }

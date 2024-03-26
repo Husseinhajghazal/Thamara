@@ -12,6 +12,7 @@ import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
 import com.dev_bayan_ibrahim.flashcards.data.exception.CardException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckDeserializationException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckException
+import io.ktor.client.plugins.ResponseException
 
 interface FlashSnackbarVisuals {
     fun asSnackbarVisuals(context: Context): SnackbarVisuals
@@ -43,7 +44,25 @@ enum class FlashSnackbarMessages(
         message = R.string.fail_download_deck,
         duration = SnackbarDuration.Short,
         withDismissAction = false
-    )
+    ),
+    UnknownDeviceRateFailed(
+        actionLabel = null,
+        message = R.string.unknown_device_rate_faield_hint,
+        duration = SnackbarDuration.Short,
+        withDismissAction = false
+    ),
+    RateSuccess(
+        actionLabel = null,
+        message = R.string.deck_rated_successfully,
+        duration = SnackbarDuration.Short,
+        withDismissAction = false
+    ),
+    DuplicateRateError(
+        actionLabel = null,
+        message = R.string.sorry_you_can_t_rate_the_same_deck_twice,
+        duration = SnackbarDuration.Short,
+        withDismissAction = false
+    ),
     ;
 
     override fun asSnackbarVisuals(
@@ -112,8 +131,10 @@ fun getThrowableMessage(
 
 fun getThrowableMessage(
     context: Context,
-    throwable: Throwable
-): String = when (throwable) {
+    throwable: Throwable,
+    onStatusCode: (ResponseException) -> String? = { null },
+    specialHandler: (Throwable) -> String? = { null }
+): String = specialHandler(throwable) ?: when (throwable) {
     is CardDeserializationException -> {
         context.getString(R.string.invalid_cards_data)
     }
@@ -134,7 +155,12 @@ fun getThrowableMessage(
         context.getString(R.string.invalid_deck_data)
     }
 
-    else ->  context.getString(R.string.unknown_error)
+    is ResponseException -> {
+        val code = throwable.response.status.value
+        onStatusCode(throwable) ?: getCodeMessage(context, code)
+    }
+
+    else -> context.getString(R.string.unknown_error)
 }
 
 private fun getCodeMessage(

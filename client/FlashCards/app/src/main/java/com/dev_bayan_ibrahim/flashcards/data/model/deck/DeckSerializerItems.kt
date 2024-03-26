@@ -7,7 +7,6 @@ import com.dev_bayan_ibrahim.flashcards.data.model.card.ColorHexSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.descriptors.ClassSerialDescriptorBuilder
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
@@ -42,6 +41,17 @@ fun buildDeckDescriptor(
     } else {
         element("cards", ListSerializer(CardSerializer).descriptor)
     }
+}
+
+
+@OptIn(InternalSerializationApi::class)
+fun buildRateDeckDescriptor(
+) = buildClassSerialDescriptor(
+    "buildRateDeckDescriptor"
+) {
+    element<Long>("id")
+    element<Int>("ratesCount")
+    element<Float>("rate")
 }
 
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)

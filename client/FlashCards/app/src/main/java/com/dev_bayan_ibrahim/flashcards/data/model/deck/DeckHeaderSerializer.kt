@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.data.model.deck
 
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckDeserializationException
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -14,6 +15,7 @@ object DeckHeaderSerializer : KSerializer<DeckHeader> {
         "DeckHeaderSerializer",
         true
     )
+
     override fun deserialize(decoder: Decoder): DeckHeader = deserializeDeck(
         decoder = decoder,
         descriptor = descriptor,
@@ -23,10 +25,52 @@ object DeckHeaderSerializer : KSerializer<DeckHeader> {
     override fun serialize(
         encoder: Encoder,
         value: DeckHeader
-    ) { }
+    ) {
+    }
 }
 
-object CollectionSerializer: KSerializer<String> {
+object DeckHeaderRateSerializer : KSerializer<DeckHeader> {
+    override val descriptor: SerialDescriptor = buildRateDeckDescriptor()
+    override fun deserialize(decoder: Decoder): DeckHeader {
+        var id: Long? = null
+        var rates: Int? = null // rates count
+        var rate: Float? = null // average rate
+
+        decoder.decodeStructure(descriptor) {
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> id = decodeLongElement(descriptor, index)
+                    1 -> rates = decodeIntElement(descriptor, index)
+                    2 -> rate = decodeNullablePrimitive(
+                        descriptor,
+                        index,
+                    ) ?: 0f
+
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("unexpected index $index")
+                }
+            }
+        }
+
+        return DeckHeader(
+            id = id ?: throw DeckDeserializationException("null id"),
+            version = 0,
+            tags = emptyList(),
+            collection = "",
+            name = "",
+            cardsCount = 0,
+            pattern = "",
+            color = 0,
+            level = 0,
+            rates = rates ?: 0,
+            rate = rate ?: 0f,
+        )
+    }
+
+    override fun serialize(encoder: Encoder, value: DeckHeader) {}
+}
+
+object CollectionSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
         "CollectionSerializer"
     ) {
@@ -54,8 +98,5 @@ object CollectionSerializer: KSerializer<String> {
         return name!!
     }
 
-    override fun serialize(encoder: Encoder, value: String) {
-        TODO("Not yet implemented")
-    }
-
+    override fun serialize(encoder: Encoder, value: String) {}
 }

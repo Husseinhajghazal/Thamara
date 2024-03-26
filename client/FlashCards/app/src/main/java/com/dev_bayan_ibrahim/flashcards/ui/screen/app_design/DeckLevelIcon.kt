@@ -25,8 +25,8 @@ import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerp
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
-const val min_level: Int = 1
-const val max_level: Int = 11
+const val min_level: Int = 0
+const val max_level: Int = 10
 
 enum class LevelIconSize(val dp: Dp) {
     BIG(48.dp),

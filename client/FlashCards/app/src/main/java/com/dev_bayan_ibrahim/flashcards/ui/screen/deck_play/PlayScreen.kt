@@ -66,11 +66,13 @@ fun PlayScreen(
             PlayResults(
                 count = state.deck.cards.count(),
                 correctAnswers = state.correctAnswers,
-                bgPattern = state.deck.header.pattern,
-                accent = state.deck.header.colorAccent,
                 incorrectCards = state.cardsAnswers,
+                accent = state.deck.header.colorAccent,
+                bgPattern = state.deck.header.pattern,
+                isRateLoading = state.isRateLoading,
                 onRepeat = actions::onRepeat,
                 onClose = actions::onClose,
+                onRate = actions::onRate,
             )
         }
     }

@@ -12,4 +12,5 @@ interface PlayUiActions {
 
     fun onContinuePlay()
     fun onBackHandlerClick()
+    fun onRate(rate: Int)
 }
