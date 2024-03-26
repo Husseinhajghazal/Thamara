@@ -9,6 +9,7 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckPlayDao
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.RankDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.database.FlashDatabase
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFileManager
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.Endpoint
@@ -72,7 +73,8 @@ class FlashRepoImpl(
     DeckDao by db.getDeckDao(),
     CardDao by db.getCardDao(),
     DeckPlayDao by db.getDeckPlayDao(),
-    CardPlayDao by db.getCardPlayDao() {
+    CardPlayDao by db.getCardPlayDao(),
+    RankDao by db.getRankDao() {
 
 
     private val endpoints: MutableMap<Endpoint, RequestBuilder> = mutableMapOf()
@@ -99,7 +101,10 @@ class FlashRepoImpl(
     override fun getTotalPlaysCount(): Flow<Int> = getDeckPlaysCount()
 
     override fun getUser(): Flow<User?> = preferences.getUser()
-    override suspend fun updateUserRank(newRank: UserRank) = preferences.updateRank(newRank)
+    override suspend fun updateUserRank(newRank: UserRank) {
+        registerRankChange(newRank)
+        preferences.updateRank(newRank)
+    }
 
     override fun getGeneralStatistics(): Flow<GeneralStatistics> {
         return combine(
@@ -344,7 +349,7 @@ class FlashRepoImpl(
         } else {
             finishDownloadDeck(deck.header.id)
             flow {
-                val status = MutableDownloadStatus{}
+                val status = MutableDownloadStatus {}
                 status.finished = true
                 status.success = true
                 emit(status)
@@ -354,18 +359,20 @@ class FlashRepoImpl(
 
 
     override suspend fun downloadDeckImages(id: Long) = downloadDeckImages(getDeckCards(id))
+    override suspend fun getRankChangesStatistics(): List<UserRank> = getRanksStatistics()
+
     override fun downloadDeckImages(deck: Deck) = fileManager.saveDeck(deck).map {
-            it.also {
-                if (it.finished) {
-                    if (it.success) {
-                        finishDownloadDeck(deck.header.id)
-                        updateDeckOfflineImages(deck.header.id, true)
-                    } else {
-                        deleteDownloadingDecks()
-                    }
+        it.also {
+            if (it.finished) {
+                if (it.success) {
+                    finishDownloadDeck(deck.header.id)
+                    updateDeckOfflineImages(deck.header.id, true)
+                } else {
+                    deleteDownloadingDecks()
                 }
             }
         }
+    }
 
     override suspend fun rateDeck(
         id: Long,

@@ -48,7 +48,6 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.util.NewUserDialog
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.UserRankChangeDialog
 import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppUiState
 import com.dev_bayan_ibrahim.flashcards.ui.app.viewmodel.AppViewModel
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.connectivityStatus
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -115,7 +114,7 @@ fun FlashApp(
         }
         val scope = rememberCoroutineScope()
 
-        val connectivityStatus by connectivityStatus()
+        val isOnline by appViewModel.isOnline.collectAsState()
         Scaffold(
             bottomBar = {
                 AnimatedVisibility(
@@ -136,7 +135,7 @@ fun FlashApp(
             }
         ) {
             Column {
-                ConnectivityStatusBar(status = connectivityStatus)
+                ConnectivityStatusBar(isOnline = isOnline)
                 FlashNavGraph(
                     modifier = Modifier
                         .padding(it),

@@ -113,4 +113,6 @@
     <string name="invalid_deck_data">invalid deck data</string>
     <string name="back_online">Back online</string>
     <string name="offline">Offline</string>
+    <string name="rank_statistics">Rank Statistics</string>
+    <string name="now">Now</string>
 </resources>

@@ -66,6 +66,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toFloatRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksFilterTab
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import io.ktor.util.Hash
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.coroutines.launch
 
@@ -76,6 +77,13 @@ interface DecksFilterUiState {
     val orderType: DecksOrderType?
     val ascOrder: Boolean
     val filter: DecksFilter
+
+    fun getValuesKey(query: String): Int {
+        val g = groupType?.ordinal?.inc() ?: 0
+        val o = orderType?.ordinal?.inc() ?: 0
+        val a = if (ascOrder) 1 else 0
+        return Hash.combine(g, o, a, query, filter.hashCode())
+    }
 }
 
 class DecksFilterMutableUiState : DecksFilterUiState {

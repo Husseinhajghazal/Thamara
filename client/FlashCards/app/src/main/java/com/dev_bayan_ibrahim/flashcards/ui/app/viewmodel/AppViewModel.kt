@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.network.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val repo: FlashRepo
+    private val repo: FlashRepo,
+    networkMonitor: NetworkMonitor,
 ) : ViewModel() {
     private val userFlow = repo.getUser()
     val user = userFlow.stateIn(
@@ -30,6 +32,11 @@ class AppViewModel @Inject constructor(
         initialValue = false
     )
 
+    val isOnline = networkMonitor.isOnline.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
     val uiState = AppMutableUiState()
     fun getAppActions(): AppUiActions = object : AppUiActions {
         override fun onNameChange(name: String) {

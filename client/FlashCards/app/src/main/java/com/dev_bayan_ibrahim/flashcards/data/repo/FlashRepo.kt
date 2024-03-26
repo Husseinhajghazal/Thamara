@@ -67,4 +67,5 @@ interface FlashRepo {
     suspend fun deleteDeckImages(id: Long)
     fun downloadDeckImages(deck: Deck): Flow<DownloadStatus>
     suspend fun downloadDeckImages(id: Long): Flow<DownloadStatus>
+    suspend fun getRankChangesStatistics(): List<UserRank>
 }

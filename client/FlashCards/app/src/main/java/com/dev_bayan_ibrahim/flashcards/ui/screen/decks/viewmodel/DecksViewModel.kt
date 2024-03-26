@@ -58,6 +58,7 @@ class DecksViewModel @Inject constructor(
     private var downloadStatus: DownloadStatus? by mutableStateOf(null)
 
 
+    private val lastAppliedFiltersKey = mutableMapOf<DecksTab, Int>()
     fun getDecksActions(
         navigateToDeckPlay: (Long) -> Unit,
         onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
@@ -69,10 +70,7 @@ class DecksViewModel @Inject constructor(
 
         override fun onClickDeck(deck: DeckHeader) {
             state.selectedDeck = deck
-            state.downloadStatus = when (selectedTab) {
-                LIBRARY -> deck.offlineImages.asSimpleDownloadStatus()
-                BROWSE -> SimpleDownloadStatus.NOT_DOWNLOADED
-            }
+            state.downloadStatus = (libraryDecksIds.value[deck.id] ?: false).asSimpleDownloadStatus()
         }
 
         override fun onSearch() {
@@ -234,9 +232,14 @@ class DecksViewModel @Inject constructor(
     }
 
     private fun onApplyFilters() {
-        when (selectedTab) {
-            LIBRARY -> getLibraryDecks()
-            BROWSE -> getBrowseDecks()
+        val lastKey = lastAppliedFiltersKey[selectedTab]
+        val currentKey = appliedFilters.getValuesKey(state.query)
+        if (lastKey != currentKey) {
+            lastAppliedFiltersKey[selectedTab] = currentKey
+            when (selectedTab) {
+                LIBRARY -> getLibraryDecks()
+                BROWSE -> getBrowseDecks()
+            }
         }
     }
 

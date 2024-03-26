@@ -10,27 +10,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
-import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsChart
-import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsStep
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.TimeStatisticsItemsPager
-import java.util.SortedMap
+import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.viewmodel.StatisticsUiState
 
 
 @Composable
 fun StatisticsScreen(
     modifier: Modifier = Modifier,
-    ranks: SortedMap<RankStatisticsStep, UserRank>,
+    state: StatisticsUiState,
     timedStatistics: Map<TimeGroup, TimeStatisticsItem>,
 ) {
     Column(
         modifier = modifier.padding(8.dp),
     ) {
-        StatisticsItem(label = "Rank Statistics") {
-            RankStatisticsChart(ranks = ranks)
+        StatisticsItem(label = stringResource(R.string.rank_statistics)) {
+            RankStatisticsChart(ranks = state.rankStatistics)
         }
         TimeStatisticsItemsPager(
             modifier = Modifier,

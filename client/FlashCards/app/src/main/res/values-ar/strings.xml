@@ -115,4 +115,6 @@
     <string name="invalid_deck_data">معلومات الحزمة غير صالحة</string>
     <string name="back_online">عودة الاتصال</string>
     <string name="offline">بلا اتصال</string>
+    <string name="rank_statistics">إحصائيات المستوى</string>
+    <string name="now">الآن</string>
 </resources>

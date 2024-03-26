@@ -2,19 +2,32 @@ package com.dev_bayan_ibrahim.flashcards.data.model.user
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.dev_bayan_ibrahim.flashcards.R
+import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.converter.InstantConverter
 import com.dev_bayan_ibrahim.flashcards.data.rank_manager.FlashRankManager
 import com.dev_bayan_ibrahim.flashcards.data.util.formatWithChar
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.math.roundToInt
 
+@Entity("ranks")
+@TypeConverters(InstantConverter::class)
 data class UserRank(
     val rank: Int,
     val exp: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long? = null,
+    val datetime: Instant = Clock.System.now()
 ) : Comparable<UserRank> {
-    constructor(floatRank: Float): this (
+    constructor(floatRank: Float) : this(
         rank = floatRank.toInt(),
         exp = (floatRank.mod(1f) * FlashRankManager.requiredExpOfRank(floatRank.toInt())).roundToInt()
     )
+
     companion object Companion {
         val top_rank = 18
         val min_rank = 0
@@ -39,10 +52,16 @@ data class UserRank(
         }
     }
 
+    @Ignore
     val requiredExp = FlashRankManager.requiredExpOfRank(rank)
+
+    @Ignore
     val expPercent: Int = (100f * exp / requiredExp).toInt().coerceIn(0, 100)
 
+    @Ignore
     private var _value: Long? = null
+
+    @get:Ignore
     val value: Long
         get() = _value ?: calculateRankValue(this).also { value -> _value = value }
 
