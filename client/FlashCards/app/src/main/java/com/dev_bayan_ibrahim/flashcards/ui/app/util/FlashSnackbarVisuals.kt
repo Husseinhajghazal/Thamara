@@ -12,7 +12,9 @@ import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
 import com.dev_bayan_ibrahim.flashcards.data.exception.CardException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckDeserializationException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckException
+import com.dev_bayan_ibrahim.flashcards.data.exception.OfflineException
 import io.ktor.client.plugins.ResponseException
+import java.net.UnknownHostException
 
 interface FlashSnackbarVisuals {
     fun asSnackbarVisuals(context: Context): SnackbarVisuals
@@ -47,7 +49,7 @@ enum class FlashSnackbarMessages(
     ),
     UnknownDeviceRateFailed(
         actionLabel = null,
-        message = R.string.unknown_device_rate_faield_hint,
+        message = R.string.unknown_device_rate_failed_hint,
         duration = SnackbarDuration.Short,
         withDismissAction = false
     ),
@@ -158,6 +160,10 @@ fun getThrowableMessage(
     is ResponseException -> {
         val code = throwable.response.status.value
         onStatusCode(throwable) ?: getCodeMessage(context, code)
+    }
+
+    OfflineException, is UnknownHostException -> {
+        context.getString(R.string.no_internet_connection)
     }
 
     else -> context.getString(R.string.unknown_error)

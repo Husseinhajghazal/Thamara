@@ -107,7 +107,7 @@
     <string name="delete">Delete</string>
     <string name="delete_deck">Delete Deck</string>
     <string name="confirm_delete">Confirm Delete</string>
-    <string name="remove_deck_permanentaly_hint">this deck will removed permanently from your library</string>
+    <string name="remove_deck_permanently_hint">this deck will removed permanently from your library</string>
     <string name="remove_deck_images_hint">remove images from storage (deck will still be in library)</string>
     <string name="invalid_cards_data">invalid cards data</string>
     <string name="invalid_deck_data">invalid deck data</string>
@@ -115,10 +115,17 @@
     <string name="offline">Offline</string>
     <string name="rank_statistics">Rank Statistics</string>
     <string name="now">Now</string>
-    <string name="plays_statistics">Plays Statistics</string>
+    <string name="play_correctness_statistics">Cards plays answers statistics</string>
     <string name="wrong_answers">Wrong Answers</string>
     <string name="rate_x">rate %1$s</string>
-    <string name="unknown_device_rate_faield_hint">Can\'t rate from unknown device</string>
+    <string name="unknown_device_rate_failed_hint">Can\'t rate from unknown device</string>
     <string name="deck_rated_successfully">Deck Rated Successfully</string>
     <string name="sorry_you_can_t_rate_the_same_deck_twice">Sorry you can\'t rate the same deck twice</string>
+    <string name="offline_data_with_images">Offline data with images</string>
+    <string name="offline_data_without_images">Offline data without images</string>
+    <string name="download_with_images">Download with Images</string>
+    <string name="download_without_images">Download Without Images</string>
+    <string name="decks_levels_count">Decks levels count</string>
+    <string name="collections">Collections</string>
+    <string name="no_internet_connection">No internet connection</string>
 </resources>

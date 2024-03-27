@@ -14,10 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
@@ -36,6 +41,7 @@ fun RateStars(
     outline: Color = MaterialTheme.colorScheme.onSurface,
     fill: Color = MaterialTheme.colorScheme.primary,
 ) {
+    val layout = LocalLayoutDirection.current
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(size.dp / 8)
@@ -46,6 +52,7 @@ fun RateStars(
                 percent = (rate - it).coerceIn(0f..1f),
                 outline = outline,
                 fill = fill,
+                layout = layout,
             )
         }
     }
@@ -58,6 +65,7 @@ private fun RateStar(
     outline: Color = MaterialTheme.colorScheme.onSurface,
     fill: Color = MaterialTheme.colorScheme.primary,
     percent: Float, // percent 0-1
+    layout: LayoutDirection,
 ) {
     Box(
         modifier = Modifier
@@ -67,13 +75,15 @@ private fun RateStar(
         Icon(
             modifier = Modifier
                 .drawWithContent {
-                    clipRect(
-                        left = 0f,
-                        top = 0f,
-                        bottom = this.size.height,
-                        right = this.size.width * percent
-                    ) {
-                        this@drawWithContent.drawContent()
+                    rtlMirror(layout) {
+                        clipRect(
+                            left = 0f,
+                            top = 0f,
+                            bottom = this.size.height,
+                            right = this.size.width * percent
+                        ) {
+                            this@drawWithContent.drawContent()
+                        }
                     }
                 },
             painter = painterResource(id = R.drawable.rate_star_fill),
@@ -87,6 +97,19 @@ private fun RateStar(
         )
     }
 }
+private fun DrawScope.rtlMirror(
+    layout: LayoutDirection,
+    block: DrawScope.() -> Unit
+) {
+    scale(
+        scaleX = when (layout) {
+            LayoutDirection.Ltr -> 1f
+            LayoutDirection.Rtl -> -1f
+        },
+        scaleY = 1f,
+        block = block,
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -98,8 +121,8 @@ private fun RateStarPreviewLight() {
         ) {
             val fractions = 10
             LazyColumn {
-                items(5 * fractions) {rate ->
-                    Row (
+                items(5 * fractions) { rate ->
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {

@@ -51,6 +51,8 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashLazyRowTooltip
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.LevelIconSize
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.RateStars
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.RateStarsSize
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.max_level
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.min_level
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 import kotlinx.coroutines.launch
@@ -148,7 +150,7 @@ private fun InfoItems(
                 visibleItemsCount = 5,
                 currentItemIndex = level,
                 items = {
-                    items((1..11).toList()) {
+                    items((min_level..max_level).toList()) {
                         DeckLevelIcon(
                             size = LevelIconSize.BIG,
                             level = it,
@@ -254,7 +256,7 @@ private fun BoxScope.HeaderActions(
             message = if (imagesOnly) {
                 stringResource(R.string.remove_deck_images_hint)
             } else {
-                stringResource(R.string.remove_deck_permanentaly_hint)
+                stringResource(R.string.remove_deck_permanently_hint)
             },
             onConfirm = deleteAction,
             onCancel = { deleteImagesOnly = null }
@@ -295,7 +297,7 @@ private fun BoxScope.HeaderActions(
                         onClick = onDownloadImages
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_download_image),
+                            painter = painterResource(id = R.drawable.ic_download_with_image),
                             contentDescription = stringResource(id = R.string.close),
                         )
                     }

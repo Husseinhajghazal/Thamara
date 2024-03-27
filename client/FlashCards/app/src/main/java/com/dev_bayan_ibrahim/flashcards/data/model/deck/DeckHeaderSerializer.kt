@@ -75,7 +75,7 @@ object CollectionSerializer : KSerializer<String> {
         "CollectionSerializer"
     ) {
         element<Long>("id")
-        element<Long>("name")
+        element<String>("name")
     }
 
     override fun deserialize(decoder: Decoder): String {
@@ -87,6 +87,68 @@ object CollectionSerializer : KSerializer<String> {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> id = decodeLongElement(descriptor, index)
                     1 -> name = decodeStringElement(descriptor, index)
+
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("unexpected index $index")
+                }
+            }
+
+        }
+
+        return name!!
+    }
+
+    override fun serialize(encoder: Encoder, value: String) {}
+}
+
+
+object TagSerializer1 : KSerializer<String> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
+        "TagSerializer"
+    ) {
+        element<Long>("id")
+        element<String>("value")
+    }
+
+    override fun deserialize(decoder: Decoder): String {
+        var id: Long? = null
+        var name: String? = null
+
+        decoder.decodeStructure(descriptor) {
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> id = decodeLongElement(descriptor, index)
+                    1 -> name = decodeStringElement(descriptor, index)
+
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("unexpected index $index")
+                }
+            }
+
+        }
+
+        return name!!
+    }
+
+    override fun serialize(encoder: Encoder, value: String) {}
+}
+object TagSerializer2 : KSerializer<String> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
+        "TagSerializer2"
+    ) {
+        element<Long>("deck_id")
+        element<Long>("tag_id")
+    }
+
+    override fun deserialize(decoder: Decoder): String {
+        var id: Long? = null
+        var name: String? = null
+
+        decoder.decodeStructure(descriptor) {
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> id = decodeLongElement(descriptor, index)
+                    1 -> name = decodeLongElement(descriptor, index).toString()
 
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("unexpected index $index")

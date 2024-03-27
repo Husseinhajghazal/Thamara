@@ -2,6 +2,7 @@ package com.dev_bayan_ibrahim.flashcards.ui.app.graph
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -28,6 +29,7 @@ fun FlashNavGraph(
     navActions: FlashNavActions,
     onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit
 ) {
+    val layout = LocalLayoutDirection.current
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -37,16 +39,16 @@ fun FlashNavGraph(
             composable(
                 route = screen.route,
                 enterTransition = {
-                    topNavEnterAnim(screen)
+                    topNavEnterAnim(screen, layout)
                 },
                 exitTransition = {
-                    topNavExitAnim(screen)
+                    topNavExitAnim(screen, layout)
                 },
                 popEnterTransition = {
-                    topNavEnterAnim(screen)
+                    topNavEnterAnim(screen, layout)
                 },
                 popExitTransition = {
-                    topNavExitAnim(screen)
+                    topNavExitAnim(screen, layout)
                 },
             ) {
                 when (screen) {

@@ -19,4 +19,5 @@ interface DecksUiActions: DecksFilterDialogUiActions {
     fun onDeleteDeck(id: Long)
     fun onRemoveDeckImages(id: Long)
     fun onDownloadDeckImages(id: Long)
+    fun onRefresh()
 }

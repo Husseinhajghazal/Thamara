@@ -41,7 +41,7 @@ fun TagsStatisticsChart(
                 pieChartData = getChartData(
                     tags,
                     stringResource(id = R.string.other),
-                    getCharsColors()
+                    getChartsColors()
                 ),
                 pieChartConfig = getChartConfig(),
             )

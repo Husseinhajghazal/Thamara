@@ -16,11 +16,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -87,25 +91,24 @@ private fun BoxScope.DownloadIcon(
     offlineImage: Boolean,
     tint: Color,
 ) {
-    if (offlineImage) {
-        Icon(
-            modifier = Modifier
-                .padding(2.dp)
-                .size(16.dp)
-                .align(Alignment.BottomStart),
-            painter = painterResource(R.drawable.ic_offline_image),
-            contentDescription = "offline_data",
-            tint = tint,
-        )
+    val iconWithDescription by remember {
+        derivedStateOf {
+            if (offlineImage) {
+                R.drawable.ic_offline_image to R.string.offline_data_with_images
+            } else if (offlineData) {
+                R.drawable.ic_no_images to R.string.offline_data_without_images
+            } else null
+        }
     }
-    if (offlineData) {
+
+    iconWithDescription?.let { (icon, description) ->
         Icon(
             modifier = Modifier
                 .padding(2.dp)
                 .size(16.dp)
                 .align(Alignment.BottomEnd),
-            painter = painterResource(R.drawable.ic_offline_data),
-            contentDescription = "offline_data",
+            painter = painterResource(icon),
+            contentDescription = stringResource(id = description),
             tint = tint,
         )
     }

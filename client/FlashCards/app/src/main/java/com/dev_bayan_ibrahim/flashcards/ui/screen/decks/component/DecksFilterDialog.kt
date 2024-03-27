@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -58,6 +59,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroupType
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksOrderType
 import com.dev_bayan_ibrahim.flashcards.data.util.FlashSelectableItem
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.getThrowableMessage
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDropDown
@@ -65,7 +67,10 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashRangeSlider
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toFloatRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksFilterTab
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.dev_bayan_ibrahim.flashcards.ui.util.LoadableContentList
+import com.dev_bayan_ibrahim.flashcards.ui.util.MutableLoadableContentList
 import io.ktor.util.Hash
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.coroutines.launch
@@ -109,7 +114,9 @@ interface DecksFilterDialogUiActions {
     fun onSelectGroupType(groupType: DecksGroupType)
     fun onSelectOrderType(orderType: DecksOrderType)
     fun onSelectTag(tag: String)
-    fun onDeselectAll()
+    fun onDeselectAllTags()
+    fun onSelectCollection(collection: String)
+    fun onDeselectAllCollections()
     fun onApply()
     fun onCancel()
     fun onReset()
@@ -125,6 +132,9 @@ fun DecksFilterDialog(
     modifier: Modifier = Modifier,
     state: DecksFilterUiState,
     dbInfo: DecksDatabaseInfo,
+    selectedTab: DecksTab,
+    allTags: LoadableContentList<String>,
+    allCollections: LoadableContentList<String>,
     actions: DecksFilterDialogUiActions
 
 ) {
@@ -172,34 +182,27 @@ fun DecksFilterDialog(
                         )
 
                         DecksFilterTab.Tag -> {
-                            FilterTags(
-                                modifier = Modifier.fillMaxWidth(),
-                                allTags = dbInfo.allTags,
-                                selectedTags = state.filter.tags,
-                                onSelectTag = actions::onSelectTag,
-                                onDeselectAll = actions::onDeselectAll,
+                            LocalOrRemoteItems(
+                                selectedTab = selectedTab,
+                                label = stringResource(id = R.string.tags),
+                                dbItems = dbInfo.tags,
+                                allItems = allTags,
+                                selectedItems = state.filter.tags,
+                                onSelectItem = actions::onSelectTag,
+                                onDeselectAll = actions::onDeselectAllTags
                             )
                         }
 
-                        DecksFilterTab.Filter -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                FilterRangeSlider(
-                                    label = stringResource(R.string.levels),
-                                    validRange = 0f..10f,
-                                    selectedRange = state.filter.levels?.toFloatRange(),
-                                    onValueChange = actions::onLevelsValueChange
-                                )
-
-                                FilterRangeSlider(
-                                    label = stringResource(id = R.string.rate),
-                                    validRange = 0f..5f,
-                                    selectedRange = state.filter.rate,
-                                    onValueChange = actions::onRateValueChange
-                                )
-                            }
+                        DecksFilterTab.Collection -> {
+                            LocalOrRemoteItems(
+                                selectedTab = selectedTab,
+                                label = stringResource(id = R.string.collections),
+                                dbItems = dbInfo.collections,
+                                allItems = allCollections,
+                                selectedItems = state.filter.collections,
+                                onSelectItem = actions::onSelectCollection,
+                                onDeselectAll = actions::onDeselectAllCollections
+                            )
                         }
                     }
                 }
@@ -224,6 +227,60 @@ fun DecksFilterDialog(
     }
 }
 
+@Composable
+private fun LocalOrRemoteItems(
+    modifier: Modifier = Modifier,
+    label: String,
+    selectedTab: DecksTab,
+    dbItems: Collection<String>,
+    allItems: LoadableContentList<String>,
+    selectedItems: PersistentSet<String>,
+    onSelectItem: (String) -> Unit,
+    onDeselectAll: () -> Unit,
+) {
+    when (selectedTab) {
+        DecksTab.LIBRARY -> {
+            FilterMultipleStringItems(
+                modifier = modifier.fillMaxWidth(),
+                label = label,
+                allItems = dbItems,
+                selectedItems = selectedItems,
+                onSelectItem = onSelectItem,
+                onDeselectAll = onDeselectAll,
+            )
+        }
+
+        DecksTab.BROWSE -> {
+            if (allItems.loading) {
+                Box(
+                    modifier = modifier
+                        .height(40.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = modifier
+                            .size(40.dp)
+                    )
+                }
+            } else {
+                allItems.error?.let {
+                    Text(
+                        text = getThrowableMessage(throwable = it),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                } ?: FilterMultipleStringItems(
+                    modifier = modifier.fillMaxWidth(),
+                    label = label,
+                    allItems = allItems.content,
+                    selectedItems = selectedItems,
+                    onSelectItem = onSelectItem,
+                    onDeselectAll = onDeselectAll,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun FilterTabs(
@@ -297,6 +354,20 @@ private fun DisplayPage(
             )
             Text(stringResource(R.string.asc_order))
         }
+
+        FilterRangeSlider(
+            label = stringResource(R.string.levels),
+            validRange = 0f..10f,
+            selectedRange = state.filter.levels?.toFloatRange(),
+            onValueChange = actions::onLevelsValueChange
+        )
+
+        FilterRangeSlider(
+            label = stringResource(id = R.string.rate),
+            validRange = 0f..5f,
+            selectedRange = state.filter.rate,
+            onValueChange = actions::onRateValueChange
+        )
     }
 }
 
@@ -365,14 +436,15 @@ private fun <T : FlashSelectableItem> FilterDialogItem(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FilterTags(
+private fun FilterMultipleStringItems(
     modifier: Modifier = Modifier,
-    allTags: Set<String>,
-    selectedTags: PersistentSet<String>,
-    onSelectTag: (String) -> Unit,
+    label: String,
+    allItems: Collection<String>,
+    selectedItems: PersistentSet<String>,
+    onSelectItem: (String) -> Unit,
     onDeselectAll: () -> Unit,
 ) {
-    if (allTags.isNotEmpty()) {
+    if (allItems.isNotEmpty()) {
         Column(
             modifier = modifier.fillMaxWidth(),
         ) {
@@ -380,7 +452,7 @@ private fun FilterTags(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = stringResource(id = R.string.tags))
+                Text(text = label)
                 TextButton(onClick = onDeselectAll) {
                     Text(text = stringResource(R.string.deselect))
                 }
@@ -390,12 +462,12 @@ private fun FilterTags(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                allTags.forEach { tag ->
+                allItems.forEach { item ->
                     FilterChip(
-                        selected = tag in selectedTags,
-                        onClick = { onSelectTag(tag) },
+                        selected = item in selectedItems,
+                        onClick = { onSelectItem(item) },
                         label = {
-                            Text(text = tag)
+                            Text(text = item)
                         },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -441,28 +513,23 @@ private fun DecksFilterDialogPreviewLight() {
             DecksFilterDialog(
                 state = DecksFilterMutableUiState(),
                 dbInfo = DecksDatabaseInfo(setOf("tag 1", "tag 2")),
+                selectedTab = DecksTab.LIBRARY,
+                allTags = MutableLoadableContentList(),
+                allCollections = MutableLoadableContentList(),
                 actions = object : DecksFilterDialogUiActions {
                     override fun onSelectGroupType(groupType: DecksGroupType) {}
-
                     override fun onSelectOrderType(orderType: DecksOrderType) {}
-
                     override fun onSelectTag(tag: String) {}
-
-                    override fun onDeselectAll() {}
-
+                    override fun onDeselectAllTags() {}
+                    override fun onSelectCollection(collection: String) {}
+                    override fun onDeselectAllCollections() {}
                     override fun onApply() {}
-
                     override fun onCancel() {}
                     override fun onReset() {}
-
                     override fun onLevelsValueChange(levels: ClosedFloatingPointRange<Float>) {}
-
                     override fun onRateValueChange(rates: ClosedFloatingPointRange<Float>) {}
-
                     override fun onShowDialog() {}
-
                     override fun changeOrderType(asc: Boolean) {}
-
                 }
             )
         }

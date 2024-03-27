@@ -12,5 +12,5 @@ enum class DecksFilterTab (
 ) {
     Display(R.string.display, R.drawable.ic_sort),
     Tag(R.string.tag, R.drawable.ic_tag),
-    Filter(R.string.filter, R.drawable.ic_filter),
+    Collection(R.string.collection, R.drawable.ic_collection),
 }

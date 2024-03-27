@@ -37,6 +37,12 @@ interface FlashRepo {
         groupBy: DecksGroupType?,
         filterBy: DecksFilter?,
         orderBy: DecksOrder?,
+    ): Result<List<DeckHeader>>
+    suspend fun getPaginatedBrowseDecks(
+        query: String,
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?,
     ): Flow<PagingData<DeckHeader>>
 
     suspend fun getDeckCards(id: Long): Deck
@@ -70,4 +76,12 @@ interface FlashRepo {
     suspend fun downloadDeckImages(id: Long): Flow<DownloadStatus>
     suspend fun getRankChangesStatistics(): List<UserRank>
     suspend fun getPlaysStatistics(): List<DeckWithCardsPlay>
+    suspend fun getLeveledDecksCount(): List<Pair<Int, Int>>
+    suspend fun getAllTags(): Result<List<String>>
+    suspend fun getAllCollections(): Result<List<String>>
+    suspend fun List<DeckHeader>.applyDecksFilters(
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?
+    ): Map<DecksGroup, List<DeckHeader>>
 }

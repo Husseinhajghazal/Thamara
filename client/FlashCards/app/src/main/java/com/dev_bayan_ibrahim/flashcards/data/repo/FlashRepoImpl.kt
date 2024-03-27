@@ -15,8 +15,11 @@ import com.dev_bayan_ibrahim.flashcards.data.data_source.local.storage.FlashFile
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.Endpoint
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.endpoint.getEndpoint
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.input.InputField
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldCollectionSerializer
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldDeck
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldRate
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldSerializer
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.io_field.output.OutputFieldTagSerializer
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.paging.FlashPagingSource
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.request_builder.RequestBuilder
 import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.uri_decerator.UriDirector
@@ -44,10 +47,13 @@ import com.dev_bayan_ibrahim.flashcards.data.util.MutableDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksFilter
 import com.dev_bayan_ibrahim.flashcards.data.util.applyDecksOrder
 import com.dev_bayan_ibrahim.flashcards.data.util.shuffle
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.max_level
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.min_level
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
@@ -201,31 +207,26 @@ class FlashRepoImpl(
 
     override suspend fun setUser(name: String, age: Int) = preferences.setUser(name, age)
 
-    override fun getLibraryDecks(
-        query: String,
+    override suspend fun List<DeckHeader>.applyDecksFilters(
         groupBy: DecksGroupType?,
         filterBy: DecksFilter?,
         orderBy: DecksOrder?
-    ): Flow<Map<DecksGroup, List<DeckHeader>>> = when (groupBy) {
-        DecksGroupType.COLLECTION -> getDecks("%$query%").map {
-            it.groupBy {
-                it.collection
-            }.mapKeys { (collection, _) ->
-                DecksGroup.Collection(collection)
-            }
+    ): Map<DecksGroup, List<DeckHeader>> = when (groupBy) {
+        DecksGroupType.COLLECTION -> groupBy {
+            it.collection
+        }.mapKeys { (collection, _) ->
+            DecksGroup.Collection(collection)
         }
 
-        DecksGroupType.LEVEL -> getDecks("%$query%").map {
-            it.groupBy {
-                it.level
-            }.mapKeys { (level, _) ->
-                DecksGroup.Level(level)
-            }
+        DecksGroupType.LEVEL -> groupBy {
+            it.level
+        }.mapKeys { (level, _) ->
+            DecksGroup.Level(level)
         }
 
-        DecksGroupType.TAG -> getDecks("%$query%").map {
+        DecksGroupType.TAG -> {
             val map = mutableMapOf<String, MutableList<DeckHeader>>()
-            it.forEach { deck ->
+            forEach { deck ->
                 deck.tags.forEach { tag ->
                     map[tag]?.add(deck) ?: run { map[tag] = mutableListOf(deck) }
                 }
@@ -235,23 +236,44 @@ class FlashRepoImpl(
             }
         }
 
-        else -> getDecks("%$query%").map {
-            it.groupBy { DecksGroup.None }
-        }
-    }.map { map ->
-        map.mapValues { (_, value) ->
-            value.applyDecksFilter(filterBy)
-                .applyDecksOrder(orderBy)
-                .map {
-                    if (fileManager.imagesOffline(it.id, it.cardsCount)) {
-                        it.copy(offlineImages = true)
-                    } else it
-                }
+        else -> groupBy { DecksGroup.None }
+    }.mapValues { (_, value) ->
+        value.applyDecksFilter(filterBy)
+            .applyDecksOrder(orderBy)
+            .map {
+                if (fileManager.imagesOffline(it.id, it.cardsCount)) {
+                    it.copy(offlineImages = true)
+                } else it
+            }
+    }.filter { (_, value) -> value.isNotEmpty() }
 
-        }.filter { (_, value) -> value.isNotEmpty() }
-    }
+
+    override fun getLibraryDecks(
+        query: String,
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?
+    ): Flow<Map<DecksGroup, List<DeckHeader>>> =
+        getDecks("%$query%").map { it.applyDecksFilters(groupBy, filterBy, orderBy) }
+
 
     override suspend fun getBrowseDecks(
+        query: String,
+        groupBy: DecksGroupType?,
+        filterBy: DecksFilter?,
+        orderBy: DecksOrder?
+    ): Result<List<DeckHeader>> = getEndpointRequest(
+        Endpoint.Deck
+    ) {
+        it.buildGetRequest(
+            input = InputField(),
+            deserializer = OutputFieldSerializer(DeckHeaderSerializer)
+        ).execute().map {
+            it.results
+        }
+    }
+
+    override suspend fun getPaginatedBrowseDecks(
         query: String,
         groupBy: DecksGroupType?,
         filterBy: DecksFilter?,
@@ -320,9 +342,12 @@ class FlashRepoImpl(
         emit(true)
     }
 
-    override fun getDatabaseInfo(): Flow<DecksDatabaseInfo> = getFormattedTags().map { tags ->
+    override fun getDatabaseInfo(): Flow<DecksDatabaseInfo> = getCollections().combine(
+        getFormattedTags()
+    ) { collections, tags ->
         DecksDatabaseInfo(
-            allTags = tags.toSet(),
+            tags = tags.toSet(),
+            collections = collections.toSet()
         )
     }
 
@@ -362,6 +387,24 @@ class FlashRepoImpl(
     override suspend fun downloadDeckImages(id: Long) = downloadDeckImages(getDeckCards(id))
     override suspend fun getRankChangesStatistics(): List<UserRank> = getRanksStatistics()
     override suspend fun getPlaysStatistics(): List<DeckWithCardsPlay> = getAllPlays()
+    override suspend fun getLeveledDecksCount(): List<Pair<Int, Int>> {
+        val levelsCount = (min_level..max_level).associateWith { 0 }.toMutableMap()
+        getDownloadedDecks().first().groupBy { it.level }.forEach {
+            levelsCount[it.key] = it.value.count()
+        }
+        return levelsCount.toList()
+    }
+
+    override suspend fun getAllTags(): Result<List<String>> = getEndpointRequest(
+        Endpoint.Tag
+    ) {
+        it.buildGetRequest(InputField(), OutputFieldTagSerializer).execute().map { it.tags }
+    }
+    override suspend fun getAllCollections(): Result<List<String>> = getEndpointRequest(
+        Endpoint.Collection
+    ) {
+        it.buildGetRequest(InputField(), OutputFieldCollectionSerializer).execute().map { it.collections }
+    }
 
     override fun downloadDeckImages(deck: Deck) = fileManager.saveDeck(deck).map {
         it.also {
@@ -394,9 +437,10 @@ class FlashRepoImpl(
             OutputFieldRate::class.serializer(),
         ).execute().map { it.updatedDeck }.updateDeckOnRate()
     }
+
     private suspend fun Result<DeckHeader>.updateDeckOnRate(): Result<DeckHeader> {
         getOrNull()?.let {
-            updateDeckRate(id = it.id, rate = it.rate, rates = it. rates)
+            updateDeckRate(id = it.id, rate = it.rate, rates = it.rates)
         }
         return this
     }

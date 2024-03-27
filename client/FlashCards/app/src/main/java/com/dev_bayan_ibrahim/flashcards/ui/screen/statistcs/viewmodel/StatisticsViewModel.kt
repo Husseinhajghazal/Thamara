@@ -18,8 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     private val repo: FlashRepo,
-
-    ) : ViewModel() {
+) : ViewModel() {
     val timedStatistics = TimeGroup.entries.map {
         repo.getTimeStatistics(it)
     }.run {
@@ -66,6 +65,11 @@ class StatisticsViewModel @Inject constructor(
             state.playsStatistics.run {
                 clear()
                 addAll(plays)
+            }
+
+            state.decksLevelsStatistics.run {
+                clear()
+                addAll(repo.getLeveledDecksCount())
             }
         }
     }

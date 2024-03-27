@@ -30,6 +30,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.BasicTextFieldBox
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
+import com.dev_bayan_ibrahim.flashcards.ui.util.LoadableContentList
 
 @Composable
 fun DecksTopBar(
@@ -40,6 +41,8 @@ fun DecksTopBar(
 
     query: String,
     dbInfo: DecksDatabaseInfo,
+    allTags: LoadableContentList<String>,
+    allCollections: LoadableContentList<String>,
     onQueryChange: (String) -> Unit,
     onSelectTab: (DecksTab) -> Unit,
     onSearch: () -> Unit,
@@ -55,8 +58,11 @@ fun DecksTopBar(
             modifier = Modifier
                 .padding(horizontal = 8.dp),
             dialogState = dialogState,
+            selectedTab = selected,
             dbInfo = dbInfo,
-            dialogActions = dialogActions
+            dialogActions = dialogActions,
+            allTags = allTags,
+            allCollections = allCollections,
         )
         BarSearch(
             modifier = Modifier
@@ -74,6 +80,9 @@ private fun BarTitle(
     modifier: Modifier = Modifier,
     dbInfo: DecksDatabaseInfo,
     dialogState: DecksFilterUiState,
+    selectedTab: DecksTab,
+    allTags: LoadableContentList<String>,
+    allCollections: LoadableContentList<String>,
     dialogActions: DecksFilterDialogUiActions,
 ) {
     Row(
@@ -98,6 +107,9 @@ private fun BarTitle(
             DecksFilterDialog(
                 state = dialogState,
                 dbInfo = dbInfo,
+                selectedTab = selectedTab,
+                allTags = allTags,
+                allCollections = allCollections,
                 actions = dialogActions
             )
         }

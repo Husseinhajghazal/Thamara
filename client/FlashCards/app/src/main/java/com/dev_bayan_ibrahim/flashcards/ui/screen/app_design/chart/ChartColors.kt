@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.lerpSurface
 
 @Composable
-fun getCharsColors() = listOf(
+fun getChartsColors() = listOf(
     Color.Red,
     Color.Green,
     Color.Blue,

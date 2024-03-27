@@ -5,8 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
+import com.dev_bayan_ibrahim.flashcards.data.data_source.remote.util.result.asSuccessResult
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckNotFoundException
+import com.dev_bayan_ibrahim.flashcards.data.exception.mapUnknownErrorIfOffline
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
@@ -18,6 +19,7 @@ import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.data.util.asSimpleDownloadStatus
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarMessages
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.FlashSnackbarVisuals
+import com.dev_bayan_ibrahim.flashcards.ui.app.util.network.NetworkMonitor
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.toIntRange
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksFilterMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
@@ -38,6 +40,7 @@ import kotlin.coroutines.CoroutineContext
 class DecksViewModel @Inject constructor(
     private val repo: FlashRepo,
     private val filesDispatcher: CoroutineContext,
+    private val networkMonitor: NetworkMonitor,
 ) : ViewModel() {
     val state = DecksMutableUiState()
 
@@ -47,7 +50,7 @@ class DecksViewModel @Inject constructor(
     val dbInfo = repo.getDatabaseInfo().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        DecksDatabaseInfo(allTags = setOf())
+        DecksDatabaseInfo()
     )
     val libraryDecksIds = repo.getLibraryDecksIds().stateIn(
         viewModelScope,
@@ -70,16 +73,17 @@ class DecksViewModel @Inject constructor(
 
         override fun onClickDeck(deck: DeckHeader) {
             state.selectedDeck = deck
-            state.downloadStatus = (libraryDecksIds.value[deck.id] ?: false).asSimpleDownloadStatus()
+            state.downloadStatus =
+                (libraryDecksIds.value[deck.id] ?: false).asSimpleDownloadStatus()
         }
 
         override fun onSearch() {
-            onApplyFilters()
+            onApplyFilters(onShowSnackbarMessage = onShowSnackbarMessage)
         }
 
         override fun onSelectTab(tab: DecksTab) {
             selectedTab = tab
-            onApplyFilters()
+            onApplyFilters(onShowSnackbarMessage = onShowSnackbarMessage)
         }
 
         override fun onDownloadDeck(downloadImages: Boolean) {
@@ -160,6 +164,10 @@ class DecksViewModel @Inject constructor(
             }
         }
 
+        override fun onRefresh() {
+            getBrowseDecks(onShowSnackbarMessage = onShowSnackbarMessage)
+        }
+
         override fun onSelectGroupType(groupType: DecksGroupType) {
             state.filterDialogState.groupType = groupType
         }
@@ -179,14 +187,74 @@ class DecksViewModel @Inject constructor(
             }
         }
 
-        override fun onDeselectAll() {
+        override fun onDeselectAllTags() {
             state.filterDialogState.run {
                 filter = filter.copy(tags = persistentSetOf())
             }
         }
 
+        override fun onSelectCollection(collection: String) {
+            state.filterDialogState.run {
+                val collections = if (collection in (filter.collections)) {
+                    filter.collections.remove(collection)
+                } else {
+                    filter.collections.add(collection)
+                }
+                val newFilter = filter.copy(collections = collections)
+                filter = newFilter
+            }
+        }
+
+        override fun onDeselectAllCollections() {
+            state.filterDialogState.run {
+                filter = filter.copy(collections = persistentSetOf())
+            }
+        }
+
         override fun onShowDialog() {
-            state.filterDialogState.show = true
+            state.run {
+                filterDialogState.show = true
+                viewModelScope.launch {
+                    if (allCollections.needInitialize()) {
+                        allCollections.loading = true
+                        allCollections.error = null
+                        repo.getAllCollections().mapUnknownErrorIfOffline(networkMonitor.isOnline).fold(
+                            onSuccess = {
+                                allCollections.content.run {
+                                    clear()
+                                    addAll(it)
+                                }
+                                allCollections.initialized = true
+                            },
+                            onFailure = {
+                                allCollections.error = it
+                                onShowSnackbarMessage(FlashSnackbarMessages.Factory(it))
+                            },
+                        )
+                        allCollections.loading = false
+                    }
+                }
+                viewModelScope.launch {
+                    if (allTags.needInitialize()) {
+                        allTags.loading = true
+                        allTags.error = null
+                        repo.getAllTags().mapUnknownErrorIfOffline(networkMonitor.isOnline).fold(
+                            onSuccess = {
+                                allTags.content.run {
+                                    clear()
+                                    addAll(it)
+                                }
+                                allTags.initialized = true
+                            },
+                            onFailure = {
+                                allTags.error = it
+                                onShowSnackbarMessage(FlashSnackbarMessages.Factory(it))
+                            },
+                        )
+                        allTags.loading = false
+                    }
+                }
+            }
         }
 
         override fun changeOrderType(asc: Boolean) {
@@ -196,7 +264,7 @@ class DecksViewModel @Inject constructor(
         override fun onApply() {
             state.filterDialogState.show = false
             appliedFilters = state.filterDialogState
-            onApplyFilters()
+            onApplyFilters(onShowSnackbarMessage = onShowSnackbarMessage)
         }
 
         override fun onCancel() {
@@ -231,14 +299,14 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    private fun onApplyFilters() {
+    private fun onApplyFilters(onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit) {
         val lastKey = lastAppliedFiltersKey[selectedTab]
         val currentKey = appliedFilters.getValuesKey(state.query)
         if (lastKey != currentKey) {
             lastAppliedFiltersKey[selectedTab] = currentKey
             when (selectedTab) {
                 LIBRARY -> getLibraryDecks()
-                BROWSE -> getBrowseDecks()
+                BROWSE -> getBrowseDecks(onShowSnackbarMessage = onShowSnackbarMessage)
             }
         }
     }
@@ -266,24 +334,61 @@ class DecksViewModel @Inject constructor(
         }
     }
 
+    private var cachedAllDecks: List<DeckHeader>? = null
+
     private fun getBrowseDecks(
         query: String = state.query,
         groupBy: DecksGroupType? = appliedFilters.groupType,
         filterBy: DecksFilter? = appliedFilters.filter,
         orderBy: DecksOrderType? = appliedFilters.orderType,
         ascOrder: Boolean = appliedFilters.ascOrder,
+        onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit,
     ) {
         viewModelScope.launch {
-            repo.getBrowseDecks(
-                query = query,
-                groupBy = groupBy,
-                filterBy = filterBy,
-                orderBy = orderBy?.toDeckOrder(ascOrder)
-            ).distinctUntilChanged()
-                .cachedIn(viewModelScope)
-                .collect { pagingData ->
-                    state.searchResults.value = pagingData
-                }
+
+            state.searchResults.run {
+                loading = true
+                error = null
+                (cachedAllDecks?.asSuccessResult() ?: repo.getBrowseDecks(
+                    query = query,
+                    groupBy = groupBy,
+                    filterBy = filterBy,
+                    orderBy = orderBy?.toDeckOrder(ascOrder)
+                )).mapUnknownErrorIfOffline(networkMonitor.isOnline).fold(
+                    onSuccess = {
+                        cachedAllDecks = it
+                        content.run {
+                            clear()
+                            with(repo) {
+                                putAll(
+                                    it.applyDecksFilters(
+                                        groupBy = groupBy,
+                                        filterBy = filterBy,
+                                        orderBy = orderBy?.toDeckOrder(ascOrder)
+                                    )
+                                )
+                            }
+                        }
+                        loading = false
+                        initialized = true
+                    },
+                    onFailure = {
+                        loading = false
+                        error = it
+                    },
+                )
+            }
+
+//            repo.getPaginatedBrowseDecks(
+//                query = query,
+//                groupBy = groupBy,
+//                filterBy = filterBy,
+//                orderBy = orderBy?.toDeckOrder(ascOrder)
+//            ).distinctUntilChanged()
+//                .cachedIn(viewModelScope)
+//                .collect { pagingData ->
+//                    state.searchResults.value = pagingData
+//                }
         }
     }
 
@@ -322,7 +427,7 @@ class DecksViewModel @Inject constructor(
         id: Long,
         onShowSnackbarMessage: (FlashSnackbarVisuals) -> Unit
     ): Deck? {
-        return repo.getDeckInfo(id).fold(
+        return repo.getDeckInfo(id).mapUnknownErrorIfOffline(networkMonitor.isOnline).fold(
             onSuccess = {
                 it
             },

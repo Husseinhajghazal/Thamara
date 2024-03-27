@@ -25,8 +25,8 @@ fun buildDeckDescriptor(
 ) {
     element<Long>("id")
     element<Int>("version")
-    element("tags", ListSerializer(String::class.serializer()).descriptor)
-    element("collection", CollectionSerializer.descriptor)
+    element("tags", ListSerializer(CollectionSerializer).descriptor)
+    element("collection", TagSerializer2.descriptor)
 
     element<String>("name")
     element<String>("image_url")
@@ -85,7 +85,7 @@ fun deserializeDeck(
                     decodeSerializableElement(
                         descriptor = descriptor,
                         index = index,
-                        deserializer = ListSerializer(String::class.serializer())
+                        deserializer = ListSerializer(TagSerializer2)
                     )
                 )
 

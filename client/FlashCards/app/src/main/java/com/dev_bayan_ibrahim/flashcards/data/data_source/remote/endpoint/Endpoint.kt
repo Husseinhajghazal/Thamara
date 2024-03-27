@@ -10,7 +10,10 @@ enum class Endpoint(
 ) {
     Deck("deck"),
     Version("deck/version"),
-    Rate("rate")
+    Rate("rate"),
+    Collection("collection"),
+    Tag("tag"),
+
 }
 fun getEndpoint(
     client: HttpClient,

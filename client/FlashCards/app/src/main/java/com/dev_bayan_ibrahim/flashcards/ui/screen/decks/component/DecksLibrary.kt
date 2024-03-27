@@ -29,6 +29,7 @@ import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksGroup
 import com.dev_bayan_ibrahim.flashcards.ui.app.util.getThrowableMessage
 import com.dev_bayan_ibrahim.flashcards.ui.constant.smallCardWidth
+import com.dev_bayan_ibrahim.flashcards.ui.util.LoadableContentMap
 import com.dev_bayan_ibrahim.flashcards.ui.util.asFlashPlural
 import java.util.Objects
 
@@ -73,7 +74,7 @@ fun LazyGridScope.lazyPagingLoadState(
             span = { GridItemSpan(maxLineSpan) }
         ) {
             Column(
-                modifier = Modifier,
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = getThrowableMessage(throwable = loadState.error))
                 OutlinedButton(onClick = retry) {
@@ -86,8 +87,7 @@ fun LazyGridScope.lazyPagingLoadState(
             span = { GridItemSpan(maxLineSpan) }
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 CircularProgressIndicator(modifier = Modifier.size(40.dp))
             }
@@ -98,6 +98,45 @@ fun LazyGridScope.lazyPagingLoadState(
 }
 
 
+
+@Composable
+fun LoadableDecksList(
+    modifier: Modifier = Modifier,
+    decksGroups: LoadableContentMap<DecksGroup, List<DeckHeader>>,
+    libraryDecksIds: Map<Long, Boolean>,
+    onClickDeck: (DeckHeader) -> Unit,
+    onRefresh: () -> Unit,
+) {
+    val totalCount by remember(decksGroups.content) {
+        derivedStateOf {
+            decksGroups.content.map { (_, values) ->
+                values.map { it.id }
+            }.flatten().toSet().count()
+        }
+    }
+    DecksGrid(
+        modifier = modifier,
+    ) {
+        countItem(totalCount)
+        if (decksGroups.loading) {
+            lazyPagingLoadState(LoadState.Loading, retry = {})
+        } else if (decksGroups.error != null) {
+            decksGroups.error?.let { error ->
+                lazyPagingLoadState(LoadState.Error(error), retry = onRefresh)
+            }
+        } else {
+            decksGroups.content.forEach { (group, decks) ->
+                groupTitle(group)
+                deckItems(
+                    decks = decks,
+                    libraryDecksIds = libraryDecksIds,
+                    groupId = group.name,
+                    onClickDeck = onClickDeck
+                )
+            }
+        }
+    }
+}
 @Composable
 fun DecksList(
     modifier: Modifier = Modifier,
@@ -120,6 +159,7 @@ fun DecksList(
             deckItems(
                 decks = decks,
                 groupId = group.name,
+                libraryDecksIds = null,
                 onClickDeck = onClickDeck
             )
         }
@@ -162,6 +202,7 @@ private fun LazyGridScope.deckItem(
 private fun LazyGridScope.deckItems(
     decks: List<DeckHeader>,
     groupId: String? = null,
+    libraryDecksIds: Map<Long, Boolean>?,
     onClickDeck: (DeckHeader) -> Unit,
 ) {
     items(
@@ -171,7 +212,8 @@ private fun LazyGridScope.deckItems(
     ) { deck ->
         DeckItem(
             deckHeader = deck,
-            overrideOfflineData = false,
+            overrideOfflineData = libraryDecksIds?.containsKey(deck.id) ?: false,
+            overrideOfflineImages = libraryDecksIds?.get(deck.id),
         ) { onClickDeck(deck) }
     }
 }

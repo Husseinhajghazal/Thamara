@@ -4,7 +4,6 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.decks
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -16,7 +15,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DownloadDeckDialog
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.LibraryDeckDialog
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.PaginatedDecksList
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.LoadableDecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksUiActions
@@ -43,6 +42,9 @@ fun DecksScreen(
             query = state.query,
             dbInfo = dbInfo,
             selected = DecksTab.entries[pagerState.currentPage],
+            dialogState = state.filterDialogState,
+            allTags = state.allTags,
+            allCollections = state.allCollections,
             onQueryChange = actions::onSearchQueryChange,
             onSelectTab = {
                 actions.onSelectTab(it)
@@ -51,10 +53,9 @@ fun DecksScreen(
                 }
             },
             onSearch = actions::onSearch,
-            dialogState = state.filterDialogState,
             dialogActions = actions,
         )
-        val paginatedDecks = state.searchResults.collectAsLazyPagingItems()
+        val paginatedDecks = state.paginatedSearchResults.collectAsLazyPagingItems()
 
         state.selectedDeck?.let { deckHeader ->
             if (deckHeader.id in libraryDecksIds) {
@@ -89,15 +90,22 @@ fun DecksScreen(
                 }
 
                 DecksTab.BROWSE -> {
-                    PaginatedDecksList(
-                        modifier = Modifier.fillMaxWidth(),
-                        decks = paginatedDecks,
-                        libraryDecksIds = libraryDecksIds,
+                    LoadableDecksList(
+                        decksGroups = state.searchResults,
                         onClickDeck = actions::onClickDeck,
+                        onRefresh = actions::onRefresh,
+                        libraryDecksIds = libraryDecksIds,
                     )
+//                    PaginatedDecksList(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        decks = paginatedDecks,
+//                        libraryDecksIds = libraryDecksIds,
+//                        onClickDeck = actions::onClickDeck,
+//                    )
                 }
             }
         }
     }
 }
+
 

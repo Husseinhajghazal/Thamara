@@ -53,6 +53,10 @@ interface DeckDao  {
         select tags from decks
     """)
     fun getTags(): Flow<List<String>>
+    @Query("""
+        select collection from decks
+    """)
+    fun getCollections(): Flow<List<String>>
 
     @Query("""
         select * from decks where name like :query

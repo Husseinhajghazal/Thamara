@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
+import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.LevelPlayStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.PlaysStatisticsChart
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsChart
-import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.TimeStatisticsItemsPager
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.viewmodel.StatisticsUiState
 
 
@@ -28,19 +30,25 @@ fun StatisticsScreen(
     timedStatistics: Map<TimeGroup, TimeStatisticsItem>,
 ) {
     Column(
-        modifier = modifier.padding(8.dp),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp),
     ) {
         StatisticsItem(label = stringResource(R.string.rank_statistics)) {
             RankStatisticsChart(ranks = state.rankStatistics)
         }
 
-        StatisticsItem(label = stringResource(R.string.plays_statistics)) {
+        StatisticsItem(label = stringResource(R.string.play_correctness_statistics)) {
             PlaysStatisticsChart(plays = state.playsStatistics)
         }
-        TimeStatisticsItemsPager(
-            modifier = Modifier,
-            items = timedStatistics
-        )
+
+        StatisticsItem(label = stringResource(R.string.decks_levels_count)) {
+            LevelPlayStatistics(levels = state.decksLevelsStatistics,)
+        }
+//          TimeStatisticsItemsPager(
+//              modifier = Modifier,
+//              items = timedStatistics
+//        )
     }
 }
 

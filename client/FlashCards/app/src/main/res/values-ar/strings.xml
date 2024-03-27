@@ -109,7 +109,7 @@
     <string name="delete">حذف</string>
     <string name="delete_deck">حذف حزمة</string>
     <string name="confirm_delete">تأكيد الحذف</string>
-    <string name="remove_deck_permanentaly_hint">سيتم إزالة هذه الحزمة نهائياً من المكتبة</string>
+    <string name="remove_deck_permanently_hint">سيتم إزالة هذه الحزمة نهائياً من المكتبة</string>
     <string name="remove_deck_images_hint">إزالة الصور من المكتبة (ستبقى الحزمة ضمن المكتبة)</string>
     <string name="invalid_cards_data">معلومات البطاقات غير صالحة</string>
     <string name="invalid_deck_data">معلومات الحزمة غير صالحة</string>
@@ -117,10 +117,17 @@
     <string name="offline">بلا اتصال</string>
     <string name="rank_statistics">إحصائيات المستوى</string>
     <string name="now">الآن</string>
-    <string name="plays_statistics">إحصائيات اللعب</string>
+    <string name="play_correctness_statistics">إحصائيات صحة إجابات البطاقات</string>
     <string name="wrong_answers">الإجابات الخاطئة</string>
     <string name="rate_x">تقييم %1$s</string>
-    <string name="unknown_device_rate_faield_hint">لا يمكن التقييم من جهاز غير معروف</string>
+    <string name="unknown_device_rate_failed_hint">لا يمكن التقييم من جهاز غير معروف</string>
     <string name="deck_rated_successfully">تم تقييم الحزمة بنجاح</string>
     <string name="sorry_you_can_t_rate_the_same_deck_twice">عذراً لا يمكنك تقييم الحزمة مرتين</string>
+    <string name="offline_data_with_images">داتا محلية مع صور</string>
+    <string name="offline_data_without_images">داتا محلية بدون صور</string>
+    <string name="download_with_images">تنزيل مع الصور</string>
+    <string name="download_without_images">تنزيل بدون الصور</string>
+    <string name="decks_levels_count">عدد مستويات الحزم في المكتبة</string>
+    <string name="collections">المجموعات</string>
+    <string name="no_internet_connection">لا يوجد اتصال بالانترنت</string>
 </resources>

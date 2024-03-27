@@ -94,8 +94,8 @@ private fun DownloadActions(
                 onClick = { onDownload(true) }
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_download_image),
-                    contentDescription = stringResource(R.string.download)
+                    painter = painterResource(id = R.drawable.ic_download_with_image),
+                    contentDescription = stringResource(R.string.download_with_images)
                 )
             }
             FilledIconButton(
@@ -103,8 +103,8 @@ private fun DownloadActions(
                 onClick = { onDownload(false) }
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.download),
-                    contentDescription = stringResource(R.string.download)
+                    painter = painterResource(id = R.drawable.ic_download_wihtout_image),
+                    contentDescription = stringResource(R.string.download_without_images)
                 )
             }
         }

@@ -23,6 +23,7 @@ fun DecksRoute(
     }
 
     val dbInfo by decksViewModel.dbInfo.collectAsState()
+
     val libraryDecksIds by decksViewModel.libraryDecksIds.collectAsState()
 
     DecksScreen(
