@@ -107,9 +107,10 @@ private val dummyCollections by lazy {
 fun generateLargeFakeDecks(
     decksCount: Int = 100,
     cardsForEach: Int = 100,
+    initialDeckId: Long,
 ) = List(decksCount) {
     DeckHeader(
-        id = it.inc().toLong(),
+        id = it.inc().toLong() + initialDeckId,
         tags = dummyTags.randomSublist(),
         collection = dummyCollections.random(),
         name = "deck - no.${it.inc()}",
@@ -119,7 +120,9 @@ fun generateLargeFakeDecks(
         level = Random.nextInt(1, 10),
         rates = Random.nextInt(0, 100_000),
         rate = Random.nextFloat() * 5,
-        creation = Clock.System.now() - Random.nextInt(0, 100).days
+        creation = Clock.System.now() - Random.nextInt(0, 100).days,
+        offlineImages = true,
+        offlineData = true,
     )
 }
 

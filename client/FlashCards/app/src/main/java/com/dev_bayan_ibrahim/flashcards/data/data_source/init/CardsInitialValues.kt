@@ -300,11 +300,12 @@ val dummyImages by lazy {
 fun generateLargeFakeCardsForDeck(
     d: Long,
     cardsForEach: Int = 100,
+    initialDeckId: Long = 0,
 ) = List(cardsForEach) { i2 ->
     val c = i2.inc().toLong()
     Card(
-        id = cardsForEach * d + c,
-        deckId = d.inc(),
+        id = cardsForEach * d.plus(initialDeckId) + c,
+        deckId = d.inc() + initialDeckId,
         index = i2,
         question = "question for card no.$c, of deck no.$d",
         image = dummyImages.random().getLinkOfResDrawable(),
@@ -312,9 +313,9 @@ fun generateLargeFakeCardsForDeck(
             0L -> CardAnswer.TrueFalse(true)
             1L -> CardAnswer.MultiChoice(
                 correctChoice = 1,
-                firstChoice = "choice no.1 for card no.$c, of deck no.$d",
-                secondChoice = "choice no.2 for card no.$c, of deck no.$d",
-                thirdChoice = "choice no.3 for card no.$c, of deck no.$d",
+                firstChoice = "right answer",
+                secondChoice = "wrong answer",
+                thirdChoice = "wrong answer",
             )
 
             else -> CardAnswer.Sentence("answer for card no.$c, of deck no.$d")

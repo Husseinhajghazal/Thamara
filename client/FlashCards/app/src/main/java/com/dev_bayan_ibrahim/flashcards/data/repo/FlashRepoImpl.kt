@@ -2,6 +2,8 @@ package com.dev_bayan_ibrahim.flashcards.data.repo
 
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
+import com.dev_bayan_ibrahim.flashcards.data.data_source.init.generateLargeFakeCardsForDeck
+import com.dev_bayan_ibrahim.flashcards.data.data_source.init.generateLargeFakeDecks
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
@@ -185,8 +187,12 @@ class FlashRepoImpl(
             input = InputField(),
             deserializer = OutputFieldSerializer(DeckHeaderSerializer)
         ).execute().map {
-            it.results
+            it.results.filterInvalidDecks()
         }
+    }
+
+    private suspend fun List<DeckHeader>.filterInvalidDecks(): List<DeckHeader> = filterNot {
+        it.cardsCount == 0  // no cards
     }
 
     override suspend fun getPaginatedBrowseDecks(
@@ -239,21 +245,31 @@ class FlashRepoImpl(
         emit(false)
         fileManager.deleteDecks(getDownloadingDecks())
         deleteDownloadingDecks()
+        if (false) {
 //        if (!preferences.initializedDb()) {
-//            val decksCount = 5_000
-//            val cardsForEachDeck = 15
-//            insertDecks(
-//                generateLargeFakeDecks(decksCount, cardsForEachDeck)
-//            )
-//            repeat(decksCount) {
-//                insertCards(
-//                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
-//                )
-//            }
-////            insertDecks(decksInitialValue)
-////            insertCards(cardsInitialValues.values.flatten())
+            val decksCount = 5_000
+            val cardsForEachDeck = 15
+            val initialDeckId: Long = 100_000_000_000L
+            insertDecks(
+                generateLargeFakeDecks(
+                    decksCount = decksCount,
+                    cardsForEach = cardsForEachDeck,
+                    initialDeckId = initialDeckId
+                )
+            )
+            repeat(decksCount) {
+                insertCards(
+                    generateLargeFakeCardsForDeck(
+                        d = it.toLong(),
+                        cardsForEach = cardsForEachDeck,
+                        initialDeckId = initialDeckId
+                    )
+                )
+            }
+//            insertDecks(decksInitialValue)
+//            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
-//        }
+        }
         emit(true)
     }
 
@@ -315,10 +331,12 @@ class FlashRepoImpl(
     ) {
         it.buildGetRequest(InputField(), OutputFieldTagSerializer).execute().map { it.tags }
     }
+
     override suspend fun getAllCollections(): Result<List<String>> = getEndpointRequest(
         Endpoint.Collection
     ) {
-        it.buildGetRequest(InputField(), OutputFieldCollectionSerializer).execute().map { it.collections }
+        it.buildGetRequest(InputField(), OutputFieldCollectionSerializer).execute()
+            .map { it.collections }
     }
 
     override fun downloadDeckImages(deck: Deck) = fileManager.saveDeck(deck).map {
