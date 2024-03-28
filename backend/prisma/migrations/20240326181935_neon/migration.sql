@@ -84,22 +84,19 @@ CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 CREATE UNIQUE INDEX "Collection_name_key" ON "Collection"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Rate_user_id_key" ON "Rate"("user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Tag_value_key" ON "Tag"("value");
 
 -- AddForeignKey
-ALTER TABLE "Deck" ADD CONSTRAINT "Deck_col_id_fkey" FOREIGN KEY ("col_id") REFERENCES "Collection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Deck" ADD CONSTRAINT "Deck_col_id_fkey" FOREIGN KEY ("col_id") REFERENCES "Collection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Card" ADD CONSTRAINT "Card_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Card" ADD CONSTRAINT "Card_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Rate" ADD CONSTRAINT "Rate_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Rate" ADD CONSTRAINT "Rate_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DeckTag" ADD CONSTRAINT "DeckTag_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DeckTag" ADD CONSTRAINT "DeckTag_deck_id_fkey" FOREIGN KEY ("deck_id") REFERENCES "Deck"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DeckTag" ADD CONSTRAINT "DeckTag_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "Tag"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DeckTag" ADD CONSTRAINT "DeckTag_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;

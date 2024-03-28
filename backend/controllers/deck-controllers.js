@@ -4,6 +4,34 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
+const helper = async (deck) => {
+  const tags = await prisma.deckTag.findMany({
+    where: { deck_id: deck.id },
+    include: {
+      tag: true,
+    },
+  });
+
+  const ratesCounts = deck.rates.length;
+
+  return {
+    id: deck.id,
+    name: deck.name,
+    image_url: deck.image_url,
+    color: deck.color,
+    level: deck.level,
+    version: deck.version,
+    allowShuffle: deck.allowShuffle,
+    tags: tags.map((tag) => tag.tag.value),
+    collection: deck.collection,
+    cardsCount: deck.cards.length,
+    ratesCounts,
+    rate:
+      deck.rates.reduce((total, num) => total + parseInt(num.value), 0) /
+      (ratesCounts == 0 ? 1 : ratesCounts),
+  };
+};
+
 const createDeck = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -32,7 +60,7 @@ const createDeck = async (req, res, next) => {
         image_url,
         color,
         level,
-        col_id,
+        col_id: parseInt(col_id),
         allowShuffle,
         version: 0,
       },
@@ -58,7 +86,6 @@ const getAllDecks = async (req, res, next) => {
       include: {
         rates: true,
         cards: true,
-        tags: true,
         collection: true,
       },
     });
@@ -71,30 +98,16 @@ const getAllDecks = async (req, res, next) => {
     );
   }
 
-  decks = decks.map((deck) => {
-    const ratesCounts = deck.rates.length;
+  let modefiedDecks = [];
 
-    return {
-      id: deck.id,
-      name: deck.name,
-      image_url: deck.image_url,
-      color: deck.color,
-      level: deck.level,
-      version: deck.version,
-      allowShuffle: deck.allowShuffle,
-      tags: deck.tags,
-      collection: deck.collection,
-      cardsCount: deck.cards.length,
-      ratesCounts,
-      rate:
-        deck.rates.reduce((total, num) => total + parseInt(num.value), 0) /
-        (ratesCounts == 0 ? 1 : ratesCounts),
-    };
-  });
+  for (let i = 0; i < decks.length; i++) {
+    const deck = await helper(decks[i]);
+    modefiedDecks.push(deck);
+  }
 
   res.status(201).json({
     message: "تم الحصول على المجموعات",
-    decks,
+    decks: modefiedDecks,
   });
 };
 
@@ -226,7 +239,6 @@ const getOneDeck = async (req, res, next) => {
       include: {
         rates: true,
         cards: true,
-        tags: true,
         collection: true,
       },
     });
@@ -245,6 +257,13 @@ const getOneDeck = async (req, res, next) => {
     );
   }
 
+  const tags = await prisma.deckTag.findMany({
+    where: { deck_id: deck.id },
+    include: {
+      tag: true,
+    },
+  });
+
   const ratesCounts = deck.rates.length;
 
   deck = {
@@ -255,7 +274,7 @@ const getOneDeck = async (req, res, next) => {
     level: deck.level,
     version: deck.version,
     allowShuffle: deck.allowShuffle,
-    tags: deck.tags,
+    tags: tags.map((tag) => tag.tag.value),
     collection: deck.collection,
     cards: deck.cards,
     ratesCounts,

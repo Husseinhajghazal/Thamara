@@ -72,10 +72,10 @@ model Tag {
 }
 
 model DeckTag {
-  deck    Deck @relation(fields: [deck_id], references: [id], onDelete: Cascade)
-  deck_id Int
-  tag     Tag  @relation(fields: [tag_id], references: [id], onDelete: Cascade)
-  tag_id  Int
+  deck     Deck   @relation(fields: [deck_id], references: [id], onDelete: Cascade)
+  deck_id  Int
+  tag      Tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id   Int
 
   @@id([tag_id, deck_id])
 }
