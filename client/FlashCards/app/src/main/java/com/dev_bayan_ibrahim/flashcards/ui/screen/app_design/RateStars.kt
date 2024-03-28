@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
@@ -38,6 +37,7 @@ fun RateStars(
     modifier: Modifier = Modifier,
     size: RateStarsSize = RateStarsSize.BIG,
     rate: Float,
+    rates: Int,
     outline: Color = MaterialTheme.colorScheme.onSurface,
     fill: Color = MaterialTheme.colorScheme.primary,
 ) {
@@ -129,7 +129,8 @@ private fun RateStarPreviewLight() {
                         RateStarsSize.entries.forEach { size ->
                             RateStars(
                                 size = size,
-                                rate = rate / fractions.toFloat()
+                                rate = rate / fractions.toFloat(),
+                                rates = 0
                             )
                         }
                     }

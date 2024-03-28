@@ -129,4 +129,5 @@
     <string name="collections">Collections</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="can_not_find_the_required_deck">Can not find the required deck</string>
+    <string name="rates">rates</string>
 </resources>

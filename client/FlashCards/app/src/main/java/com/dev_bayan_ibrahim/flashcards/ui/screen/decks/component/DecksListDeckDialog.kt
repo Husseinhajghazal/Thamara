@@ -39,11 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.util.SimpleDownloadStatus
+import com.dev_bayan_ibrahim.flashcards.data.util.asFormattedString
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.DeckLevelIcon
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
@@ -96,10 +98,23 @@ fun DecksListDeckDialog(
                 deckHeader = deck,
                 onClick = null
             )
-            Text(
-                text = deck.name,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = deck.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Center,
+                )
+                deck.collection?.let { collection ->
+                    Text(
+                        text = collection,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
             InfoItems(
                 rate = deck.rate,
                 rates = deck.rates,
@@ -128,11 +143,21 @@ private fun InfoItems(
     ) {
         InfoItem(
             modifier = Modifier.fillMaxWidth(),
-            label = stringResource(id = R.string.rate),
+            label = stringResource(
+                id = R.string.rate_x,
+                buildString {
+                    append("(")
+                    append(rates.toLong().asFormattedString())
+                    append(" ")
+                    append(stringResource(R.string.rates))
+                    append(")")
+                }
+            ),
         ) {
             RateStars(
                 size = RateStarsSize.MEDIUM,
                 rate = rate,
+                rates = rates,
                 outline = MaterialTheme.colorScheme.onPrimaryContainer,
                 fill = MaterialTheme.colorScheme.onPrimaryContainer,
             )
@@ -287,11 +312,15 @@ private fun BoxScope.HeaderActions(
                         )
                     }
                 }
+
                 SimpleDownloadStatus.LOADING -> {
-                    CircularProgressIndicator(modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .size(24.dp)
+                    )
                 }
+
                 SimpleDownloadStatus.NOT_DOWNLOADED -> {
                     IconButton(
                         onClick = onDownloadImages
