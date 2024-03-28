@@ -224,7 +224,7 @@ fun PieChart(
 
                         drawIntoCanvas {
                             it.nativeCanvas.withRotation(
-                                degrees = arcCenter % 180 + 180,
+                                degrees = 0f,
                                 pivotX = x,
                                 pivotY = y
                             ) {

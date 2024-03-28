@@ -30,6 +30,7 @@ fun StatisticsScreen(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         StatisticsItem(label = stringResource(R.string.rank_statistics)) {
             RankStatisticsChart(ranks = state.rankStatistics)

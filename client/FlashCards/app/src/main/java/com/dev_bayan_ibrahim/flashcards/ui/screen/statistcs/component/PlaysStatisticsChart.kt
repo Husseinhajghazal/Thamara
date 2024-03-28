@@ -89,7 +89,9 @@ fun PlaysStatisticsChart(
                     yAxisData = yAxisData,
                     isZoomAllowed = false,
                     backgroundColor = Color.Transparent,
-                )
+                    containerPaddingEnd = 50.dp
+                ),
+                initScrollToEnd = true
             )
         }
     } else {

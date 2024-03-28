@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -56,21 +60,23 @@ fun ScrollableCanvasContainer(
     isPinchZoomEnabled: Boolean = true,
     onScroll: () -> Unit = {},
     onZoomInAndOut: () -> Unit = {},
-    scrollOrientation: Orientation = Orientation.Horizontal
+    scrollOrientation: Orientation = Orientation.Horizontal,
+    initScrollToEnd: Boolean = false,
 ) {
-    val scrollOffset = remember { mutableStateOf(0f) }
-    val maxScrollOffset = remember { mutableStateOf(0f) }
-    val xZoom = remember { mutableStateOf(1f) }
+    var scrollInitialized by rememberSaveable { mutableStateOf(false) }
+    val scrollOffset = rememberSaveable { mutableFloatStateOf(0f) }
+    val maxScrollOffset = rememberSaveable { mutableFloatStateOf(0f) }
+    val xZoom = remember { mutableFloatStateOf(1f) }
     val scrollState = rememberScrollableState { delta ->
-        scrollOffset.value -= delta
-        scrollOffset.value = checkAndGetMaxScrollOffset(
-            scrollOffset.value,
-            maxScrollOffset.value
+        scrollOffset.floatValue -= delta
+        scrollOffset.floatValue = checkAndGetMaxScrollOffset(
+            scrollOffset.floatValue,
+            maxScrollOffset.floatValue
         )
         delta
     }
 
-    if (scrollState.isScrollInProgress){
+    if (scrollState.isScrollInProgress) {
         onScroll()
     }
 
@@ -93,23 +99,28 @@ fun ScrollableCanvasContainer(
                 )
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
-                        onPointClicked(it, scrollOffset.value)
+                        onPointClicked(it, scrollOffset.floatValue)
                     })
                 }
                 .pointerInput(Unit) {
                     detectZoomGesture(
                         isZoomAllowed = isPinchZoomEnabled,
                         onZoom = { zoom ->
-                            xZoom.value *= zoom
+                            xZoom.floatValue *= zoom
                             onZoomInAndOut()
                         }
                     )
                 },
-                onDraw = {
-                    maxScrollOffset.value = calculateMaxDistance(xZoom.value)
-                    onDraw(scrollOffset.value, xZoom.value)
-                })
-            drawXAndYAxis(scrollOffset.value, xZoom.value)
+                   onDraw = {
+                       val maxDist = calculateMaxDistance(xZoom.floatValue)
+                       if (maxDist != maxScrollOffset.floatValue || (initScrollToEnd && !scrollInitialized)) {
+                           scrollOffset.floatValue = maxDist
+                           scrollInitialized = true
+                       }
+                       maxScrollOffset.floatValue = maxDist
+                       onDraw(scrollOffset.floatValue, xZoom.floatValue)
+                   })
+            drawXAndYAxis(scrollOffset.floatValue, xZoom.floatValue)
         }
     }
 }

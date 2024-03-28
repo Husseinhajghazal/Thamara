@@ -211,9 +211,10 @@ private fun DrawScope.drawXAxisLabel(
 fun getXAxisScale(
     points: List<Point>,
     steps: Int,
+    extraRightOffset: Float = 0f,
 ): Triple<Float, Float, Float> {
     val xMin = points.takeIf { it.isNotEmpty() }?.minOf { it.x } ?: 0f
-    val xMax = points.takeIf { it.isNotEmpty() }?.maxOf { it.x } ?: 0f
+    val xMax = points.takeIf { it.isNotEmpty() }?.maxOf { it.x }?.plus(extraRightOffset) ?: extraRightOffset
     val totalSteps = (xMax - xMin)
     val temp = totalSteps / steps
     val scale = ceil(temp)

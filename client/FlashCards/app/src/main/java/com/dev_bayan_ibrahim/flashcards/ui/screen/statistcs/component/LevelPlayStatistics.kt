@@ -2,9 +2,11 @@ package com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component
 
 
 import android.content.Context
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -12,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -37,7 +41,7 @@ fun LevelPlayStatistics(
     labelMedium: TextUnit = MaterialTheme.typography.labelMedium.fontSize,
     chartColors: List<Color> = getChartsColors()
 ) {
-    if (levels.isNotEmpty()) {
+    if (levels.isNotEmpty() && levels.sumOf { it.second } > 0) {
         val xAxisData by remember(levels) {
             derivedStateOf {
                 barXAxis(
@@ -50,8 +54,8 @@ fun LevelPlayStatistics(
         val yAxisData by remember(levels) {
             derivedStateOf {
                 barYAxis(
-                    maxValue = levels.maxOf { it.second }.toFloat(),
-                    minValue = levels.minOf { it.second }.toFloat(),
+                    maxValue = levels.maxOfOrNull { it.second }?.toFloat() ?: 0f,
+                    minValue = levels.minOfOrNull{ it.second }?.toFloat() ?: 0f,
                     neutral = neutral,
                 )
             }
@@ -81,6 +85,13 @@ fun LevelPlayStatistics(
                     )
                 ),
             )
+        )
+    } else {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.no_data),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
         )
     }
 }

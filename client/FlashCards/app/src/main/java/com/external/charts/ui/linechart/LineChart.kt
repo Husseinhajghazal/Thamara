@@ -44,7 +44,6 @@ import com.external.charts.axis.getXAxisScale
 import com.external.charts.chartcontainer.container.ScrollableCanvasContainer
 import com.external.charts.common.components.ItemDivider
 import com.external.charts.common.components.accessibility.AccessibilityBottomSheetDialog
-import com.external.charts.common.components.accessibility.CombinedChartInfo
 import com.external.charts.common.components.accessibility.LinePointInfo
 import com.external.charts.common.extensions.RowClip
 import com.external.charts.common.extensions.collectIsTalkbackEnabledAsState
@@ -68,7 +67,7 @@ import kotlinx.coroutines.launch
  * @param lineChartData : Add data related to line chart.
  */
 @Composable
-fun LineChart(modifier: Modifier, lineChartData: LineChartData) {
+fun LineChart(modifier: Modifier, lineChartData: LineChartData, initScrollToEnd: Boolean) {
     val accessibilitySheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -131,6 +130,7 @@ fun LineChart(modifier: Modifier, lineChartData: LineChartData) {
                 },
                 containerBackgroundColor = backgroundColor,
                 isPinchZoomEnabled = isZoomAllowed,
+                initScrollToEnd = initScrollToEnd,
                 drawXAndYAxis = { scrollOffset, xZoom ->
                     YAxis(
                         modifier = Modifier

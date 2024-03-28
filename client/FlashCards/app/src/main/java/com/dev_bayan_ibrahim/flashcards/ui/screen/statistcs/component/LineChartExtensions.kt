@@ -38,7 +38,7 @@ fun <T> daysXAxis(
     neutral: Color,
     getDate: T.() -> Instant
 ) = AxisData.Builder().apply {
-    val count = items.getDaysDiff(getDate)
+    val count = items.getDaysDiff(getDate).inc()
     steps(count)
     val first = getDate(items.first())
     val labels = List(count.inc()) { i ->
@@ -51,6 +51,7 @@ fun <T> daysXAxis(
     axisStepSize(70.dp)
     startDrawPadding(25.dp)
     axisLineColor(neutral)
+    shouldDrawAxisLineTillEnd(true)
     axisLabelColor(neutral)
     backgroundColor(Color.Transparent)
 }.build()

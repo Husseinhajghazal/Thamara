@@ -250,8 +250,8 @@ class FlashRepoImpl(
 //                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
 //                )
 //            }
-//            insertDecks(decksInitialValue)
-//            insertCards(cardsInitialValues.values.flatten())
+////            insertDecks(decksInitialValue)
+////            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
 //        }
         emit(true)

@@ -29,7 +29,6 @@ import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
-import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.UserRankIcon
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.rankIconPainter
 
 
@@ -81,7 +80,6 @@ fun UserRankChangeDialog(
                 style = MaterialTheme.typography.titleMedium,
                 color = color,
             )
-            UserRankIcon(rank = rank.rank, current = false)
             Icon(
                 modifier = Modifier.size(64.dp),
                 painter = rank.rank.rankIconPainter(),
