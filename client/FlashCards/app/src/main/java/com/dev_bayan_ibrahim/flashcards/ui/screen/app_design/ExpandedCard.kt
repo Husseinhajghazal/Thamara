@@ -52,6 +52,7 @@ fun ExpandedCard(
     accent: Color,
     bgPattern: String,
     clickable: Boolean,
+    showContent: Boolean,
     onSelectAnswer: (String) -> Unit,
 ) {
     DeckCard(
@@ -62,31 +63,32 @@ fun ExpandedCard(
         accent = accent,
         enableClick = false
     ) {
-        DynamicAsyncImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(0.25f),
-            imageUrl = bgPattern
-        )
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CardQuestion(question = card.question)
-            CardImage(
-                modifier = Modifier.weight(1f),
-                url = card.image,
+        if (showContent) {
+            DynamicAsyncImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.25f),
+                imageUrl = bgPattern
             )
-            CardAnswer(
-                answer = card.answer,
-                clickable = clickable,
-                onSelectAnswer = onSelectAnswer
-            )
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CardQuestion(question = card.question)
+                CardImage(
+                    modifier = Modifier.weight(1f),
+                    url = card.image,
+                )
+                CardAnswer(
+                    answer = card.answer,
+                    clickable = clickable,
+                    onSelectAnswer = onSelectAnswer
+                )
+            }
         }
     }
-
 }
 
 @Composable
@@ -319,7 +321,8 @@ private fun ExpandedCardPreviewLight() {
                 ),
                 accent = Color.Magenta,
                 bgPattern = "https://drive.google.com/uc?export=download&id=1HiW96HMq-EPMLGvfsfS4Ow2VGZNTJGXt",
-                clickable = true
+                clickable = true,
+                showContent = true
             ) {
 
             }

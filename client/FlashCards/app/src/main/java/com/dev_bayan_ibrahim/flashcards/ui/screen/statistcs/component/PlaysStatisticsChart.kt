@@ -26,6 +26,7 @@ import com.external.charts.ui.linechart.model.LineChartData
 import com.external.charts.ui.linechart.model.LinePlotData
 import kotlinx.datetime.Instant
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.days
 
 @Composable
 fun PlaysStatisticsChart(
@@ -36,7 +37,7 @@ fun PlaysStatisticsChart(
     onBackground: Color = MaterialTheme.colorScheme.onBackground,
     labelMediumSize: TextUnit = MaterialTheme.typography.labelMedium.fontSize,
 ) {
-    if (plays.isNotEmpty()) {
+    if (plays.isNotEmpty() && plays.run { (last().first - first().first) > 3.days }) {
         val xAxisData by remember(plays) {
             derivedStateOf {
                 daysXAxis(
@@ -71,7 +72,7 @@ fun PlaysStatisticsChart(
             modifier = Modifier,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row (
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

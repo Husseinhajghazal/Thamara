@@ -42,7 +42,7 @@ fun barYAxis(
     }
     axisLineColor(neutral)
     axisLabelColor(neutral)
-    startDrawPadding(25.dp)
+    axisOffset(35.dp)
     backgroundColor(Color.Transparent)
 }.build()
 

@@ -74,8 +74,8 @@ private fun getImagePainter(
     painterResource(id = it)
 } ?: rememberAsyncImagePainter(
     model = ImageRequest.Builder(LocalContext.current)
-        .diskCachePolicy(CachePolicy.ENABLED)
-        .memoryCachePolicy(CachePolicy.ENABLED)
+        .diskCachePolicy(CachePolicy.DISABLED)
+        .memoryCachePolicy(CachePolicy.DISABLED)
         .data(imageUrl)
         .build(),
     onState = onState

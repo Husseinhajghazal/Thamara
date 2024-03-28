@@ -22,7 +22,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,6 +29,8 @@ import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashDialog
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.UserRankIcon
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.rankIconPainter
 
 
 @Composable
@@ -80,20 +81,15 @@ fun UserRankChangeDialog(
                 style = MaterialTheme.typography.titleMedium,
                 color = color,
             )
+            UserRankIcon(rank = rank.rank, current = false)
             Icon(
                 modifier = Modifier.size(64.dp),
-                painter = painterResource(
-                    id = if (rise) {
-                        R.drawable.celebration
-                    } else {
-                        R.drawable.sad
-                    }
-                ),
+                painter = rank.rank.rankIconPainter(),
                 contentDescription = null,
                 tint = color,
             )
             Text(
-                text = stringResource(R.string.rank_x, rank.asString()),
+                text = stringResource(R.string.rank_x, rank.asString(false)),
                 style = MaterialTheme.typography.titleSmall,
                 color = color,
             )

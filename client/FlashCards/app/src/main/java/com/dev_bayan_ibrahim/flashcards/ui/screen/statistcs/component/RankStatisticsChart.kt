@@ -35,7 +35,7 @@ fun RankStatisticsChart(
     neutral: Color = MaterialTheme.colorScheme.onBackground,
     labelMediumSize: TextUnit = MaterialTheme.typography.labelMedium.fontSize,
 ) {
-    if (ranks.isNotEmpty()) {
+    if (ranks.isNotEmpty() && ranks.run { (last().datetime - first().datetime) > 3.days }) {
         val xAxisData by remember(ranks) {
             derivedStateOf {
                 daysXAxis(

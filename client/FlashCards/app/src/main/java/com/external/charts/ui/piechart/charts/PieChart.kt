@@ -224,7 +224,9 @@ fun PieChart(
 
                         drawIntoCanvas {
                             it.nativeCanvas.withRotation(
-                                arcCenter, x, y
+                                degrees = arcCenter % 180 + 180,
+                                pivotX = x,
+                                pivotY = y
                             ) {
                                 if (pieChartConfig.labelVisible) {
                                     label = "$label ${proportions[index].roundToInt()}%"

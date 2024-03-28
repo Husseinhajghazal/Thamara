@@ -48,7 +48,7 @@ fun <T> daysXAxis(
     labelData { pointIndex ->
         labels[pointIndex.coerceIn(0, count)]
     }
-    axisStepSize(50.dp)
+    axisStepSize(70.dp)
     startDrawPadding(25.dp)
     axisLineColor(neutral)
     axisLabelColor(neutral)

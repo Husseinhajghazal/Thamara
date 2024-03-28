@@ -12,6 +12,7 @@ import com.dev_bayan_ibrahim.flashcards.data.exception.CardDownloadException
 import com.dev_bayan_ibrahim.flashcards.data.exception.CardException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckDeserializationException
 import com.dev_bayan_ibrahim.flashcards.data.exception.DeckException
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckNotFoundException
 import com.dev_bayan_ibrahim.flashcards.data.exception.OfflineException
 import io.ktor.client.plugins.ResponseException
 import java.net.UnknownHostException
@@ -153,6 +154,9 @@ fun getThrowableMessage(
         context.getString(R.string.invalid_deck_data)
     }
 
+    is DeckNotFoundException -> {
+        context.getString(R.string.can_not_find_the_required_deck)
+    }
     is DeckException -> {
         context.getString(R.string.invalid_deck_data)
     }

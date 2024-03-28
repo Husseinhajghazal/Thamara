@@ -72,19 +72,22 @@ data class UserRank(
     override fun toString(): String = "$rank - $expPercent%"
 
     @Composable
-    fun asString(): String = buildString {
+    fun asString(detailed: Boolean = true): String = buildString {
         append(rank)
         append(" - ")
         append(expPercent)
-        append("%(")
-        append(
-            stringResource(
-                R.string.x_exp_of_y,
-                exp.toLong().formatWithChar(),
-                requiredExp.toLong().formatWithChar()
+        append("%")
+        if (detailed) {
+            append("(")
+            append(
+                stringResource(
+                    R.string.x_exp_of_y,
+                    exp.toLong().formatWithChar(),
+                    requiredExp.toLong().formatWithChar()
+                )
             )
-        )
-        append(")")
+            append(")")
+        }
     }
 
     fun asFloat(): Float = rank + (expPercent / 100f)

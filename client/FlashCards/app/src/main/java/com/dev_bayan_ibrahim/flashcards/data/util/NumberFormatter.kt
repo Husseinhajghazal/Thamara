@@ -39,12 +39,13 @@ fun Long.asFormattedString(
     //    10 000 000 -> 10m
     //   100 000 000 -> 0.1b
     // 1 000 100 000 -> 1b
+    // 610
     val len = absoluteValue.toString().length
     val negative = this < 0
     val groups = len / 3
     val sfx = groupSuffix(groups)
 
-    val power = (groups.dec().times(3) + 2).coerceAtLeast(0)
+    val power = (groups.times(3)).coerceAtLeast(0)
     val factor = pow(10, power).toFloat()
 
     return buildString {

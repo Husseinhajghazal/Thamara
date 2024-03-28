@@ -1,5 +1,6 @@
 package com.dev_bayan_ibrahim.flashcards.data.model.card
 
+import com.dev_bayan_ibrahim.flashcards.data.exception.DeckInvalidColorException
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -7,6 +8,11 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+private val validColorRegex = listOf(
+    Regex("#[0-9abcdefABCDEF]{6}"),
+    Regex("0[xX][0-9abcdefABCDEF]{6}"),
+    Regex("[0-9abcdefABCDEF]{6}"),
+)
 object ColorHexSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
         "ColorHexSerializer",
@@ -16,7 +22,10 @@ object ColorHexSerializer : KSerializer<Int> {
     @OptIn(ExperimentalStdlibApi::class)
     override fun deserialize(decoder: Decoder): Int {
         val key = decoder.decodeString()
-        return key.removePrefix("0X").removePrefix("0x").hexToInt(HexFormat.UpperCase)
+
+        val color =validColorRegex.firstNotNullOfOrNull { it.find(key)?.groupValues?.firstOrNull() } ?: throw DeckInvalidColorException(key)
+
+        return color.uppercase().hexToInt(HexFormat.UpperCase)
     }
 
     override fun serialize(

@@ -55,7 +55,7 @@ fun DeckLevelIcon(
                 .clip(CircleShape)
                 .run { onClickIcon?.let { clickable(onClick = onClickIcon) } ?: this }
                 .then(modifier),
-            painter = level.iconPainter(current),
+            painter = level.levelIconPainter(current),
             contentDescription = stringResource(R.string.level_x, level),
             tint = if (lerpDifficultyLevelColor) {
                 tint.lerp(level.getLevelDifficultyColor(), 0.5f)
@@ -69,7 +69,7 @@ fun DeckLevelIcon(
 
 
 @Composable
-private fun Int.iconPainter(current: Boolean): Painter {
+fun Int.levelIconPainter(current: Boolean): Painter {
     return painterResource(
         id = when (this) {
             0 -> if (current) R.drawable.ic_level_fill_1 else R.drawable.ic_level_outline_1

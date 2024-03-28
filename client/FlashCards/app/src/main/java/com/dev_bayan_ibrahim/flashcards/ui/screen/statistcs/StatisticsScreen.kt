@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.LevelPlayStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.PlaysStatisticsChart
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.RankStatisticsChart
@@ -27,7 +25,6 @@ import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.viewmodel.Statistics
 fun StatisticsScreen(
     modifier: Modifier = Modifier,
     state: StatisticsUiState,
-    timedStatistics: Map<TimeGroup, TimeStatisticsItem>,
 ) {
     Column(
         modifier = modifier
@@ -45,10 +42,6 @@ fun StatisticsScreen(
         StatisticsItem(label = stringResource(R.string.decks_levels_count)) {
             LevelPlayStatistics(levels = state.decksLevelsStatistics,)
         }
-//          TimeStatisticsItemsPager(
-//              modifier = Modifier,
-//              items = timedStatistics
-//        )
     }
 }
 

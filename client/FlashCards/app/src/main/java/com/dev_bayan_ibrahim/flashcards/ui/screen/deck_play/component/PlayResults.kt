@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
-import com.dev_bayan_ibrahim.flashcards.ui.constant.cardRatio
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashSlider
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.IncorrectExpandedCard
 import kotlinx.coroutines.launch
@@ -182,8 +180,8 @@ private fun IncorrectCardsPager(
             )
         }
         HorizontalPager(
-            modifier = Modifier
-                .aspectRatio(cardRatio),
+            modifier = Modifier.weight(1f),
+//                .aspectRatio(cardRatio),
             state = pagerState,
             userScrollEnabled = true,
         ) { i ->
@@ -238,7 +236,7 @@ private fun RateDialog(
             },
             text = {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     repeat(5) { index ->
                         IconButton(
@@ -248,9 +246,9 @@ private fun RateDialog(
                                 painter = painterResource(
                                     id = when (index) {
                                         0 -> if (selected == index.inc()) R.drawable.ic_level_fill_10 else R.drawable.ic_level_outline_10
-                                        1 -> if (selected == index.inc()) R.drawable.ic_level_fill_4 else R.drawable.ic_level_outline_4
-                                        2 -> if (selected == index.inc()) R.drawable.ic_level_fill_3 else R.drawable.ic_level_outline_3
-                                        3 -> if (selected == index.inc()) R.drawable.ic_level_fill_2 else R.drawable.ic_level_outline_2
+                                        1 -> if (selected == index.inc()) R.drawable.ic_level_fill_8 else R.drawable.ic_level_outline_8
+                                        2 -> if (selected == index.inc()) R.drawable.ic_level_fill_5 else R.drawable.ic_level_outline_5
+                                        3 -> if (selected == index.inc()) R.drawable.ic_level_fill_3 else R.drawable.ic_level_outline_3
                                         else -> if (selected == index.inc()) R.drawable.ic_level_fill_1 else R.drawable.ic_level_outline_1
                                     }
                                 ),

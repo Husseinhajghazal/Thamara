@@ -5,8 +5,6 @@ import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
 import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckWithCardsPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
@@ -22,7 +20,6 @@ interface FlashRepo {
     fun getTotalPlaysCount(): Flow<Int>
     fun getUser(): Flow<User?>
     fun getGeneralStatistics(): Flow<GeneralStatistics>
-    fun getTimeStatistics(group: TimeGroup): Flow<TimeStatisticsItem>
     suspend fun setUser (name: String, age: Int)
 
     fun getLibraryDecks(

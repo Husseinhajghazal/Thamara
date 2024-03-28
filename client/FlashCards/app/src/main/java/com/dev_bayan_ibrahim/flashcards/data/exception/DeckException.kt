@@ -14,3 +14,9 @@ open class DeckNotFoundException(
 ) : DeckException(
     "Deck Not found id: $id, search source ${if (searchLocal) "local db" else "server"}"
 )
+
+open class DeckInvalidColorException(
+    val color: String,
+) : DeckException(
+    "Deck has invalid color $color which can not deserialized to hex int"
+)

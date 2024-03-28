@@ -1,10 +1,7 @@
 package com.dev_bayan_ibrahim.flashcards.data.repo
 
-import androidx.compose.ui.text.intl.Locale
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
-import com.dev_bayan_ibrahim.flashcards.data.data_source.init.cardsInitialValues
-import com.dev_bayan_ibrahim.flashcards.data.data_source.init.decksInitialValue
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
@@ -31,11 +28,6 @@ import com.dev_bayan_ibrahim.flashcards.data.model.play.CardPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.play.DeckWithCardsPlay
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.DAY
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.MONTH
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeGroup.WEEK
-import com.dev_bayan_ibrahim.flashcards.data.model.statistics.TimeStatisticsItem
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
 import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
 import com.dev_bayan_ibrahim.flashcards.data.util.DecksFilter
@@ -56,17 +48,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atTime
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toKotlinLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
-import kotlin.time.Duration.Companion.days
 
 @OptIn(InternalSerializationApi::class)
 class FlashRepoImpl(
@@ -117,38 +101,10 @@ class FlashRepoImpl(
         return combine(
             getAnswersOf(0, false),
             getAnswersOf(0, true),
-            getFormattedTags().map {
-                val tags = mutableMapOf<String?, Int>()
-                it.forEach { tag ->
-                    tags[tag] = 1 + (tags[tag] ?: 0)
-                }
-
-                val top10 = tags.toList().sortedByDescending {
-                    it.second
-                }.subList(
-                    fromIndex = 0,
-                    toIndex = minOf(0, tags.count())
-                ).mapNotNull { it.first }.toSet()
-
-                var others = 0
-                tags.forEach { (tag, count) ->
-                    if (!top10.contains(tag)) {
-                        others += count
-                    }
-                }
-                tags[null] = others
-
-                tags
-            },
-            getDecksCount(),
-            getCardsCount(),
-        ) { correctAns, failedAns, tags, decks, cards ->
+        ) { correctAns, failedAns ->
             GeneralStatistics(
                 correctAnswers = correctAns,
                 failedAnswers = failedAns,
-                tags = tags,
-                totalDecksCount = decks,
-                totalCardsCount = cards
             )
         }
     }
@@ -164,46 +120,6 @@ class FlashRepoImpl(
         updateDeckOfflineImages(id, false)
     }
 
-
-    override fun getTimeStatistics(
-        group: TimeGroup
-    ): Flow<TimeStatisticsItem> {
-        Locale
-        val timeZone = TimeZone.currentSystemDefault()
-        val now = Clock.System.now().toLocalDateTime(timeZone)
-        val startTimeStamp = when (group) {
-            DAY -> now.date.atTime(0, 0).toInstant(timeZone)
-            WEEK -> {
-                val sat = DayOfWeek.SATURDAY
-                val dates = (now.date.dayOfWeek.value.plus(7) - sat.value).mod(7)
-                (now.date.atTime(0, 0).toInstant(timeZone) - dates.days)
-            }
-
-            MONTH -> java.time.LocalDate.of(
-                now.date.year,
-                now.date.month,
-                1
-            ).atTime(0, 0)
-                .toKotlinLocalDateTime()
-                .toInstant(timeZone)
-        }.toEpochMilliseconds()
-
-        return combine(
-            getPlaysCountAfter(startTimeStamp),
-            getDecksCountAfter(startTimeStamp),
-            getCardsCountAfter(startTimeStamp),
-            getAnswersOf(startTimeStamp, false),
-            getAnswersOf(startTimeStamp, true)
-        ) { plays, decks, cards, correct, failed ->
-            TimeStatisticsItem(
-                plays = plays,
-                decksCount = decks,
-                cardsCount = cards,
-                correctAnswers = correct,
-                incorrectAnswers = failed
-            )
-        }
-    }
 
     override suspend fun setUser(name: String, age: Int) = preferences.setUser(name, age)
 
@@ -324,9 +240,8 @@ class FlashRepoImpl(
         fileManager.deleteDecks(getDownloadingDecks())
         deleteDownloadingDecks()
 //        if (!preferences.initializedDb()) {
-        if (false) {
-//            val decksCount = 10
-//            val cardsForEachDeck = 50
+//            val decksCount = 5_000
+//            val cardsForEachDeck = 15
 //            insertDecks(
 //                generateLargeFakeDecks(decksCount, cardsForEachDeck)
 //            )
@@ -335,10 +250,10 @@ class FlashRepoImpl(
 //                    generateLargeFakeCardsForDeck(it.toLong(), cardsForEachDeck)
 //                )
 //            }
-            insertDecks(decksInitialValue)
-            insertCards(cardsInitialValues.values.flatten())
+//            insertDecks(decksInitialValue)
+//            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
-        }
+//        }
         emit(true)
     }
 

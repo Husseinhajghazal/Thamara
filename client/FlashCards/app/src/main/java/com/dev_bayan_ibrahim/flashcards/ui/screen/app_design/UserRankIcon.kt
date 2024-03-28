@@ -58,7 +58,7 @@ fun UserRankIcon(
                 .clip(CircleShape)
                 .run { onClickIcon?.let { clickable(onClick = onClickIcon) } ?: this }
                 .then(modifier),
-            painter = rank.iconPainter(current),
+            painter = rank.rankIconPainter(),
             contentDescription = null,
             tint = if (current) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
         )
@@ -72,7 +72,7 @@ fun UserRankIcon(
 }
 
 @Composable
-private fun Int.iconPainter(current: Boolean): Painter {
+fun Int.rankIconPainter(): Painter {
     return painterResource(
         id = when (this) {
             0 -> R.drawable.ic_rank_0

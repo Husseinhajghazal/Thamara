@@ -130,4 +130,5 @@
     <string name="decks_levels_count">عدد مستويات الحزم في المكتبة</string>
     <string name="collections">المجموعات</string>
     <string name="no_internet_connection">لا يوجد اتصال بالانترنت</string>
+    <string name="can_not_find_the_required_deck">لا يمكن إيجاد الحزمة المطلوبة</string>
 </resources>

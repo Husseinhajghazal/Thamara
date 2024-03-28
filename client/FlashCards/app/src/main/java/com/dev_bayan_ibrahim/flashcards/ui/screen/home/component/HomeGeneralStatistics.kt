@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
 import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
 import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.chart.AccuracyAvgChart
-import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.chart.TagsStatisticsChart
 import com.dev_bayan_ibrahim.flashcards.ui.screen.statistcs.component.StatisticsItem
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 
@@ -47,15 +46,6 @@ fun HomeGeneralStatistics(
                 failedAnswers = statistics.failedAnswers
             )
         }
-        StatisticsItem(
-            modifier = Modifier.fillMaxWidth(),
-            label = stringResource(R.string.tags),
-        ) {
-            TagsStatisticsChart(
-                modifier = Modifier.fillMaxWidth(0.5f),
-                tags = statistics.tags
-            )
-        }
     }
 }
 
@@ -69,15 +59,8 @@ private fun HomeGeneralStatisticsPreviewLight() {
         ) {
             HomeGeneralStatistics(
                 statistics = GeneralStatistics(
-                    tags = mapOf(
-                        "tag 1" to 1,
-                        "tag 2" to 100,
-                        "tag 3" to 10000
-                    ),
                     correctAnswers = 10,
                     failedAnswers = 10,
-                    totalDecksCount = 100_000,
-                    totalCardsCount = 1_000_000
                 )
             )
         }

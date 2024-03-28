@@ -7,9 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -32,9 +30,6 @@ fun DecksQueue(
     currentIndex: Int,
     onSelectAnswer: (String) -> Unit,
 ) {
-    val reversedIndex by remember(currentIndex) {
-        derivedStateOf { deck.header.cardsCount.dec() - currentIndex }
-    }
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -65,6 +60,7 @@ fun DecksQueue(
                         card = card,
                         accent = deck.header.colorAccent,
                         bgPattern = deck.header.pattern,
+                        showContent = i - currentIndex in -1..1,
                         clickable = rotationAnimatable == 0f && i == currentIndex,
                         onSelectAnswer = onSelectAnswer
                     )

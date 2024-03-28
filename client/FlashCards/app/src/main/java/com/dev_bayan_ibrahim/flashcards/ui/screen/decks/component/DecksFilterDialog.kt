@@ -319,8 +319,8 @@ private fun DisplayPage(
     actions: DecksFilterDialogUiActions,
 ) {
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
         FilterSection(title = stringResource(R.string.group_by)) {
