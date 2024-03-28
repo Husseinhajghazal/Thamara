@@ -9,10 +9,10 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 private val validColorRegex = listOf(
-    Regex("#[0-9abcdefABCDEF]{6}"),
-    Regex("0[xX][0-9abcdefABCDEF]{6}"),
-    Regex("[0-9abcdefABCDEF]{6}"),
+    Regex("([0-9abcdefABCDEF]{8})"),
+    Regex("([0-9abcdefABCDEF]{6})"),
 )
+
 object ColorHexSerializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
         "ColorHexSerializer",
@@ -23,7 +23,15 @@ object ColorHexSerializer : KSerializer<Int> {
     override fun deserialize(decoder: Decoder): Int {
         val key = decoder.decodeString()
 
-        val color =validColorRegex.firstNotNullOfOrNull { it.find(key)?.groupValues?.firstOrNull() } ?: throw DeckInvalidColorException(key)
+        val color = validColorRegex.firstNotNullOfOrNull {
+            it.find(key)?.value?.run {
+                if (length == 6) {
+                    "FF$this"
+                } else {
+                    this
+                }
+            }
+        } ?: throw DeckInvalidColorException(key)
 
         return color.uppercase().hexToInt(HexFormat.UpperCase)
     }
@@ -31,5 +39,6 @@ object ColorHexSerializer : KSerializer<Int> {
     override fun serialize(
         encoder: Encoder,
         value: Int
-    ) {}
+    ) {
+    }
 }

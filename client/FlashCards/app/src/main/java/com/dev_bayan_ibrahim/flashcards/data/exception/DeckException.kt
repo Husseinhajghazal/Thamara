@@ -18,5 +18,5 @@ open class DeckNotFoundException(
 open class DeckInvalidColorException(
     val color: String,
 ) : DeckException(
-    "Deck has invalid color $color which can not deserialized to hex int"
+    "Deck has invalid color \'$color\' which can not deserialized to hex int"
 )

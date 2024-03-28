@@ -37,7 +37,7 @@ data class DeckHeader(
     val name: String = "",
     val cardsCount: Int = 0,
     val pattern: String = "", // url for an image
-    val color: Int = 0xFFFFFF,
+    val color: Int = 0xFFFFFFFF.toInt(),
     val level: Int = 0,
     val rates: Int = 0, // rates count
     val rate: Float = 0f, // average rate
