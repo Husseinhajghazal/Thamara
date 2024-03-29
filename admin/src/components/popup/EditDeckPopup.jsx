@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { levels } from "../../Data/levels";
 
-const DeckPopup = () => {
+const EditDeckPopup = ({
+  id,
+  oldName,
+  oldColor,
+  oldLevel,
+  oldAllowShuffle,
+  oldCol_id,
+}) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("#000000");
   const [level, setLevel] = useState(1);
   const [allowShuffle, setAllowShuffle] = useState(false);
   const [col_id, setCol_id] = useState(0);
+
+  useEffect(() => {
+    setName(oldName);
+    setColor(oldColor);
+    setLevel(oldLevel);
+    setAllowShuffle(oldAllowShuffle);
+    setCol_id(oldCol_id);
+  }, []);
 
   const [collections, setCollections] = useState([]);
 
@@ -18,15 +33,13 @@ const DeckPopup = () => {
       },
     })
       .then((response) => response.json())
-      .then((data) => {
-        setCollections(data.collections);
-      });
+      .then((data) => setCollections(data.collections));
   }, []);
 
   const handleSumbit = async (e) => {
     e.preventDefault();
-    fetch("https://one18-team.onrender.com/deck", {
-      method: "POST",
+    fetch("https://one18-team.onrender.com/deck/" + id, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,6 +70,7 @@ const DeckPopup = () => {
         />
         <select
           onChange={(e) => setCol_id(e.target.value)}
+          value={col_id}
           className="focus:outline-none border-2 w-[500px] p-3 rounded-lg focus:border-green-500 hover:border-green-500 duration-300"
         >
           <option value={0}>أختر الكولكشن</option>
@@ -86,7 +100,7 @@ const DeckPopup = () => {
             منع الخربطة
           </button>
         </div>
-        <p dir="rtl">أختر المستوى المناسب من 10 :</p>
+        <p dir="rtl">أختر مستوى الصعوبة المناسب من 10 :</p>
         <div className="flex gap-2 justify-center">
           {levels.map((e, index) => (
             <button
@@ -108,11 +122,11 @@ const DeckPopup = () => {
           className="focus:outline-none border-2 w-[500px] h-8 rounded-lg focus:border-green-500 hover:border-green-500 duration-300"
         />
         <button className="bg-green-500 text-white mx-auto px-6 py-2 rounded-md">
-          Create
+          Edit
         </button>
       </form>
     </div>
   );
 };
 
-export default DeckPopup;
+export default EditDeckPopup;

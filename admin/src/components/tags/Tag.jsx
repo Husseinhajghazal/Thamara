@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { MdDelete, MdEditSquare } from "react-icons/md";
 import Background from "../popup/Background";
-import EditCollectionPopup from "../popup/EditCollectionPopup";
+import EditTagPopup from "../popup/EditTagPopup";
 
-const Collection = ({ name, id }) => {
+const Tag = ({ name, id }) => {
   const [show, setShow] = useState(false);
   const toggleShow = () => setShow(!show);
   const deleteCollection = () => {
-    fetch("https://one18-team.onrender.com/deck/" + id, {
+    fetch("https://one18-team.onrender.com/tag/" + id, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -33,9 +33,9 @@ const Collection = ({ name, id }) => {
         </div>
       </div>
       {show && <Background toggleShow={toggleShow} />}
-      {show && <EditCollectionPopup oldName={name} id={id} />}
+      {show && <EditTagPopup oldName={name} id={id} />}
     </React.Fragment>
   );
 };
 
-export default Collection;
+export default Tag;

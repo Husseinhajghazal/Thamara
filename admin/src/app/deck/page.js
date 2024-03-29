@@ -1,12 +1,12 @@
-import CollectionsList from "../../components/decks/CollectionsList";
-import Head from "../../components/decks/DeckHead";
+import DecksList from "../../components/decks/DecksList";
+import DeckHead from "../../components/decks/DeckHead";
 import React from "react";
 
 const page = () => {
   return (
     <div className="p-5 w-full">
-      <Head />
-      <CollectionsList />
+      <DeckHead />
+      <DecksList />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { BsCollection } from "react-icons/bs";
-import { FaTag } from "react-icons/fa";
+import { FaTag, FaLink } from "react-icons/fa";
 import { GiCardBurn } from "react-icons/gi";
 import { GiCardAceSpades } from "react-icons/gi";
 
@@ -24,6 +24,10 @@ const sidebarItems = [
   {
     icon: <GiCardAceSpades />,
     link: "/deck",
+  },
+  {
+    icon: <FaLink />,
+    link: "/link",
   },
 ];
 

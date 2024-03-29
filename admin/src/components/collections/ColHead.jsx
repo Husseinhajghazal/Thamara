@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import CollectionPopup from "../popup/CollectionPopup";
 import Background from "../popup/Background";
+import Button from "../Button";
 
 const ColHead = () => {
   const [show, setShow] = useState(false);
@@ -12,12 +13,7 @@ const ColHead = () => {
   return (
     <React.Fragment>
       <div className="w-full text-right">
-        <button
-          onClick={toggleShow}
-          className="bg-green-500 text-white px-6 py-2 rounded-lg"
-        >
-          Add New
-        </button>
+        <Button toggleShow={toggleShow} text="أضف مجموعة جديدة" />
       </div>
       {show && <Background toggleShow={toggleShow} />}
       {show && <CollectionPopup />}

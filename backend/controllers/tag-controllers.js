@@ -205,8 +205,9 @@ const disconnectTag = async (req, res, next) => {
       },
     });
   } catch (e) {
+    console.log(e);
     return next(
-      new NewError("حصلت مشكلة أثناء الربط, الرجاء المحاولة لاحقا", 500)
+      new NewError("حصلت مشكلة أثناء الفصل, الرجاء المحاولة لاحقا", 500)
     );
   }
 
@@ -223,7 +224,7 @@ const disconnectTag = async (req, res, next) => {
     });
   } catch (e) {
     return next(
-      new NewError("حصلت مشكلة أثناء الربط, الرجاء المحاولة لاحقا", 500)
+      new NewError("حصلت مشكلة أثناء الفصل, الرجاء المحاولة لاحقا", 500)
     );
   }
 
