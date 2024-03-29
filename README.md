@@ -22,7 +22,7 @@ Welcome to our dashboard! Here, you can easily manage application data:
 - **Cards:** Store valuable information.
 - **Tags:** Categorize and search data easily.
 
-we've used nextjs 14.
+we've used next.js 14.
 
 Check out our dashboard [here](https://admin-pi-nine.vercel.app/) to visualize and manage your data effortlessly! 🚀
 
@@ -30,5 +30,7 @@ Check out our dashboard [here](https://admin-pi-nine.vercel.app/) to visualize a
 # Backend
 
 Our backend contains all the APIs that allow interaction with the database from the dashboard and application.
+
+we've used node.js with express.js
 
 Backend URL: [https://one18-team.onrender.com](https://one18-team.onrender.com)
