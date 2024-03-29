@@ -16,7 +16,6 @@ const CardsList = () => {
       .then((response) => response.json())
       .then((data) => {
         setCards(data.cards.map((card) => ({ ...card, deck: card.deck.name })));
-        console.log(data.cards);
       });
   }, []);
 

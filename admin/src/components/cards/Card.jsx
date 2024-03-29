@@ -31,10 +31,7 @@ const Card = ({
     <React.Fragment>
       <div className="shadow-md bg-white rounded-lg p-4 flex flex-col items-center gap-3">
         <div className="w-full h-[200px] overflow-hidden">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/a/ac/NewTux.png"
-            className="object-contain h-full w-full"
-          />
+          <img src={image_url} className="object-contain h-full w-full" />
         </div>
         <div className="bg-gray-200 w-full p-2 rounded-md">
           <div className="flex items-center gap-1">
