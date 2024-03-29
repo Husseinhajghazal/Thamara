@@ -5,6 +5,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -65,13 +66,26 @@ sealed interface CardAnswer {
     }
 
     @Serializable
-    data class Sentence(val answer: String) : CardAnswer
+    data class Sentence(val answer: String) : CardAnswer {
+        @Transient
+        private val answerLanguage  = InitialLanguages.languageOf(answer)
+        @Transient
+        private val normalizedAnswer = answerLanguage.interchangableCharacters.mapToFirstOfGroup(answer.trim())
+        override fun checkIfCorrect(answer: String): Boolean {
+            val notIgnorable = answer.filterNot {
+                it in answerLanguage.ignorableCharacters
+            }.trim()
+            val normalized = answerLanguage.interchangableCharacters.mapToFirstOfGroup(notIgnorable)
+
+            return normalized == normalizedAnswer
+        }
+    }
 
     fun checkIfCorrect(answer: String): Boolean = when (this) {
         is Info -> true
         is MultiChoice -> answer == correctChoice
         is TrueFalse -> answer == this.answer.toString()
-        is Sentence -> answer == this.answer
+        is Sentence -> checkIfCorrect(answer)
     }
 }
 

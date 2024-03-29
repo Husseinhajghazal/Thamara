@@ -41,12 +41,12 @@ private val kaabaKey by lazy { R.drawable.img_kaaba }
 private val moonKey by lazy { R.drawable.img_moon }
 
 
-
 private var id: Long = 0L
     get() {
         id = field.inc()
         return field
     }
+
 private fun nextCardId(): Long {
     id += 1
     return id
@@ -303,11 +303,16 @@ fun generateLargeFakeCardsForDeck(
     initialDeckId: Long = 0,
 ) = List(cardsForEach) { i2 ->
     val c = i2.inc().toLong()
+    val question = if (c % 3 == 2L) {
+        possibleAnswers.random()
+    } else {
+        "question for card no.$c, of deck no.$d"
+    }
     Card(
         id = cardsForEach * d.plus(initialDeckId) + c,
         deckId = d.inc() + initialDeckId,
         index = i2,
-        question = "question for card no.$c, of deck no.$d",
+        question = question,
         image = dummyImages.random().getLinkOfResDrawable(),
         answer = when (c % 3) {
             0L -> CardAnswer.TrueFalse(true)
@@ -318,7 +323,9 @@ fun generateLargeFakeCardsForDeck(
                 thirdChoice = "wrong answer",
             )
 
-            else -> CardAnswer.Sentence("answer for card no.$c, of deck no.$d")
+            else -> CardAnswer.Sentence(question)
         }
     )
 }
+
+private val possibleAnswers = listOf("answer", "إجابة")
