@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id         Int    @id @default(autoincrement())
+  first_name String
+  last_name  String
+  email      String @unique
+  password   String
+}
+
+model Collection {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  decks Deck[]
+}
+
+model Deck {
+  id           Int        @id @default(autoincrement())
+  name         String
+  image_url    String
+  color        String
+  level        Int
+  version      Int        @default(0)
+  allowShuffle Boolean
+  collection   Collection @relation(fields: [col_id], references: [id], onDelete: Cascade)
+  col_id       Int
+  rates        Rate[]
+  cards        Card[]
+  tags         DeckTag[]
+}
+
+model Card {
+  id              Int        @id @default(autoincrement())
+  question        String
+  image_url       String
+  answer_type     AnswerType
+  right_answer_tf Boolean?
+  right_answer_mc String?
+  right_answer_s  String?
+  mc_choice_1     String?
+  mc_choice_2     String?
+  mc_choice_3     String?
+  deck            Deck       @relation(fields: [deck_id], references: [id], onDelete: Cascade)
+  deck_id         Int
+}
+
+enum AnswerType {
+  mc
+  tf
+  s
+}
+
+model Rate {
+  id      Int    @id @default(autoincrement())
+  user_id String
+  deck    Deck   @relation(fields: [deck_id], references: [id], onDelete: Cascade)
+  deck_id Int
+  value   Int
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  value String    @unique
+  decks DeckTag[]
+}
+
+model DeckTag {
+  deck     Deck   @relation(fields: [deck_id], references: [id], onDelete: Cascade)
+  deck_id  Int
+  tag      Tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id   Int
+
+  @@id([tag_id, deck_id])
+}
