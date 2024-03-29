@@ -5,7 +5,7 @@ import { FaUnlink } from "react-icons/fa";
 
 const Link = ({ tagName, deckName, tagId, deckId }) => {
   const deleteCollection = () => {
-    fetch("http://localhost:5000/tag/connection", {
+    fetch("https://one18-team.onrender.com/tag/connection", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
