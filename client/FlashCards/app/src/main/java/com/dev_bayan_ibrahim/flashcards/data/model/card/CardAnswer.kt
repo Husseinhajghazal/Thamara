@@ -75,7 +75,7 @@ sealed interface CardAnswer {
             val notIgnorable = answer.filterNot {
                 it in answerLanguage.ignorableCharacters
             }.trim()
-            val normalized = answerLanguage.interchangableCharacters.mapToFirstOfGroup(notIgnorable)
+            val normalized = answerLanguage.interchangableCharacters.mapToFirstOfGroup(notIgnorable).lowercase()
 
             return normalized == normalizedAnswer
         }

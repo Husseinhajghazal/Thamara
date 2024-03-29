@@ -55,8 +55,8 @@ enum class InitialLanguages(
     companion object {
         fun languageOf(input: String): Language {
             val normalized = input.lowercase().filter { it.isLetter() }
-            val hasEnglish = normalized.any { it in En.validCharacters }
-            val hasArabic = normalized.any { it in Ar.validCharacters }
+            val hasEnglish = true
+            val hasArabic = true
             val valid = mutableSetOf<Char>()
             val ignorables = mutableSetOf<Char>()
             val interchangeables = mutableListOf<List<Char>>()
