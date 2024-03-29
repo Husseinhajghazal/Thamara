@@ -35,6 +35,7 @@ const createCard = async (req, res, next) => {
   const createdCard = await prisma.card.create({
     data: {
       ...req.body,
+      deck_id: parseInt(deck_id),
     },
   });
 
@@ -145,9 +146,7 @@ const getOneCard = async (req, res, next) => {
   try {
     card = await prisma.card.findUnique({ where: { id } });
   } catch (e) {
-    return next(
-      new NewError("حصلت مشكلة أثناء الحذف, الرجاء المحاولة لاحقا", 500)
-    );
+    return next(new NewError("حصلت مشكلة, الرجاء المحاولة لاحقا", 500));
   }
 
   if (!card) {
@@ -162,7 +161,33 @@ const getOneCard = async (req, res, next) => {
   });
 };
 
+const getAllCards = async (req, res, next) => {
+  let cards;
+  try {
+    cards = await prisma.card.findMany({ include: { deck: true } });
+  } catch (e) {
+    return next(
+      new NewError(
+        "حصلت مشكلة أثناء الحصول على البطاقات, الرجاء المحاولة لاحقا",
+        500
+      )
+    );
+  }
+
+  if (!cards) {
+    return next(
+      new NewError("لا يجود كرت بهذا المعرف, الرجاء المحاولة لاحقا", 404)
+    );
+  }
+
+  res.json({
+    message: "تم الحصول الكرت بنجاح",
+    cards,
+  });
+};
+
 exports.createCard = createCard;
 exports.deleteCard = deleteCard;
 exports.editCard = editCard;
 exports.getOneCard = getOneCard;
+exports.getAllCards = getAllCards;
