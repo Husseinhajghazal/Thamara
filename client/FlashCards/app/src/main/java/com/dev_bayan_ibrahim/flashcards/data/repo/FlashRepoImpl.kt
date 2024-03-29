@@ -2,8 +2,6 @@ package com.dev_bayan_ibrahim.flashcards.data.repo
 
 import androidx.paging.PagingData
 import com.dev_bayan_ibrahim.flashcards.data.data_source.datastore.DataStoreManager
-import com.dev_bayan_ibrahim.flashcards.data.data_source.init.generateLargeFakeCardsForDeck
-import com.dev_bayan_ibrahim.flashcards.data.data_source.init.generateLargeFakeDecks
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.CardPlayDao
 import com.dev_bayan_ibrahim.flashcards.data.data_source.local.db.dao.DeckDao
@@ -245,31 +243,31 @@ class FlashRepoImpl(
         emit(false)
         fileManager.deleteDecks(getDownloadingDecks())
         deleteDownloadingDecks()
-        if (false) {
+//        if (false) {
 //        if (!preferences.initializedDb()) {
-            val decksCount = 5_000
-            val cardsForEachDeck = 15
-            val initialDeckId: Long = 100_000_000_000L
-            insertDecks(
-                generateLargeFakeDecks(
-                    decksCount = decksCount,
-                    cardsForEach = cardsForEachDeck,
-                    initialDeckId = initialDeckId
-                )
-            )
-            repeat(decksCount) {
-                insertCards(
-                    generateLargeFakeCardsForDeck(
-                        d = it.toLong(),
-                        cardsForEach = cardsForEachDeck,
-                        initialDeckId = initialDeckId
-                    )
-                )
-            }
+//            val decksCount = 5_000
+//            val cardsForEachDeck = 15
+//            val initialDeckId: Long = 100_000_000_000L
+//            insertDecks(
+//                generateLargeFakeDecks(
+//                    decksCount = decksCount,
+//                    cardsForEach = cardsForEachDeck,
+//                    initialDeckId = initialDeckId
+//                )
+//            )
+//            repeat(decksCount) {
+//                insertCards(
+//                    generateLargeFakeCardsForDeck(
+//                        d = it.toLong(),
+//                        cardsForEach = cardsForEachDeck,
+//                        initialDeckId = initialDeckId
+//                    )
+//                )
+//            }
 //            insertDecks(decksInitialValue)
 //            insertCards(cardsInitialValues.values.flatten())
             preferences.markAsInitializedDb()
-        }
+//        }
         emit(true)
     }
 
