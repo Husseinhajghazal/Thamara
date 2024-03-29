@@ -232,6 +232,31 @@ const disconnectTag = async (req, res, next) => {
   });
 };
 
+const getAllLinks = async (req, res, next) => {
+  let links;
+  try {
+    links = await prisma.deckTag.findMany({
+      include: {
+        deck: true,
+        tag: true,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    return next(
+      new NewError(
+        "حصلت مشكلة أثناء الحصول على التاغات, الرجاء المحاولة لاحقا",
+        500
+      )
+    );
+  }
+
+  res.status(201).json({
+    message: "تم الحصول على التاغات",
+    links,
+  });
+};
+
 exports.createTag = createTag;
 exports.editTag = editTag;
 exports.deleteTag = deleteTag;
@@ -239,3 +264,4 @@ exports.getAllTags = getAllTags;
 exports.getOneTag = getOneTag;
 exports.connectTag = connectTag;
 exports.disconnectTag = disconnectTag;
+exports.getAllLinks = getAllLinks;

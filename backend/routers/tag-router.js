@@ -5,6 +5,7 @@ const tagController = require("../controllers/tag-controllers");
 const router = express.Router();
 
 router.get("/", tagController.getAllTags);
+router.get("/connection", tagController.getAllLinks);
 router.get("/:id", tagController.getOneTag);
 router.post(
   "/",
