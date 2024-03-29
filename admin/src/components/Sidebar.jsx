@@ -18,11 +18,11 @@ const sidebarItems = [
     link: "/tags",
   },
   {
-    icon: <GiCardBurn />,
+    icon: <GiCardAceSpades />,
     link: "/cards",
   },
   {
-    icon: <GiCardAceSpades />,
+    icon: <GiCardBurn />,
     link: "/deck",
   },
   {

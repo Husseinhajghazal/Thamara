@@ -7,7 +7,7 @@ import EditDeckPopup from "../popup/EditDeckPopup";
 import StarRating from "./StarRating";
 import Level from "./Level";
 
-const Collection = ({
+const Deck = ({
   id,
   name,
   color,
@@ -89,4 +89,4 @@ const Collection = ({
   );
 };
 
-export default Collection;
+export default Deck;
