@@ -1,24 +1,23 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play
 
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.dev_bayan_ibrahim.flashcards.data.model.card.Card
-import com.dev_bayan_ibrahim.flashcards.data.model.card.CardAnswer
-import com.dev_bayan_ibrahim.flashcards.data.model.deck.Deck
-import com.dev_bayan_ibrahim.flashcards.data.model.deck.DeckHeader
-import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.ExpandedCard
-import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.CardsQueue
-import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayMutableUiState
+import com.dev_bayan_ibrahim.flashcards.data.model.deck.colorAccent
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.CancelPlayDialog
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.DecksQueue
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.PlayResults
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.component.StartScreen
+import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayStatus
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiState
-import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.deckPlaEnterAnim
+import com.dev_bayan_ibrahim.flashcards.ui.util.animation.deckPlaExitAnim
 
 @Composable
 fun PlayScreen(
@@ -26,57 +25,56 @@ fun PlayScreen(
     state: PlayUiState,
     actions: PlayUiActions,
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    BackHandler (onBack = actions::onBackHandlerClick)
+    CancelPlayDialog(
+        show = state.showCancelPlayDialog,
+        onCancelPlay = actions::onCancelPlay,
+        onContinuePlay = actions::onContinuePlay,
+    )
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
-        CardsQueue(
-            remaining = state.deck.header.cardsCount - state.currentCard.inc(),
-            colorAccent = state.deck.header.colorAccent
-        )
-        ExpandedCard(
-            modifier = Modifier.weight(1f),
-            card = state.deck.cards[state.currentCard],
-            accent = state.deck.header.colorAccent,
-            bgPattern = state.deck.header.pattern,
-            onSelectAnswer = actions::onSelectAnswer
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun HomeScreenPreviewLight() {
-    FlashCardsTheme(darkTheme = false) {
-        Surface(
-            modifier = Modifier,
-            color = MaterialTheme.colorScheme.background,
+        AnimatedVisibility(
+            visible = state.status == PlayStatus.NOT_STARTED,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
         ) {
-            val state = PlayMutableUiState()
-            state.deck = Deck(
-                header = DeckHeader(
-                    pattern = "https://drive.google.com/uc?export=download&id=1HiW96HMq-EPMLGvfsfS4Ow2VGZNTJGXt",
-                    colorAccent = Color.Magenta,
-                    cardsCount = 10
-                ),
-                cards = List(10){
-                    Card(
-                        question = "this is a cat",
-                        image = "https://drive.google.com/uc?export=download&id=1HiRtIjas0UjWmmAqEvAhkw5wVgMGPr2O",
-                        answer = CardAnswer.Write(
-                            "correct answer"
-                        )
-                    )
-                }
+            StartScreen(
+                onStart = actions::onStartPlay,
+                deckHeader = state.deck.header
             )
-            val actions = object : PlayUiActions {
-                override fun onSelectAnswer(value: String) {
-                }
-            }
-            PlayScreen(
-                state = state,
-                actions = actions,
+        }
+
+        AnimatedVisibility(
+            visible = state.status == PlayStatus.PLAYING,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
+        ) {
+            DecksQueue(
+                deck = state.deck,
+                currentIndex = state.currentCard,
+                onSelectAnswer = actions::onSelectAnswer
+            )
+        }
+
+        AnimatedVisibility(
+            visible = state.status == PlayStatus.RESULTS,
+            enter = deckPlaEnterAnim(),
+            exit = deckPlaExitAnim(),
+        ) {
+            PlayResults(
+                count = state.deck.cards.count(),
+                correctAnswers = state.correctAnswers,
+                incorrectCards = state.cardsAnswers,
+                accent = state.deck.header.colorAccent,
+                bgPattern = state.deck.header.pattern,
+                isRateLoading = state.isRateLoading,
+                onRepeat = actions::onRepeat,
+                onClose = actions::onClose,
+                onRate = actions::onRate,
             )
         }
     }
 }
+

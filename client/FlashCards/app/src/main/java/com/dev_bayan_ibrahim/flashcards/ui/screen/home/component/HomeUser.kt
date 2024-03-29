@@ -1,36 +1,44 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home.component
 
 
-import android.media.MediaRouter.UserRouteInfo
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dev_bayan_ibrahim.flashcards.R
-import com.dev_bayan_ibrahim.flashcards.data.model.user.MutableUser
 import com.dev_bayan_ibrahim.flashcards.data.model.user.User
+import com.dev_bayan_ibrahim.flashcards.data.model.user.UserRank
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.FlashLazyRowTooltip
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.RankIconSize
+import com.dev_bayan_ibrahim.flashcards.ui.screen.app_design.UserRankIcon
 import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
-import java.util.Vector
+import com.dev_bayan_ibrahim.flashcards.ui.util.flashPlurals
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeUser(
@@ -43,20 +51,20 @@ fun HomeUser(
     ) {
         UserHeader(user = user)
         user?.let {
-            Row (
+            Row(
                 modifier = modifier,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 UserInfo(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.star,
-                    label = "plays",
-                    value = user.decksPlays.toString(),
+                    label = stringResource(R.string.plays),
+                    value = user.totalPlays.toString(),
                 )
                 UserInfo(
                     modifier = Modifier.weight(1f),
                     icon = R.drawable.rank,
-                    label = "rank",
+                    label = stringResource(R.string.rank),
                     value = user.rank.toString(),
                 )
             }
@@ -71,7 +79,7 @@ private fun UserInfo(
     label: String,
     value: String,
 ) {
-    Card (
+    Card(
         modifier = modifier
     ) {
         Row(
@@ -109,18 +117,18 @@ private fun UserHeader(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RankImage(rank = user?.rank)
+        RankImage(rank = user?.rank?.rank)
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                user?.name ?: "New User",
+                user?.name ?: stringResource(R.string.new_user),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
                 text = user?.age?.let {
-                    "$it years"
-                } ?: "enter your name and age",
+                    flashPlurals(id = R.plurals.year, count = it)
+                } ?: stringResource(R.string.enter_your_name_and_age),
                 style = MaterialTheme.typography.titleMedium
             )
         }
@@ -132,15 +140,38 @@ private fun RankImage(
     modifier: Modifier = Modifier,
     rank: Int?
 ) {
-    // todo set image
-    Icon(
-        modifier = modifier
-            .size(64.dp)
-            .clip(CircleShape),
-        imageVector = Icons.Default.Star,
-        // todo, translatable
-        contentDescription = "rank $rank"
-    )
+    val coercedRank by remember (rank) {
+        derivedStateOf {
+            rank ?: UserRank.min_rank
+        }
+    }
+    val state = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    FlashLazyRowTooltip(
+        modifier = modifier,
+        state = state,
+        itemWidth = 48.dp,
+        visibleItemsCount = 4,
+        currentItemIndex = coercedRank,
+        items = {
+            items(UserRank.ranks_range.toList()) { r ->
+                UserRankIcon(
+                    modifier = modifier.alpha(if (r > coercedRank) 0.5f else 1f),
+                    size = RankIconSize.MEDIUM,
+                    rank = r,
+                    current = r == (coercedRank)
+                )
+            }
+        }
+    ) {
+        UserRankIcon(
+            size = RankIconSize.BIG,
+            rank = coercedRank,
+            current = true,
+            showText = false,
+            onClickIcon = { scope.launch { state.show() } }
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -151,7 +182,7 @@ private fun HomeUserPreviewLight() {
             modifier = Modifier.size(400.dp, 900.dp),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val user = MutableUser("name", 10, 10, 20)
+            val user = User(name = "name", age = 10, rank = UserRank(10, 12))
             HomeUser(user = user)
         }
     }

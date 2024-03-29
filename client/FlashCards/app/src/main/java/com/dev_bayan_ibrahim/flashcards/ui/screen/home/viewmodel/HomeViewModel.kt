@@ -1,28 +1,40 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.home.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.dev_bayan_ibrahim.flashcards.data.model.user.MutableUser
+import androidx.lifecycle.viewModelScope
+import com.dev_bayan_ibrahim.flashcards.data.model.statistics.GeneralStatistics
+import com.dev_bayan_ibrahim.flashcards.data.repo.FlashRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-
-): ViewModel(), HomeUiActions {
+    private val repo: FlashRepo,
+) : ViewModel() {
     val state = HomeMutableUiState()
-
-    override fun onNameChange(name: String) {
-        state.newUserName = name
-    }
-
-    override fun onAgeChange(age: Int) {
-        state.newUserAge = age
-    }
-
-    override fun onSave() {
-        state.user = MutableUser(
-            name = state.newUserName,
-            age = state.newUserAge
+    val user = repo
+        .getUser()
+        .combine(repo.getTotalPlaysCount()) { user, totalPlays ->
+            user?.copy(totalPlays = totalPlays)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
         )
+
+    val generalStatistics = repo
+        .getGeneralStatistics()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = GeneralStatistics()
+        )
+
+    fun getUiActions(): HomeUiActions = object : HomeUiActions {
+
     }
 }

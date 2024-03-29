@@ -4,10 +4,14 @@ import androidx.compose.runtime.Immutable
 import androidx.navigation.NavHostController
 
 @Immutable
-class FlashNavActions (
+class FlashNavActions(
     private val navHostController: NavHostController
 ) {
-    fun navigateTo(route: String, isTopLevelDestination: Boolean) {
+    fun navigateTo(route: String, isTopLevelDestination: Boolean = false) {
+        val currentRoute = navHostController.currentBackStackEntry?.destination?.route
+        if (route == currentRoute) {
+            return
+        }
         if (isTopLevelDestination) {
             navHostController.popBackStack()
         }
@@ -16,11 +20,11 @@ class FlashNavActions (
         }
     }
 
-    fun navigateUp()  {
+    fun navigateUp() {
         navHostController.popBackStack()
     }
 
-    fun navigateToTopLevel(topLevel: FlashNavRoutes.TopLevel)  {
+    fun navigateToTopLevel(topLevel: FlashNavRoutes.TopLevel) {
         navigateTo(topLevel.getDestination(), true)
     }
 }

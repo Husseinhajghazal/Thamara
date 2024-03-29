@@ -26,7 +26,7 @@ import com.dev_bayan_ibrahim.flashcards.ui.app.graph.util.FlashNavRoutes
 @Composable
 fun FlashBottomBar(
     modifier: Modifier = Modifier,
-    selected: FlashNavRoutes.TopLevel,
+    selected: FlashNavRoutes,
     badges: Map<FlashNavRoutes.TopLevel, Boolean> = mapOf(),
     onClick: (FlashNavRoutes.TopLevel) -> Unit,
 ) {

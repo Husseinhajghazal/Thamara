@@ -39,14 +39,23 @@ fun DynamicText(
         style = adaptedStyle,
         textAlign = textAlign,
         onTextLayout = {
-            if (it.lineCount > maxLines) {
+            if (
+                it.lineCount > maxLines
+                || it.didOverflowHeight
+                || it.didOverflowWidth
+            ) {
                 adaptedStyle = adaptedStyle.copy(
                     fontSize = adaptedStyle.fontSize * 0.9f,
+                    lineHeight = adaptedStyle.lineHeight * 0.9f,
                 )
-            } else if (it.lineCount < minLines && adaptedStyle.fontSize < style.fontSize) {
+            } else if (
+                it.lineCount < minLines && adaptedStyle.fontSize < style.fontSize
+            ) {
                 val newSize = adaptedStyle.fontSize * 1.1f
+                val newLineHeight = adaptedStyle.lineHeight * 1.1f
                 adaptedStyle = adaptedStyle.copy(
                     fontSize = if (newSize > style.fontSize) style.fontSize else newSize,
+                    lineHeight = if (newLineHeight > style.lineHeight) style.lineHeight else newLineHeight,
                 )
             } else {
                 finished = true

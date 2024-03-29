@@ -1,6 +1,5 @@
 package com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.dev_bayan_ibrahim.flashcards.R
 

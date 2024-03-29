@@ -6,23 +6,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dev_bayan_ibrahim.flashcards.ui.screen.deck_play.viewmodel.PlayUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksList
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DecksTopBar
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.PaginatedDecksList
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.DownloadDeckDialog
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.LibraryDeckDialog
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.component.LoadableDecksList
+import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksDatabaseInfo
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.util.DecksTab
-import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksMutableUiState
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksUiActions
 import com.dev_bayan_ibrahim.flashcards.ui.screen.decks.viewmodel.DecksUiState
-import com.dev_bayan_ibrahim.flashcards.ui.theme.FlashCardsTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -30,6 +27,8 @@ import kotlinx.coroutines.launch
 fun DecksScreen(
     modifier: Modifier = Modifier,
     state: DecksUiState,
+    dbInfo: DecksDatabaseInfo,
+    libraryDecksIds: Map<Long, Boolean>,
     actions: DecksUiActions,
 ) {
     val pagerState = rememberPagerState { DecksTab.entries.count() }
@@ -41,16 +40,46 @@ fun DecksScreen(
     ) {
         DecksTopBar(
             query = state.query,
+            dbInfo = dbInfo,
             selected = DecksTab.entries[pagerState.currentPage],
+            dialogState = state.filterDialogState,
+            allTags = state.allTags,
+            allCollections = state.allCollections,
             onQueryChange = actions::onSearchQueryChange,
             onSelectTab = {
+                actions.onSelectTab(it)
                 scope.launch {
                     pagerState.animateScrollToPage(it.ordinal)
                 }
             },
             onSearch = actions::onSearch,
+            dialogActions = actions,
         )
-        val paginatedDecks = state.searchResults.collectAsLazyPagingItems()
+        val paginatedDecks = state.paginatedSearchResults.collectAsLazyPagingItems()
+
+        state.selectedDeck?.let { deckHeader ->
+            if (deckHeader.id in libraryDecksIds) {
+                LibraryDeckDialog(
+                    show = true,
+                    deck = deckHeader,
+                    downloadStatus = state.downloadStatus,
+                    onDeleteDeck = actions::onDeleteDeck,
+                    onRemoveDeckImages = actions::onRemoveDeckImages,
+                    onDownloadDeckImages = actions::onDownloadDeckImages,
+                    onDismiss = actions::onDismissSelectedDeck,
+                    onPlay = actions::onPlayDeck,
+                )
+            } else {
+                DownloadDeckDialog(
+                    show = true,
+                    deck = deckHeader,
+                    onDownload = actions::onDownloadDeck,
+                    onCancel = actions::onCancelDownloadDeck,
+                    downloadStatus = state.downloadStatus,
+                )
+            }
+        }
+
         HorizontalPager(state = pagerState) { page ->
             when (DecksTab.entries[page]) {
                 DecksTab.LIBRARY -> {
@@ -61,10 +90,18 @@ fun DecksScreen(
                 }
 
                 DecksTab.BROWSE -> {
-                    PaginatedDecksList(
-                        decks = paginatedDecks,
-                        onClickDeck = actions::onClickDeck
+                    LoadableDecksList(
+                        decksGroups = state.searchResults,
+                        onClickDeck = actions::onClickDeck,
+                        onRefresh = actions::onRefresh,
+                        libraryDecksIds = libraryDecksIds,
                     )
+//                    PaginatedDecksList(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        decks = paginatedDecks,
+//                        libraryDecksIds = libraryDecksIds,
+//                        onClickDeck = actions::onClickDeck,
+//                    )
                 }
             }
         }
@@ -72,24 +109,3 @@ fun DecksScreen(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-private fun HomeScreenPreviewLight() {
-    FlashCardsTheme(darkTheme = false) {
-        Surface(
-            modifier = Modifier,
-            color = MaterialTheme.colorScheme.background,
-        ) {
-            val state = DecksMutableUiState()
-            val actions = object : DecksUiActions {
-                override fun onSearchQueryChange(query: String) {}
-                override fun onClickDeck(id: Long) {}
-                override fun onSearch() {}
-            }
-            DecksScreen(
-                state = state,
-                actions = actions,
-            )
-        }
-    }
-}

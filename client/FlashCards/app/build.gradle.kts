@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinxSerializationPlugin)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.gms)
 }
 
 android {
@@ -15,8 +16,8 @@ android {
         applicationId = "com.dev_bayan_ibrahim.flashcards"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 15
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -40,6 +41,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -68,27 +70,61 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    implementation(libs.material)
 
+    // general
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serilalization.json)
     implementation(libs.kotlinx.datetime)
     implementation(libs.windowsizeclass)
+
+    // room
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
+
+    // navigation
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.androidx.navigation.compose)
 
+    // data store
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.core)
+
+    // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-
+    // paging
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    // coil
     implementation(libs.coil.kt.compose)
     implementation(libs.coil.kt)
+
+    // ktor
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.engine.android)
+    implementation(libs.ktor.logging)
+//    implementation(libs.ktor.auth)
+    implementation(libs.ktor.content.negotiation)
+    implementation(libs.ktor.serialization)
+
+    // coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.guava)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firabse.installations)
+    implementation(libs.firebase.cloud.messaging)
+    implementation(libs.firebase.analytics)
+
+//    implementation(libs.yChart)
+
+    // desugar
+    coreLibraryDesugaring(libs.android.desugar.jdk.lib)
 
     testImplementation(libs.junit)
 
